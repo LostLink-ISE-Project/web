@@ -9,7 +9,7 @@ const AppProvider = () => {
   return (
     <QueryClientProvider client={queryClient}>
       <RouterProvider router={router} />
-        <Toaster />
+      <Toaster />
       <ReactQueryDevtools initialIsOpen={false} />
     </QueryClientProvider>
   );

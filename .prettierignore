@@ -1,1 +1,6 @@
-# Ignore artifacts:\nbuild\ncoverage\n
+# Ignore artifacts:
+node_modules
+build
+coverage
+dist
+*.lock

@@ -1,9 +1,4 @@
-import {
-  Home,
-  User,
-  Settings,
-  Lock,
-} from 'lucide-react';
+import { Home, User, Settings, Lock } from 'lucide-react';
 import { ROUTE_ACCESS, ROUTES } from './route';
 
 export interface SidebarLink {
