@@ -1,9 +1,14 @@
 import { createBrowserRouter } from 'react-router-dom';
+
+// Pages
 import HomePage from '@/pages';
 import LoginPage from '@/pages/admin/login/form';
+import DashboardPage from '@/pages/admin/dashboard/page';
+import ItemsPage from '@/pages/admin/dashboard/items/page';
+
+// Layouts
 import WithAuth from '@/layout/with-auth.layout';
 import DashboardLayout from '@/layout/dashboard.layout';
-import DashboardPage from '@/pages/admin/dashboard/page';
 
 export const router = createBrowserRouter([
   {
@@ -15,30 +20,31 @@ export const router = createBrowserRouter([
     element: <LoginPage />,
   },
   {
-    element: <WithAuth />, // 🔒 checks for token
+    element: <WithAuth />,
     children: [
       {
-        element: <DashboardLayout />, // 📦 UI layout
+        path: '/dashboard',
+        element: <DashboardLayout />,
         children: [
-          { 
-            path: "/dashboard", 
-            element: <DashboardPage /> 
+          {
+            path: '',
+            element: <DashboardPage />,
           },
-          // { 
-          //   path: "/items", 
-          //   element: <ItemManagementPage /> 
+          {
+            path: 'items',
+            element: <ItemsPage />,
+          },
+          // {
+          //   path: 'offices',
+          //   element: <OfficeManagementPage />,
           // },
-          // { 
-          //   path: "/offices", 
-          //   element: <OfficeManagementPage /> 
+          // {
+          //   path: 'locations',
+          //   element: <LocationManagementPage />,
           // },
-          // { 
-          //   path: "/locations", 
-          //   element: <LocationManagementPage /> 
-          // },
-          // { 
-          //   path: "/users", 
-          //   element: <UserManagementPage /> 
+          // {
+          //   path: 'users',
+          //   element: <UserManagementPage />,
           // },
         ],
       },

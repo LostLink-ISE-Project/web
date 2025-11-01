@@ -20,8 +20,7 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
 } from "@/components/ui/dropdown-menu";
-
-type ItemStatus = "submitted" | "approved" | "archived";
+import type { ItemStatus } from "@/lib/types/item";
 
 interface Item {
   id: string;
@@ -34,24 +33,24 @@ interface Item {
 }
 
 // 🔹 Fake item list
-const mockItems: Item[] = [
+export const mockItems: Item[] = [
   {
     id: "1",
     title: "Item name",
     description:
       "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
     location: "Building A, floor 1",
-    date: "15 April, 17:45",
+    date: "18 April, 17:45",
     status: "submitted",
     image: "https://via.placeholder.com/80",
   },
   {
     id: "2",
-    title: "Item name",
+    title: "New Item name",
     description:
       "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
     location: "Building A, floor 1",
-    date: "15 April, 17:45",
+    date: "20 April, 17:45",
     status: "submitted",
     image: "https://via.placeholder.com/80",
   },
@@ -62,7 +61,37 @@ const mockItems: Item[] = [
       "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
     location: "Building A, floor 1",
     date: "15 April, 17:45",
+    status: "approved",
+    image: "https://via.placeholder.com/80",
+  },
+  {
+    id: "4",
+    title: "Item name",
+    description:
+      "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
+    location: "Building A, floor 1",
+    date: "16 April, 18:45",
     status: "submitted",
+    image: "https://via.placeholder.com/80",
+  },
+  {
+    id: "5",
+    title: "Item name",
+    description:
+      "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
+    location: "Building A, floor 1",
+    date: "17 April, 17:45",
+    status: "approved",
+    image: "https://via.placeholder.com/80",
+  },
+  {
+    id: "6",
+    title: "Item name",
+    description:
+      "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
+    location: "Building A, floor 1",
+    date: "15 April, 17:45",
+    status: "archived",
     image: "https://via.placeholder.com/80",
   },
 ];
@@ -186,7 +215,7 @@ export default function DashboardPage() {
                               <DropdownMenu>
                                 <DropdownMenuTrigger asChild>
                                   <Button variant="ghost" size="icon" className="h-8 w-8">
-                                    <MoreVertical className="w-4 h-4 text-muted-foreground" />
+                                    <MoreVertical className="w-4 h-4" />
                                   </Button>
                                 </DropdownMenuTrigger>
                                 <DropdownMenuContent align="center" className="border-0">

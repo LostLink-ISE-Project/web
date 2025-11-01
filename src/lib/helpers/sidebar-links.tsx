@@ -28,25 +28,25 @@ export const useSidebarLinks = () => {
       id: ["items"],
       title: "Items",
       icon: <TabletSmartphone size={18} />,
-      href: "/items",
+      href: "/dashboard/items",
     },
     {
       id: ["offices"],
       title: "Offices",
       icon: <Building2 size={18} />,
-      href: "/offices",
+      href: "/dashboard/offices",
     },
     {
       id: ["locations"],
       title: "Locations",
       icon: <MapPin size={18} />,
-      href: "/locations",
+      href: "/dashboard/locations",
     },
     {
       id: ["users"],
       title: "Users",
       icon: <UserRound size={18} />,
-      href: "/users",
+      href: "/dashboard/users",
     },
   ];
 
