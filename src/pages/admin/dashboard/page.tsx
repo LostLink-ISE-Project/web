@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { CalendarIcon, ChevronDown, FilePlus2, MoreVertical, Trash } from "lucide-react";
+import { CalendarIcon, ChevronDown, FileChartColumn, MoreVertical, Trash } from "lucide-react";
 import {
   Card,
   CardContent,
@@ -20,81 +20,7 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
 } from "@/components/ui/dropdown-menu";
-import type { ItemStatus } from "@/lib/types/item";
-
-interface Item {
-  id: string;
-  title: string;
-  description: string;
-  location: string;
-  date: string;
-  status: ItemStatus;
-  image: string;
-}
-
-// 🔹 Fake item list
-export const mockItems: Item[] = [
-  {
-    id: "1",
-    title: "Item name",
-    description:
-      "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
-    location: "Building A, floor 1",
-    date: "18 April, 17:45",
-    status: "submitted",
-    image: "https://via.placeholder.com/80",
-  },
-  {
-    id: "2",
-    title: "New Item name",
-    description:
-      "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
-    location: "Building A, floor 1",
-    date: "20 April, 17:45",
-    status: "submitted",
-    image: "https://via.placeholder.com/80",
-  },
-  {
-    id: "3",
-    title: "Item name",
-    description:
-      "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
-    location: "Building A, floor 1",
-    date: "15 April, 17:45",
-    status: "approved",
-    image: "https://via.placeholder.com/80",
-  },
-  {
-    id: "4",
-    title: "Item name",
-    description:
-      "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
-    location: "Building A, floor 1",
-    date: "16 April, 18:45",
-    status: "submitted",
-    image: "https://via.placeholder.com/80",
-  },
-  {
-    id: "5",
-    title: "Item name",
-    description:
-      "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
-    location: "Building A, floor 1",
-    date: "17 April, 17:45",
-    status: "approved",
-    image: "https://via.placeholder.com/80",
-  },
-  {
-    id: "6",
-    title: "Item name",
-    description:
-      "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
-    location: "Building A, floor 1",
-    date: "15 April, 17:45",
-    status: "archived",
-    image: "https://via.placeholder.com/80",
-  },
-];
+import { mockItems, type ItemStatus } from "@/lib/types/item";
 
 // 🔹 Fake stat counts
 const mockStats = {
@@ -117,7 +43,7 @@ export default function DashboardPage() {
         <CardHeader className="flex flex-row items-center justify-between gap-4 flex-wrap">
           <CardTitle className="text-xl">Stats and Report</CardTitle>
           <Button className="flex text-white items-center py-5 rounded-lg">
-            <FilePlus2 />
+            <FileChartColumn />
             Generate report
           </Button>
         </CardHeader>

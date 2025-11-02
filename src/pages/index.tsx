@@ -1,15 +1,91 @@
 import { Button } from "@/components/ui/button";
-import { Link } from "react-router-dom"; // or just <a href=""> if not using React Router
+import LostLinkLogo from "@/assets/LostLink.svg";
+import { LogIn } from "lucide-react";
+import { Link } from "react-router-dom";
+import { useState } from "react";
+import { mockItems } from "@/lib/types/item";
+import ItemCard from "@/components/common/items/item-card";
+import ItemToolbar from "@/components/common/items/item-toolbar";
+import type { DateRange } from "react-day-picker";
 
 export default function HomePage() {
+  const [view, setView] = useState<"list" | "grid">("list");
+  const [keyword, setKeyword] = useState("");
+  const [sort, setSort] = useState("newest");
+  const [officeFilter, setOfficeFilter] = useState<string[]>([]);
+  const [dateRange, setDateRange] = useState<DateRange | undefined>();
+
+  const filteredItems = mockItems
+    .filter((item) => {
+      const isApproved = item.status === "approved";
+      const matchesKeyword = item.title.toLowerCase().includes(keyword.toLowerCase());
+      const matchesOffice =
+        officeFilter.length === 0 || (item.officeInfo && officeFilter.includes(item.officeInfo));
+      const itemDate = new Date(item.date);
+      const matchesDate =
+        (!dateRange?.from || itemDate >= dateRange.from) &&
+        (!dateRange?.to || itemDate <= dateRange.to);
+
+      return isApproved && matchesKeyword && matchesOffice && matchesDate;
+    })
+    .sort((a, b) => {
+      const aDate = new Date(a.date);
+      const bDate = new Date(b.date);
+      return sort === "newest"
+        ? bDate.getTime() - aDate.getTime()
+        : aDate.getTime() - bDate.getTime();
+    });
+
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100">
-      <div className="text-center space-y-6">
-        <h1 className="text-4xl font-bold">Welcome to LostLink</h1>
-        <p className="text-gray-600">Find and manage lost items within your university.</p>
-        <Link to="/login">
-          <Button>Go to Admin Login</Button>
+    <div className="flex flex-col px-32 py-6 gap-4">
+      <div className="flex justify-between items-center">
+        <div>
+          <img
+            src={LostLinkLogo}
+            alt="Logo"
+            className={"transition-all w-32"}
+          />
+        </div>
+
+        <Link to={"/login"}>
+          <Button className="flex text-white items-center py-5 rounded-lg">
+            Log In
+            <LogIn size={18}/>
+          </Button>
         </Link>
+      </div>
+
+      <div className="flex flex-col p-9">
+        <ItemToolbar
+          view={view}
+          setView={setView}
+          keyword={keyword}
+          setKeyword={setKeyword}
+          sort={sort}
+          setSort={setSort}
+          isForPublic={true}
+          dateRange={dateRange}
+          setDateRange={setDateRange}
+          officeFilter={officeFilter}
+          setOfficeFilter={setOfficeFilter}
+        />
+
+        <div
+          className={
+            view === "grid"
+              ? "grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5"
+              : "space-y-5"
+          }
+        >
+          {filteredItems.map((item) => (
+            <ItemCard
+              key={item.id}
+              item={item}
+              variant={view}
+              isForPublic={true}
+            />
+          ))}
+        </div>
       </div>
     </div>
   );

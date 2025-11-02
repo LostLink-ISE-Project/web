@@ -5,9 +5,10 @@ import { Form, FormField, FormItem, FormControl, FormMessage } from "@/component
 import { loginSchema, type LoginSchema } from "@/lib/schemas/loginSchema";
 import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useAuthStore } from "@/lib/stores/auth.store";
 import { useLogin } from "@/api/auth/hook";
+import { ArrowLeft } from "lucide-react";
 
 export default function LoginPage() {
   const form = useForm<LoginSchema>({
@@ -46,8 +47,17 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-200">
-      <Card className="rounded-3xl py-16 px-24 border-0 space-y-13 bg-white">
+    <div className="min-h-screen flex items-center justify-center bg-foreground">
+      {/* 🔙 Back button */}
+      <Link
+        to={"/"}
+        className="absolute flex items-center text-lg font-semibold top-6 left-6 hover:text-primary"
+      >
+        <ArrowLeft size={24} />
+        Back
+      </Link>
+
+      <Card className="rounded-3xl py-16 px-24 border-0 shadow-lg space-y-13 bg-white">
         <h1 className="text-3xl font-bold text-center">Sign In to LostLink</h1>
 
         <Form {...form}>

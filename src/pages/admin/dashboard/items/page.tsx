@@ -1,30 +1,39 @@
 import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
-import type { ItemStatus } from "@/lib/types/item";
+import { mockItems, type ItemStatus } from "@/lib/types/item";
 import { useDebouncedValue } from "@/lib/hooks/debounceValue";
 import ItemToolbar from "@/components/common/items/item-toolbar";
 import ItemCard from "@/components/common/items/item-card";
-import { mockItems } from "../page";
+import type { DateRange } from "react-day-picker";
 
 export default function ItemsPage() {
   const [tab, setTab] = useState<ItemStatus>("submitted");
   const [view, setView] = useState<"list" | "grid">("list");
   const [keyword, setKeyword] = useState("");
   const [sort, setSort] = useState("newest");
+  const [officeFilter, setOfficeFilter] = useState<string[]>([]);
+  const [dateRange, setDateRange] = useState<DateRange | undefined>();
 
   const debouncedKeyword = useDebouncedValue(keyword, 300);
 
   const filteredItems = mockItems
-    .filter(
-        (item) =>
-        item.status === tab &&
-        item.title.toLowerCase().includes(debouncedKeyword.toLowerCase())
-    )
+    .filter((item) => {
+      const matchesStatus = item.status === tab;
+      const matchesKeyword = item.title.toLowerCase().includes(debouncedKeyword.toLowerCase());
+      const matchesOffice =
+        officeFilter.length === 0 || (item.officeInfo && officeFilter.includes(item.officeInfo));
+      const itemDate = new Date(item.date);
+      const matchesDate =
+        (!dateRange?.from || itemDate >= dateRange.from) &&
+        (!dateRange?.to || itemDate <= dateRange.to);
+
+      return matchesStatus && matchesKeyword && matchesOffice && matchesDate;
+    })
     .sort((a, b) => {
-        const aDate = new Date(a.date);
-        const bDate = new Date(b.date);
-        return sort === "newest" ? bDate.getTime() - aDate.getTime() : aDate.getTime() - bDate.getTime();
+      const aDate = new Date(a.date);
+      const bDate = new Date(b.date);
+      return sort === "newest" ? bDate.getTime() - aDate.getTime() : aDate.getTime() - bDate.getTime();
     });
 
   return (
@@ -47,27 +56,26 @@ export default function ItemsPage() {
             setKeyword={setKeyword}
             sort={sort}
             setSort={setSort}
+            dateRange={dateRange}
+            setDateRange={setDateRange}
+            officeFilter={officeFilter}
+            setOfficeFilter={setOfficeFilter}
           />
+
 
           {["submitted", "approved", "archived"].map((status) => (
             <TabsContent key={status} value={status}>
               <div
                 className={
                   view === "grid"
-                    ? "grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5"
+                    ? "grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5  "
                     : "space-y-5"
                 }
               >
                 {filteredItems.map((item) => (
                   <ItemCard
                     key={item.id}
-                    id={item.id}
-                    title={item.title}
-                    description={item.description}
-                    location={item.location}
-                    date={item.date}
-                    status={item.status}
-                    image={item.image}
+                    item={item}
                     variant={view}
                   />
                 ))}

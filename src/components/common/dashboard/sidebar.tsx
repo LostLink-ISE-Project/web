@@ -1,12 +1,14 @@
 import type { SidebarLinkType } from "@/lib/helpers/sidebar-links";
 import { useSidebarLinks } from "@/lib/helpers/sidebar-links";
 import { cn } from "@/lib/utils";
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { Fragment } from "react";
-import { ArrowLeft, ArrowRight } from "lucide-react";
+import { ArrowLeft, ArrowRight, LogOut } from "lucide-react";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { useDashboardStore } from "@/lib/stores/sidebar.store";
 import { Button } from "@/components/ui/button";
+import LostLinkLogo from "@/assets/LostLink.svg";
+import { useAuthStore } from "@/lib/stores/auth.store";
 
 const SidebarLink = ({ link, open }: { link: SidebarLinkType; open: boolean }) => {
   const { pathname } = useLocation();
@@ -44,6 +46,14 @@ const Sidebar = () => {
   const { isSidebarOpen, setIsSidebarOpen } = useDashboardStore();
   const { links } = useSidebarLinks();
 
+  const logout = useAuthStore((s) => s.logout);
+  const navigate = useNavigate();
+
+  const handleLogout = () => {
+    logout();
+    navigate("/login");
+  };
+
   return (
     <aside
       className={cn(
@@ -60,12 +70,40 @@ const Sidebar = () => {
         </Button>
 
         <div className="flex flex-col gap-2">
+          <div className="pb-6 ml-2">
+            <img
+              src={LostLinkLogo}
+              alt="Logo"
+              className={cn("transition-all", isSidebarOpen ? "w-32" : "hidden")}
+            />
+          </div>
+
           {links.map((link) => (
             <Fragment key={link.id[0]}>
               <SidebarLink link={link} open={isSidebarOpen} />
               {link.withDivider && <hr />}
             </Fragment>
           ))}
+        </div>
+
+        {/* Logout */}
+        <div>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button
+                variant="ghost"
+                onClick={handleLogout}
+                className={cn(
+                  `w-full h-12 font-medium rounded-2xl hover:bg-destructive/10 hover:text-destructive text-sm flex gap-2 justify-start items-center !p-4 transition-all duration-200`,
+                  !isSidebarOpen && "justify-center"
+                )}
+              >
+                <LogOut size={18} />
+                {isSidebarOpen && <span>Log Out</span>}
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent side="right" className="text-white">Logout</TooltipContent>
+          </Tooltip>
         </div>
       </div>
     </aside>

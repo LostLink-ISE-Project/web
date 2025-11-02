@@ -12,6 +12,7 @@ import DashboardLayout from '@/layout/dashboard.layout';
 import OfficesPage from '@/pages/admin/dashboard/offices/page';
 import LocationsPage from '@/pages/admin/dashboard/locations/page';
 import UsersPage from '@/pages/admin/dashboard/users/page';
+import SettingsPage from '@/pages/admin/dashboard/settings/page';
 
 export const router = createBrowserRouter([
   {
@@ -48,6 +49,10 @@ export const router = createBrowserRouter([
           {
             path: 'users',
             element: <UsersPage />,
+          },
+          {
+            path: 'settings',
+            element: <SettingsPage />,
           },
         ],
       },

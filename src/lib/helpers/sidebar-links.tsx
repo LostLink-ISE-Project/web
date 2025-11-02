@@ -4,6 +4,7 @@ import {
   LayoutGrid,
   TabletSmartphone,
   UserRound,
+  Settings,
 } from "lucide-react";
 import type { ReactNode } from "react";
 
@@ -47,6 +48,12 @@ export const useSidebarLinks = () => {
       title: "Users",
       icon: <UserRound size={18} />,
       href: "/dashboard/users",
+    },
+    {
+      id: ["settings"],
+      title: "Settings",
+      icon: <Settings size={18} />,
+      href: "/dashboard/settings",
     },
   ];
 
