@@ -12,9 +12,9 @@ const SidebarLink = ({ link, open }: { link: SidebarLinkType; open: boolean }) =
   const { pathname } = useLocation();
 
   const isActive =
-    pathname.startsWith(link.href) &&
-    (pathname.split("/").length === link.href.split("/").length ||
-      pathname.split("/")[1] === link.id[0]);
+    link.href === "/dashboard"
+      ? pathname === "/dashboard"
+      : pathname.startsWith(link.href);
 
   return (
     <div className="relative">

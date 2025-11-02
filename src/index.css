@@ -10,6 +10,7 @@
   --color-outline: hsla(231, 20%, 80%, 1);
   --color-on-surface-foreground: hsla(227, 12%, 29%, 1);
   --color-on-surface: hsla(228, 17%, 12%, 1);
+  --color-badge-foreground: hsla(234, 30%, 94%, 1);
 }
 
 :root {

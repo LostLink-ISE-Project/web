@@ -9,6 +9,9 @@ import ItemsPage from '@/pages/admin/dashboard/items/page';
 // Layouts
 import WithAuth from '@/layout/with-auth.layout';
 import DashboardLayout from '@/layout/dashboard.layout';
+import OfficesPage from '@/pages/admin/dashboard/offices/page';
+import LocationsPage from '@/pages/admin/dashboard/locations/page';
+import UsersPage from '@/pages/admin/dashboard/users/page';
 
 export const router = createBrowserRouter([
   {
@@ -34,18 +37,18 @@ export const router = createBrowserRouter([
             path: 'items',
             element: <ItemsPage />,
           },
-          // {
-          //   path: 'offices',
-          //   element: <OfficeManagementPage />,
-          // },
-          // {
-          //   path: 'locations',
-          //   element: <LocationManagementPage />,
-          // },
-          // {
-          //   path: 'users',
-          //   element: <UserManagementPage />,
-          // },
+          {
+            path: 'offices',
+            element: <OfficesPage />,
+          },
+          {
+            path: 'locations',
+            element: <LocationsPage />,
+          },
+          {
+            path: 'users',
+            element: <UsersPage />,
+          },
         ],
       },
     ],
