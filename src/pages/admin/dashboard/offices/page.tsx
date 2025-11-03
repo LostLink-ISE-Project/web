@@ -2,7 +2,7 @@ import SimpleTable from "@/components/common/table/simple-table";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-import { MoreVertical, Trash } from "lucide-react";
+import { MoreVertical, Pencil, Trash } from "lucide-react";
 
 export default function OfficesPage() {
     const officeData = Array.from({ length: 5 }).map((_, i) => ({
@@ -44,6 +44,13 @@ export default function OfficesPage() {
                         <MoreVertical className="w-4 h-4 text-muted-foreground" />
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="start" className="w-fit">
+                        <DropdownMenuItem
+                            onClick={() => console.log("Edit", row.original.id)}
+                            className="flex gap-2 items-center"
+                        >
+                            <Pencil className="w-4 h-4" />
+                            Edit
+                        </DropdownMenuItem>
                         <DropdownMenuItem
                             onClick={() => console.log("Delete", row.original.name)}
                             className="flex items-center gap-2 text-destructive"

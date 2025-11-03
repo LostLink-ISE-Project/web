@@ -31,17 +31,17 @@ export default function ItemCard({
         <DropdownMenuTrigger asChild>
           <Button
             variant="outline"
-            className="border-on-surface-foreground text-primary rounded-lg"
+            className="border-on-surface-foreground text-primary rounded-lg w-32"
           >
             {item.status.charAt(0).toUpperCase() + item.status.slice(1)}
             <ChevronDown className="ml-1" />
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end" className="w-fit">
-          <DropdownMenuItem onClick={() => console.log("Approve", item.id)}>
+          <DropdownMenuItem className="w-30" onClick={() => console.log("Approve", item.id)}>
             Approve
           </DropdownMenuItem>
-          <DropdownMenuItem onClick={() => console.log("Archive", item.id)}>
+          <DropdownMenuItem className="w-30" onClick={() => console.log("Archive", item.id)}>
             Archive
           </DropdownMenuItem>
         </DropdownMenuContent>
@@ -75,96 +75,101 @@ export default function ItemCard({
 
   return (
     <>
-      <Card
-        className={`border-0 p-4 ${
-          isList
-            ? "flex flex-row justify-between items-center gap-8"
-            : "flex flex-col"
-        }`}
-      >
-        <img
-          src={item.image}
-          alt={item.title}
-          className={`rounded-lg object-cover border ${
-            !isList ? "self-center w-full h-[200px]" : "w-28 h-28"
-          }`}
-        />
-
-        <div
-          className={`flex flex-col justify-between ${
-            isList ? "w-full" : "p-2"
+      <div onClick={() => setOpenModal(true)}>
+        <Card
+          className={`cursor-pointer border-0 p-4 transition hover:shadow-md ${
+            isList
+              ? "flex flex-row justify-between items-center gap-8"
+              : "flex flex-col"
           }`}
         >
-          <div className="flex flex-row justify-between items-start">
-            <h4 className="font-semibold">{item.title}</h4>
+          <img
+            src={item.image}
+            alt={item.title}
+            className={`rounded-lg object-cover border ${
+              !isList ? "self-center w-full h-[200px]" : "w-28 h-28"
+            }`}
+          />
 
-            {/* Admin Controls: Only for list layout */}
-            {!isForPublic && isList && <AdminActions />}
-          </div>
+          <div
+            className={`flex flex-col justify-between ${
+              isList ? "w-full" : "p-2"
+            }`}
+          >
+            <div className="flex flex-row justify-between items-start">
+              <h4 className="font-semibold">{item.title}</h4>
+              {!isForPublic && isList && <AdminActions />}
+            </div>
 
-         <div className="text-sm text-muted-foreground mt-2 space-y-1">
-          <div>
-            <p className="font-bold text-black line-clamp-2">Description:</p>
-            <p>{item.description}</p>
-          </div>
-          <p className="mt-1">
-            <span className="font-bold">Location:</span> {item.location}
-          </p>
-          <p>
-            <span className="font-bold">Date:</span> {item.date}
-          </p>
-
-          {/* 👇 Office Info + See more on the same row (only for list & public) */}
-          {isForPublic && isList ? (
-            <div className="flex items-center justify-between">
-              <p>
-                <span className="font-bold">Office Info:</span> {item.officeInfo}
+            <div className="text-sm mt-2 space-y-1">
+              <div>
+                <p className="font-bold text-black">Description:</p>
+                <p className={`${ isList ? "w-xl" : ""} break-words line-clamp-1 text-ellipsis`}>{item.description}</p>
+              </div>
+              <p className={`${ isList ? "w-xl" : ""} break-words line-clamp-1 text-ellipsis`}>
+                <span className="font-bold">Location:</span> {item.location}
               </p>
+              <p>
+                <span className="font-bold">Date:</span> {item.date}
+              </p>
+
+              {/* Office + See More on same row */}
+              {isForPublic && isList ? (
+                <div className="flex items-center justify-between">
+                  <p className={`break-words line-clamp-1 text-ellipsis`}>
+                    <span className="font-bold">Office Info:</span>{" "}
+                    {item.officeInfo}
+                  </p>
+                  <Button
+                    variant="link"
+                    size="sm"
+                    className="w-fit p-0 text-primary"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setOpenModal(true);
+                    }}
+                  >
+                    See more
+                  </Button>
+                </div>
+              ) : (
+                <p className={`${isList ? "w-xl" : ""} break-words line-clamp-2 text-ellipsis`}>
+                  <span className="font-bold">Office Info:</span>{" "}
+                  {item.officeInfo}
+                </p>
+              )}
+            </div>
+
+            {/* Grid View Public Button */}
+            {isForPublic && !isList && (
               <Button
                 variant="link"
                 size="sm"
-                className="w-fit p-0 text-primary"
-                onClick={() => setOpenModal(true)}
+                className="mt-3 w-fit self-start p-0 text-primary"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setOpenModal(true);
+                }}
               >
                 See more
               </Button>
-            </div>
-          ) : (
-            <p>
-              <span className="font-bold">Office Info:</span> {item.officeInfo}
-            </p>
-          )}
-        </div>
+            )}
 
-          {/* Public "See More" Button */}
-          {isForPublic && !isList && (
-            <Button
-              variant="link"
-              size="sm"
-              className="mt-3 w-fit self-start p-0 text-primary"
-              onClick={() => setOpenModal(true)}
-            >
-              See more
-            </Button>
-          )}
+            {/* Grid View Admin Actions */}
+            {!isForPublic && !isList && (
+              <div className="mt-3">
+                <AdminActions />
+              </div>
+            )}
+          </div>
+        </Card>
+      </div>
 
-          {/* Admin Controls: Grid layout - actions at bottom */}
-          {!isForPublic && !isList && (
-            <div className="mt-3">
-              <AdminActions />
-            </div>
-          )}
-        </div>
-      </Card>
-
-      {/* Public View Modal */}
-      {isForPublic && (
-        <ItemInfoModal
-          open={openModal}
-          onClose={() => setOpenModal(false)}
-          item={item}
-        />
-      )}
+      <ItemInfoModal
+        open={openModal}
+        onClose={() => setOpenModal(false)}
+        item={item}
+      />
     </>
   );
 }

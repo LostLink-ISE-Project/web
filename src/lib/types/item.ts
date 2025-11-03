@@ -36,8 +36,8 @@ export const mockItems: Item[] = [
   {
     id: "3",
     title: "Blue Backpack",
-    description: "Contains a laptop and several textbooks. Left in the library.",
-    location: "Library, 2nd Floor",
+    description: "Contains a laptop and several textbooks. Left in the library. library library library library library library library library Contains a laptop and several textbooks. Contains a laptop and several textbooks. Contains a laptop and several textbooks. Contains a laptop and several textbooks. Contains a laptop and several textbooks.Contains a laptop and several textbooks. Contains a laptop and several textbooks.",
+    location: "Library, 2nd Floor", 
     date: "2024-04-15T17:45:00",
     status: "approved",
     image: "https://via.placeholder.com/80",

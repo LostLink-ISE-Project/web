@@ -141,7 +141,9 @@ export default function ItemToolbar({
             </PopoverContent>
           </Popover>
 
-          <div className="h-7 w-0.5 rounded-lg bg-on-surface-foreground" />
+          {hasFilters && (
+            <div className="h-7 w-0.5 rounded-lg bg-on-surface-foreground" />
+          )}
 
           <div className="flex gap-2 overflow-x-auto items-center">
             {keyword && (

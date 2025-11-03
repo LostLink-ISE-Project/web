@@ -18,6 +18,26 @@ const SidebarLink = ({ link, open }: { link: SidebarLinkType; open: boolean }) =
       ? pathname === "/dashboard"
       : pathname.startsWith(link.href);
 
+  if (open) {
+    return (
+      <div className="relative">
+        <Link
+          to={link.locked ? "" : link.href}
+          title={link.locked ? "Coming soon" : ""}
+          className={cn(
+            `h-12 font-medium rounded-2xl hover:bg-primary/10 hover:text-primary text-sm flex gap-2 items-center p-4 transition-all duration-200`,
+            isActive && "bg-foreground",
+            !open && "justify-center",
+            link.locked && "opacity-30 pointer-events-none"
+          )}
+        >
+          <span>{link.icon}</span>
+          <span>{link.title}</span>
+        </Link>
+      </div>
+    );
+  }
+
   return (
     <div className="relative">
       <Tooltip>
@@ -27,13 +47,12 @@ const SidebarLink = ({ link, open }: { link: SidebarLinkType; open: boolean }) =
             title={link.locked ? "Coming soon" : ""}
             className={cn(
               `h-12 font-medium rounded-2xl hover:bg-primary/10 hover:text-primary text-sm flex gap-2 items-center p-4 transition-all duration-200`,
-              isActive && "bg-foreground ",
-              !open && "justify-center",
+              isActive && "bg-foreground",
+              "justify-center",
               link.locked && "opacity-30 pointer-events-none"
             )}
           >
             <span>{link.icon}</span>
-            {open && <span>{link.title}</span>}
           </Link>
         </TooltipTrigger>
         <TooltipContent side="right" className="text-white">{link.title}</TooltipContent>
@@ -70,12 +89,16 @@ const Sidebar = () => {
         </Button>
 
         <div className="flex flex-col gap-2">
-          <div className="pb-6 ml-2">
-            <img
-              src={LostLinkLogo}
-              alt="Logo"
-              className={cn("transition-all", isSidebarOpen ? "w-32" : "hidden")}
-            />
+          <div className="pb-6 ml-2 flex justify-center items-center h-12">
+            {isSidebarOpen ? (
+              <img
+                src={LostLinkLogo}
+                alt="Logo"
+                className="transition-all w-32"
+              />
+            ) : (
+              <span className="text-primary text-3xl font-bold">L</span>
+            )}
           </div>
 
           {links.map((link) => (
@@ -88,26 +111,35 @@ const Sidebar = () => {
 
         {/* Logout */}
         <div>
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <Button
-                variant="ghost"
-                onClick={handleLogout}
-                className={cn(
-                  `w-full h-12 font-medium rounded-2xl hover:bg-destructive/10 hover:text-destructive text-sm flex gap-2 justify-start items-center !p-4 transition-all duration-200`,
-                  !isSidebarOpen && "justify-center"
-                )}
-              >
-                <LogOut size={18} />
-                {isSidebarOpen && <span>Log Out</span>}
-              </Button>
-            </TooltipTrigger>
-            <TooltipContent side="right" className="text-white">Logout</TooltipContent>
-          </Tooltip>
+          {isSidebarOpen ? (
+            <Button
+              variant="ghost"
+              onClick={handleLogout}
+              className={cn(
+                `w-full h-12 font-medium rounded-2xl hover:bg-destructive/10 hover:text-destructive text-sm flex gap-2 justify-start items-center !p-4 transition-all duration-200`
+              )}
+            >
+              <LogOut size={18} />
+              <span>Log Out</span>
+            </Button>
+          ) : (
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  variant="ghost"
+                  onClick={handleLogout}
+                  className="w-full h-12 rounded-2xl hover:bg-destructive/10 hover:text-destructive flex items-center justify-center !p-4"
+                >
+                  <LogOut size={18} />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent side="right" className="text-white">Logout</TooltipContent>
+            </Tooltip>
+          )}
         </div>
       </div>
     </aside>
   );
 };
 
-export default Sidebar;
+export default Sidebar; 

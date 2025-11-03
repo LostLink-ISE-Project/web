@@ -61,7 +61,7 @@ export default function LoginPage() {
         <h1 className="text-3xl font-bold text-center">Sign In to LostLink</h1>
 
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-3">
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
             <FormField
               control={form.control}
               name="username"
