@@ -12,12 +12,6 @@ import {
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import {
-  Tabs,
-  TabsList,
-  TabsTrigger,
-  TabsContent,
-} from "@/components/ui/tabs";
-import {
   Popover,
   PopoverContent,
   PopoverTrigger,
@@ -25,28 +19,30 @@ import {
 import { Calendar } from "@/components/ui/calendar";
 import { format } from "date-fns";
 import type { DateRange } from "react-day-picker";
-import { mockItems, type ItemStatus } from "@/lib/types/item";
+import { mockItems } from "@/lib/types/item";
 import ItemCard from "@/components/common/items/item-card";
+import { useNavigate } from "react-router-dom";
 
 export default function DashboardPage() {
-  const [tab, setTab] = useState<ItemStatus>("submitted");
   const [dateRange, setDateRange] = useState<DateRange | undefined>();
+  const navigate = useNavigate();
 
-  // 🔍 Filter by tab + dateRange
-  const filteredItems = mockItems
+  // Get max 5 submitted items (filtered by date if applicable)
+  const submittedItems = mockItems
     .filter((item) => {
-      const matchesStatus = item.status === tab;
+      const isSubmitted = item.status === "submitted";
       const itemDate = new Date(item.date);
       const matchesDate =
         (!dateRange?.from || itemDate >= dateRange.from) &&
         (!dateRange?.to || itemDate <= dateRange.to);
-      return matchesStatus && matchesDate;
-    });
+      return isSubmitted && matchesDate;
+    })
+    .slice(0, 5); // max 5
 
   return (
     <div className="space-y-6">
       {/* ▶️ Stats and Report */}
-      <Card className="border-0 shadow-xl rounded-2xl">
+      <Card className="border-0 shadow-lg rounded-2xl">
         <CardHeader className="flex flex-row items-center justify-between gap-4 flex-wrap">
           <CardTitle className="text-xl">Stats and Report</CardTitle>
           <Button className="flex text-white items-center py-5 rounded-lg">
@@ -65,7 +61,9 @@ export default function DashboardPage() {
                 {dateRange?.from ? (
                   <span>
                     {format(dateRange.from, "dd/MM/yyyy")}
-                    {dateRange.to ? ` - ${format(dateRange.to, "dd/MM/yyyy")}` : ""}
+                    {dateRange.to
+                      ? ` - ${format(dateRange.to, "dd/MM/yyyy")}`
+                      : ""}
                   </span>
                 ) : (
                   <span>Set range</span>
@@ -101,31 +99,29 @@ export default function DashboardPage() {
         </CardContent>
       </Card>
 
-      {/* ▶️ Last Items */}
-      <Card className="border-0 shadow-xl rounded-2xl">
+      {/* ▶️ Last Submitted Items */}
+      <Card className="border-0 shadow-lg rounded-2xl">
         <CardHeader>
           <CardTitle className="text-xl">Last Submitted Items</CardTitle>
         </CardHeader>
-        <CardContent>
-          <Tabs value={tab} onValueChange={(v) => setTab(v as ItemStatus)}>
-            <TabsList className="w-full mb-4 border-b rounded-none">
-              <TabsTrigger value="submitted">Submitted</TabsTrigger>
-              <TabsTrigger value="approved">Approved</TabsTrigger>
-              <TabsTrigger value="archived">Archived</TabsTrigger>
-            </TabsList>
-
-            {["submitted", "approved", "archived"].map((status) => (
-              <TabsContent key={status} value={status}>
-                <div className="space-y-5">
-                  {filteredItems
-                    .filter((item) => item.status === status)
-                    .map((item) => (
-                      <ItemCard key={item.id} item={item} variant="list" />
-                    ))}
-                </div>
-              </TabsContent>
-            ))}
-          </Tabs>
+        <CardContent className="space-y-5">
+          {submittedItems.length > 0 ? (
+            <>
+              {submittedItems.map((item) => (
+                <ItemCard key={item.id} item={item} variant="list" />
+              ))}
+              <div className="flex justify-end">
+                <Button
+                  className="flex text-white items-center py-5 rounded-lg"
+                  onClick={() => navigate("/dashboard/items")}
+                >
+                  See more
+                </Button>
+              </div>
+            </>
+          ) : (
+            <p className="text-muted-foreground">No submitted items found.</p>
+          )}
         </CardContent>
       </Card>
     </div>

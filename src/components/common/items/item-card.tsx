@@ -10,6 +10,7 @@ import {
 import { Pencil, Trash, ChevronDown, MoreVertical } from "lucide-react";
 import type { Item } from "@/lib/types/item";
 import ItemInfoModal from "./item-modal";
+import { format } from "date-fns";
 
 export interface ItemCardProps {
   item: Item;
@@ -102,41 +103,53 @@ export default function ItemCard({
             </div>
 
             <div className="text-sm mt-2 space-y-1">
-              <div>
-                <p className="font-bold text-black">Description:</p>
-                <p className={`${ isList ? "w-xl" : ""} break-words line-clamp-1 text-ellipsis`}>{item.description}</p>
-              </div>
-              <p className={`${ isList ? "w-xl" : ""} break-words line-clamp-1 text-ellipsis`}>
-                <span className="font-bold">Location:</span> {item.location}
-              </p>
-              <p>
-                <span className="font-bold">Date:</span> {item.date}
-              </p>
-
-              {/* Office + See More on same row */}
-              {isForPublic && isList ? (
-                <div className="flex items-center justify-between">
-                  <p className={`break-words line-clamp-1 text-ellipsis`}>
-                    <span className="font-bold">Office Info:</span>{" "}
-                    {item.officeInfo}
+              {isList ? (
+                <>
+                  <div>
+                    <p className="w-xl break-words line-clamp-1 text-ellipsis">{item.description}</p>
+                  </div>
+                  <p className={`${ isList ? "w-xl" : ""} break-words line-clamp-1 text-ellipsis`}>
+                    <span className="font-bold">Location:</span> {item.location}
                   </p>
-                  <Button
-                    variant="link"
-                    size="sm"
-                    className="w-fit p-0 text-primary"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      setOpenModal(true);
-                    }}
-                  >
-                    See more
-                  </Button>
-                </div>
+                  <p>
+                    <span className="font-bold">Date:</span> {format(new Date(item.date), "PPP")}
+                  </p>
+
+                  {/* Office + See More on same row */}
+                  {isForPublic && isList ? (
+                    <div className="flex items-center justify-between">
+                      <p className={`break-words line-clamp-1 text-ellipsis`}>
+                        <span className="font-bold">Office Info:</span>{" "}
+                        {item.officeInfo}
+                      </p>
+                      <Button
+                        variant="link"
+                        size="sm"
+                        className="w-fit p-0 text-primary"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setOpenModal(true);
+                        }}
+                      >
+                        See more
+                      </Button>
+                    </div>
+                  ) : (
+                    <p className={`${isList ? "w-xl" : ""} break-words line-clamp-2 text-ellipsis`}>
+                      <span className="font-bold">Office Info:</span>{" "}
+                      {item.officeInfo}
+                    </p>
+                  )}
+                </>
               ) : (
-                <p className={`${isList ? "w-xl" : ""} break-words line-clamp-2 text-ellipsis`}>
-                  <span className="font-bold">Office Info:</span>{" "}
-                  {item.officeInfo}
-                </p>
+                <>
+                  <p className="min-h-10 line-clamp-2 break-words text-ellipsis mb-2">
+                    {item.description}
+                  </p>
+                  <p className="text-xs text-muted-foreground">
+                    Found on <span className="font-semibold underline">{format(new Date(item.date), "PPP")}</span> in <span className="font-semibold underline">{item.location}</span>
+                  </p>
+                </>
               )}
             </div>
 

@@ -89,7 +89,7 @@ const Sidebar = () => {
         </Button>
 
         <div className="flex flex-col gap-2">
-          <div className="pb-6 ml-2 flex justify-center items-center h-12">
+          <div className={`pb-6 flex ${isSidebarOpen ? "justify-start pl-4" : "justify-center pl-0"} items-center h-12`}>
             {isSidebarOpen ? (
               <img
                 src={LostLinkLogo}

@@ -138,15 +138,6 @@ export default function SettingsPage() {
               className="space-y-4 max-w-md"
             >
               <div className="space-y-2">
-                <Label htmlFor="currentPassword">Current Password</Label>
-                <Input
-                  type="password"
-                  id="currentPassword"
-                  {...passwordForm.register("currentPassword")}
-                />
-              </div>
-
-              <div className="space-y-2">
                 <Label htmlFor="newPassword">New Password</Label>
                 <Input
                   type="password"

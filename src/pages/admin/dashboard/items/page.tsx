@@ -68,7 +68,7 @@ export default function ItemsPage() {
               <div
                 className={
                   view === "grid"
-                    ? "grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5  "
+                    ? "grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 gap-x-20 gap-y-10"
                     : "space-y-5"
                 }
               >

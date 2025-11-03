@@ -5,6 +5,7 @@ import {
   DialogTitle,
   DialogClose,
 } from "@/components/ui/dialog";
+import { format } from "date-fns";
 
 export default function ItemInfoModal({ open, onClose, item }: any) {
   return (
@@ -25,19 +26,16 @@ export default function ItemInfoModal({ open, onClose, item }: any) {
           <h3 className="text-lg font-semibold">{item.title}</h3>
 
           <p>
-            <strong>Description:</strong>
-            <br />
             {item.description}
           </p>
           <p>
             <strong>Found in:</strong> {item.location}
           </p>
           <p>
-            <strong>Listing Date:</strong> {item.date}
+            <strong>Listing Date:</strong> {format(new Date(item.date), "PPP")}
           </p>
           <p>
-            <strong>Office info: </strong>
-            {item.officeInfo}
+            <strong>Office info:</strong> {item.officeInfo}
           </p>
         </div>
       </DialogContent>
