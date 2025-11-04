@@ -40,10 +40,12 @@ export default function OfficesPage() {
             header: "",
             cell: ({ row }: { row: any }) => (
                 <DropdownMenu>
-                    <DropdownMenuTrigger>
-                        <MoreVertical className="w-4 h-4 text-muted-foreground" />
+                    <DropdownMenuTrigger asChild>
+                        <Button variant="ghost" size="icon" className="h-8 w-8">
+                            <MoreVertical className="w-4 h-4" />
+                        </Button>
                     </DropdownMenuTrigger>
-                    <DropdownMenuContent align="start" className="w-fit">
+                    <DropdownMenuContent align="end" className="w-fit">
                         <DropdownMenuItem
                             onClick={() => console.log("Edit", row.original.id)}
                             className="flex gap-2 items-center"

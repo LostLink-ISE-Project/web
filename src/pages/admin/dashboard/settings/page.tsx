@@ -7,23 +7,9 @@ import { Label } from "@/components/ui/label";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
-
-// Schema for profile update
-const profileSchema = z.object({
-  name: z.string().min(1),
-  surname: z.string().min(1),
-  profilePhoto: z.string().optional(), // base64
-});
-
-// Schema for password update
-const passwordSchema = z.object({
-  currentPassword: z.string().min(6),
-  newPassword: z.string().min(6),
-  confirmNewPassword: z.string().min(6),
-}).refine(data => data.newPassword === data.confirmNewPassword, {
-  message: "New passwords do not match",
-  path: ["confirmNewPassword"],
-});
+import { toast } from "sonner";
+import { passwordSchema, profileSchema } from "@/lib/schemas/profileSchema";
+// import { useAuthStore } from "@/lib/stores/auth.store";
 
 export default function SettingsPage() {
   const [tab, setTab] = useState("profile");
@@ -43,15 +29,21 @@ export default function SettingsPage() {
         surname: "Doe",
         profilePhoto: "",
       });
+
+      profileForm.reset({
+        name: "John",
+        surname: "Doe",
+        profilePhoto: "",
+      });
     }, 500);
   }, []);
 
   const profileForm = useForm({
     resolver: zodResolver(profileSchema),
     defaultValues: {
-      name: user.name,
-      surname: user.surname,
-      profilePhoto: user.profilePhoto,
+      name: "",
+      surname: "",
+      profilePhoto: "",
     },
   });
 
@@ -72,14 +64,30 @@ export default function SettingsPage() {
     reader.readAsDataURL(file);
   };
 
-  const handleProfileSubmit = (values: any) => {
-    console.log("Submit profile", values);
-    // Future PATCH /v1/auth/me
+  const handleProfileSubmit = async (values: z.infer<typeof profileSchema>) => {
+    // const token = useAuthStore.getState().token;
+
+    try {
+      console.log("PATCH /v1/auth/me", values);
+      // Example call: await api.patch("/v1/auth/me", values, { headers: { Authorization: `Bearer ${token}` } });
+      toast.success("Profile updated successfully!");
+    } catch (err) {
+      toast.error("Failed to update profile.");
+    }
   };
 
-  const handlePasswordSubmit = (values: any) => {
-    console.log("Submit password", values);
-    // Future POST /v1/auth/me/reset-password
+  const handlePasswordSubmit = async (values: z.infer<typeof passwordSchema>) => {
+    // const token = useAuthStore.getState().token;
+
+    try {
+      console.log("POST /v1/auth/me/reset-password", values);
+      // Example call: await api.post("/v1/auth/me/reset-password", values, { headers: { Authorization: `Bearer ${token}` } });
+      await new Promise((res) => setTimeout(res, 1000)); // simulate delay
+      toast.success("Password changed successfully!");
+      passwordForm.reset();
+    } catch (err) {
+      toast.error("Failed to change password.");
+    }
   };
 
   return (
@@ -137,6 +145,15 @@ export default function SettingsPage() {
               onSubmit={passwordForm.handleSubmit(handlePasswordSubmit)}
               className="space-y-4 max-w-md"
             >
+              <div className="space-y-2">
+                <Label htmlFor="currentPassword">Current Password</Label>
+                <Input
+                  type="password"
+                  id="currentPassword"
+                  {...passwordForm.register("currentPassword")}
+                />
+              </div>
+
               <div className="space-y-2">
                 <Label htmlFor="newPassword">New Password</Label>
                 <Input

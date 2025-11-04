@@ -65,20 +65,22 @@ export default function ItemsPage() {
 
           {["submitted", "approved", "archived"].map((status) => (
             <TabsContent key={status} value={status}>
-              <div
-                className={
-                  view === "grid"
-                    ? "grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 gap-x-20 gap-y-10"
-                    : "space-y-5"
-                }
-              >
-                {filteredItems.map((item) => (
-                  <ItemCard
-                    key={item.id}
-                    item={item}
-                    variant={view}
-                  />
-                ))}
+              <div className="overflow-auto max-h-[58vh]">
+                <div
+                  className={
+                    view === "grid"
+                      ? "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-20 gap-y-10 pb-2"
+                      : "space-y-5 pb-2"
+                  }
+                >
+                  {filteredItems.map((item) => (
+                    <ItemCard
+                      key={item.id}
+                      item={item}
+                      variant={view}
+                    />
+                  ))}
+                </div>
               </div>
             </TabsContent>
           ))}

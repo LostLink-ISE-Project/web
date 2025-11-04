@@ -1,17 +1,31 @@
 import SimpleTable from "@/components/common/table/simple-table";
+import AddUserModal from "@/components/common/modals/add-user-modal";
+import EditUserModal from "@/components/common/modals/edit-user-modal";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-import { MoreVertical, ShieldCheck, ShieldOff, Trash } from "lucide-react";
+import { MoreVertical, Pencil, ShieldCheck, ShieldOff, Trash } from "lucide-react";
 import { useState } from "react";
 
 export default function UsersPage() {
+    const [addOpen, setAddOpen] = useState(false);
+    const [editOpen, setEditOpen] = useState(false);
+    const [selectedUser, setSelectedUser] = useState<{ name: string; status: "active" | "disabled" } | null>(null);
+
     const userData = Array.from({ length: 5 }).map((_, i) => ({
         name: `User ${i + 1}`,
         status: i % 2 === 0 ? "active" : "disabled", // alternating statuses
     }));
+
+    const handleAddUser = (newUser: { name: string; status: "active" | "disabled" }) => {
+        console.log("New User:", newUser);
+    };
+
+    const handleEditUser = (updatedUser: { name: string; status: "active" | "disabled" }) => {
+        console.log("Updated User:", updatedUser);
+    };
 
     const [confirmAction, setConfirmAction] = useState<{
         type: "delete" | "toggle";
@@ -56,10 +70,22 @@ export default function UsersPage() {
                 const isActive = status === "active";
                 return (
                     <DropdownMenu>
-                        <DropdownMenuTrigger>
-                            <MoreVertical className="w-4 h-4 text-muted-foreground" />
+                        <DropdownMenuTrigger asChild>
+                            <Button variant="ghost" size="icon" className="h-8 w-8">
+                                <MoreVertical className="w-4 h-4" />
+                            </Button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end" className="w-fit">
+                            <DropdownMenuItem
+                                onClick={() => {
+                                    setSelectedUser({ name, status });
+                                    setEditOpen(true);
+                                }}
+                                className="flex gap-2 items-center"
+                            >
+                                <Pencil className="w-4 h-4" />
+                                Edit
+                            </DropdownMenuItem>
                             <DropdownMenuItem
                                 onClick={() =>
                                     setConfirmAction({ type: "delete", user: name })
@@ -100,7 +126,7 @@ export default function UsersPage() {
                 <CardHeader className="flex flex-row items-center justify-between gap-4 flex-wrap">
                     <CardTitle className="text-xl">Users</CardTitle>
                     
-                    <Button variant={"ghost"} className="text-primary">
+                    <Button variant={"ghost"} className="text-primary" onClick={() => setAddOpen(true)}>
                         Add More
                     </Button>
                 </CardHeader>
@@ -108,6 +134,16 @@ export default function UsersPage() {
                     <SimpleTable columns={columns} data={userData} />
                 </CardContent>
             </Card>
+
+            <AddUserModal open={addOpen} onClose={() => setAddOpen(false)} onSubmit={handleAddUser} />
+            {selectedUser && (
+                <EditUserModal
+                    open={editOpen}
+                    onClose={() => setEditOpen(false)}
+                    user={selectedUser}
+                    onSubmit={handleEditUser}
+                />
+            )}
 
             {confirmAction && (
                 <Dialog open={!!confirmAction} onOpenChange={() => setConfirmAction(null)}>

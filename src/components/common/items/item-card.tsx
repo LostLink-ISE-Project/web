@@ -32,10 +32,10 @@ export default function ItemCard({
         <DropdownMenuTrigger asChild>
           <Button
             variant="outline"
-            className="border-on-surface-foreground text-primary rounded-lg w-32"
+            className="flex items-center border-on-surface-foreground text-primary rounded-lg w-32"
           >
             {item.status.charAt(0).toUpperCase() + item.status.slice(1)}
-            <ChevronDown className="ml-1" />
+            <ChevronDown />
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end" className="w-fit">
@@ -97,7 +97,7 @@ export default function ItemCard({
               isList ? "w-full" : "p-2"
             }`}
           >
-            <div className="flex flex-row justify-between items-start">
+            <div className="flex flex-row justify-between items-center">
               <h4 className="font-semibold">{item.title}</h4>
               {!isForPublic && isList && <AdminActions />}
             </div>

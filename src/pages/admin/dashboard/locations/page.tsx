@@ -14,7 +14,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { MoreVertical, Pencil, Trash } from "lucide-react";
-import QrCodeModal from "@/components/common/locations/qr-code-modal";
+import QrCodeModal from "@/components/common/modals/qr-code-modal";
 
 export default function LocationsPage() {
   const [qrOpen, setQrOpen] = useState(false);
@@ -72,8 +72,10 @@ export default function LocationsPage() {
       header: "",
       cell: ({ row }: { row: any }) => (
         <DropdownMenu>
-          <DropdownMenuTrigger>
-            <MoreVertical className="w-4 h-4 text-muted-foreground" />
+          <DropdownMenuTrigger asChild>
+            <Button variant="ghost" size="icon" className="h-8 w-8">
+              <MoreVertical className="w-4 h-4" />
+            </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="w-fit">
             <DropdownMenuItem

@@ -22,7 +22,7 @@ import type { DateRange } from "react-day-picker";
 import { mockItems } from "@/lib/types/item";
 import ItemCard from "@/components/common/items/item-card";
 import { useNavigate } from "react-router-dom";
-import ReportModal from "@/components/common/dashboard/report-modal";
+import ReportModal from "@/components/common/modals/report-modal";
 
 export default function DashboardPage() {
   const [dateRange, setDateRange] = useState<DateRange | undefined>();
