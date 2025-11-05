@@ -1,15 +1,30 @@
+import AddOfficeModal from "@/components/common/modals/add-office-modal";
 import SimpleTable from "@/components/common/table/simple-table";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { MoreVertical, Pencil, Trash } from "lucide-react";
+import { useState } from "react";
 
 export default function OfficesPage() {
+    const [addOpen, setAddOpen] = useState(false);
+
     const officeData = Array.from({ length: 5 }).map((_, i) => ({
         name: `Location ${i + 1}`,
         location: "Building A, Room 201",
         workHours: "09:00 - 16:00",
     }));
+
+    const handleAddOffice = (data: {
+        name: string;
+        location: string;
+        workHourStart: string;
+        workHourEnd: string;
+    }) => {
+        const fullHours = `${data.workHourStart} - ${data.workHourEnd}`;
+        console.log("New Office:", { ...data, workHours: fullHours });
+        // In future: submit to POST /v1/offices
+    };
 
     const columns = [
         {
@@ -67,17 +82,25 @@ export default function OfficesPage() {
     ];
 
     return(
-        <Card className="border-0 shadow-xl rounded-2xl">
-            <CardHeader className="flex flex-row items-center justify-between gap-4 flex-wrap">
-                <CardTitle className="text-xl">Offices</CardTitle>
-                
-                <Button variant={"ghost"} className="text-primary">
-                    Add Office
-                </Button>
-            </CardHeader>
-            <CardContent>
-                <SimpleTable columns={columns} data={officeData} />
-            </CardContent>
-        </Card>
+        <>
+            <Card className="border-0 shadow-xl rounded-2xl">
+                <CardHeader className="flex flex-row items-center justify-between gap-4 flex-wrap">
+                    <CardTitle className="text-xl">Offices</CardTitle>
+                    
+                    <Button variant={"ghost"} className="text-primary" onClick={() => setAddOpen(true)}>
+                        Add Office
+                    </Button>
+                </CardHeader>
+                <CardContent>
+                    <SimpleTable columns={columns} data={officeData} />
+                </CardContent>
+            </Card>
+            
+            <AddOfficeModal
+                open={addOpen}
+                onClose={() => setAddOpen(false)}
+                onSubmit={handleAddOffice}
+            />
+        </>
     );
 }

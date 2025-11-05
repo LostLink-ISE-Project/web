@@ -15,6 +15,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { MoreVertical, Pencil, Trash } from "lucide-react";
 import QrCodeModal from "@/components/common/modals/qr-code-modal";
+import AddLocationModal from "@/components/common/modals/add-location-modal";
 
 export default function LocationsPage() {
   const [qrOpen, setQrOpen] = useState(false);
@@ -22,6 +23,19 @@ export default function LocationsPage() {
     name: string;
     slug: string;
   } | null>(null);
+
+  const [addOpen, setAddOpen] = useState(false);
+
+  const handleAddLocation = (data: {
+    name: string;
+    details: string;
+    workHourStart: string;
+    workHourEnd: string;
+  }) => {
+    const workHours = `${data.workHourStart} - ${data.workHourEnd}`;
+    console.log("New Location:", { ...data, workHours });
+    // In future: send to POST /v1/locations
+  };
 
   const locationData = Array.from({ length: 5 }).map((_, i) => ({
     name: `Location ${i + 1}`,
@@ -103,7 +117,7 @@ export default function LocationsPage() {
       <Card className="border-0 shadow-xl rounded-2xl">
         <CardHeader className="flex flex-row items-center justify-between gap-4 flex-wrap">
           <CardTitle className="text-xl">Locations</CardTitle>
-          <Button variant="ghost" className="text-primary">
+          <Button variant="ghost" className="text-primary" onClick={() => setAddOpen(true)}>
             Add More
           </Button>
         </CardHeader>
@@ -117,6 +131,12 @@ export default function LocationsPage() {
         onClose={() => setQrOpen(false)}
         qrValue={`https://lostlink.com/?ref=${selectedLocation?.slug || ""}`}
         label={selectedLocation?.name}
+      />
+
+      <AddLocationModal
+        open={addOpen}
+        onClose={() => setAddOpen(false)}
+        onSubmit={handleAddLocation}
       />
     </>
   );
