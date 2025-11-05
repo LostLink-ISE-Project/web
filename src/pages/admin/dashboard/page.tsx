@@ -46,7 +46,7 @@ export default function DashboardPage() {
     <>
       <div className="space-y-6">
         {/* ▶️ Stats and Report */}
-        <Card className="border-0 shadow-lg rounded-2xl">
+        <Card className="border-0 shadow-lg rounded-2xl mx-6 md:mx-0">
           <CardHeader className="flex flex-row items-center justify-between gap-4 flex-wrap">
             <CardTitle className="text-xl">Stats and Report</CardTitle>
             <Button 
@@ -54,7 +54,7 @@ export default function DashboardPage() {
               onClick={() => setReportModalOpen(true)}
             >
               <FileChartColumn />
-              Generate report
+              <span className="hidden sm:inline">Generate report</span>
             </Button>
           </CardHeader>
           <CardContent className="flex flex-wrap items-center gap-4">
@@ -89,7 +89,7 @@ export default function DashboardPage() {
             </Popover>
 
             {/* Stat Cards */}
-            <div className="flex flex-row gap-4 h-fit w-full justify-between">
+            <div className="flex flex-col md:flex-row gap-4 h-fit w-full justify-between">
               <Card className="flex flex-col gap-2 p-4 font-semibold w-full border-outline shadow-none">
                 <p className="text-2xl text-on-surface">32</p>
                 <p className="text-on-surface-foreground">Found items</p>
@@ -107,7 +107,7 @@ export default function DashboardPage() {
         </Card>
 
         {/* ▶️ Last Submitted Items */}
-        <Card className="border-0 shadow-lg rounded-2xl">
+        <Card className="border-0 border-t-outline border-t-1 md:border-t-0 shadow-none md:shadow-lg rounded-2xl">
           <CardHeader>
             <CardTitle className="text-xl">Last Submitted Items</CardTitle>
           </CardHeader>
@@ -119,7 +119,7 @@ export default function DashboardPage() {
                 ))}
                 <div className="flex justify-end">
                   <Button
-                    className="flex text-white items-center py-5 rounded-lg"
+                    className="w-full md:w-fit flex text-white items-center py-5 rounded-lg"
                     onClick={() => navigate("/dashboard/items")}
                   >
                     See more

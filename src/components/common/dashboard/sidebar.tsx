@@ -10,7 +10,7 @@ import { Button } from "@/components/ui/button";
 import LostLinkLogo from "@/assets/LostLink.svg";
 import { useAuthStore } from "@/lib/stores/auth.store";
 
-const SidebarLink = ({ link, open }: { link: SidebarLinkType; open: boolean }) => {
+export const SidebarLink = ({ link, open }: { link: SidebarLinkType; open: boolean }) => {
   const { pathname } = useLocation();
 
   const isActive =

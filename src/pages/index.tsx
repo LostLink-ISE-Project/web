@@ -37,25 +37,25 @@ export default function HomePage() {
     });
 
   return (
-    <div className="flex flex-col px-32 py-6 gap-4">
+    <div className="flex flex-col px-4 sm:px-8 md:px-16 lg:px-32 py-6 gap-4 overflow-y-scroll">
       <div className="flex justify-between items-center">
         <div>
           <img
             src={LostLinkLogo}
             alt="Logo"
-            className={"transition-all w-32"}
+            className={"transition-all w-24 sm:w-32"}
           />
         </div>
 
         <Link to={"/login"}>
-          <Button className="flex text-white items-center py-5 rounded-lg">
-            Log In
+          <Button className="flex text-white items-center py-5 rounded-lg gap-2">
+            <span className="hidden sm:inline">Log In</span>
             <LogIn size={18}/>
           </Button>
         </Link>
       </div>
 
-      <div className="flex flex-col p-9">
+      <div className="flex flex-col p-0 md:p-9 gap-0 md:gap-6">
         <ItemToolbar
           view={view}
           setView={setView}
@@ -74,7 +74,7 @@ export default function HomePage() {
           className={
             view === "grid"
               ? "grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5"
-              : "space-y-5"
+              : "flex flex-col gap-4"
           }
         >
           {filteredItems.map((item) => (

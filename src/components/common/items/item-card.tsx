@@ -78,26 +78,26 @@ export default function ItemCard({
     <>
       <div onClick={() => setOpenModal(true)}>
         <Card
-          className={`cursor-pointer border-0 p-4 transition hover:shadow-md ${
+          className={`cursor-pointer border-0 transition hover:shadow-md ${
             isList
-              ? "flex flex-row justify-between items-center gap-8"
-              : "flex flex-col"
+              ? "flex flex-row justify-between md:items-center gap-2 md:gap-8 p-0 md:p-4"
+              : "flex flex-col p-4 h-96"
           }`}
         >
           <img
             src={item.image}
             alt={item.title}
             className={`rounded-lg object-cover border ${
-              !isList ? "self-center w-full h-[200px]" : "w-28 h-28"
+              !isList ? "self-center w-full h-[200px]" : "h-auto w-full min-w-30 sm:w-28 sm:h-28 border-1 md:border"
             }`}
           />
 
           <div
             className={`flex flex-col justify-between ${
-              isList ? "w-full" : "p-2"
+              isList ? "w-full p-4 pt-3 sm:pt-0" : "p-2"
             }`}
           >
-            <div className="flex flex-row justify-between items-center">
+            <div className="flex flex-col md:flex-row justify-between items-start md:items-center">
               <h4 className="font-semibold">{item.title}</h4>
               {!isForPublic && isList && <AdminActions />}
             </div>
@@ -106,18 +106,18 @@ export default function ItemCard({
               {isList ? (
                 <>
                   <div>
-                    <p className="w-xl break-words line-clamp-1 text-ellipsis">{item.description}</p>
+                    <p className="w-50 md:w-xl break-words line-clamp-1 text-ellipsis">{item.description}</p>
                   </div>
-                  <p className={`${ isList ? "w-xl" : ""} break-words line-clamp-1 text-ellipsis`}>
+                  <p className={`${ isList ? "w-50 md:w-xl" : ""} break-words line-clamp-1 text-ellipsis`}>
                     <span className="font-bold">Location:</span> {item.location}
                   </p>
-                  <p>
+                  <p className="w-50 md:w-full">
                     <span className="font-bold">Date:</span> {format(new Date(item.date), "PPP")}
                   </p>
 
                   {/* Office + See More on same row */}
                   {isForPublic && isList ? (
-                    <div className="flex items-center justify-between">
+                    <div className="flex flex-col md:flex-row items-start md:items-center justify-between">
                       <p className={`break-words line-clamp-1 text-ellipsis`}>
                         <span className="font-bold">Office Info:</span>{" "}
                         {item.officeInfo}
@@ -135,7 +135,7 @@ export default function ItemCard({
                       </Button>
                     </div>
                   ) : (
-                    <p className={`${isList ? "w-xl" : ""} break-words line-clamp-2 text-ellipsis`}>
+                    <p className={`${isList ? "w-40 md:w-xl" : ""} break-words line-clamp-2 text-ellipsis`}>
                       <span className="font-bold">Office Info:</span>{" "}
                       {item.officeInfo}
                     </p>

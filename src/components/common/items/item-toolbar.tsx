@@ -62,7 +62,7 @@ export default function ItemToolbar({
     keyword || sort !== "newest" || officeFilter.length > 0 || dateRange?.from;
 
   return (
-    <div className="flex flex-col gap-4 mb-6">
+    <div className="flex flex-col gap-4 mb-6 w-full">
       <div className="w-full flex items-center gap-2">
         <div className="w-full flex items-center gap-3">
           <Search className="text-on-surface-foreground size-5" />
@@ -78,18 +78,19 @@ export default function ItemToolbar({
         {isForPublic && (
           <Button className="flex text-white items-center py-5 rounded-lg gap-2">
             <FilePlus2 size={18} />
-            New Submission
+            <span className="hidden sm:inline">New Submission</span>
           </Button>
         )}
       </div>
 
-      <div className="flex flex-wrap justify-between items-center gap-3">
-        <div className="flex items-center gap-4 flex-wrap">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div className="flex flex-wrap items-center gap-3">
+          {/* Sorting */}
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="outline" className="flex items-center rounded-lg gap-2 border-0 shadow-md">
+              <Button variant="outline" className="flex items-center gap-2 border-1 border-outline md:border-0 shadow-none md:shadow-md">
                 <ListFilter size={16} />
-                Sort
+                <span className="hidden sm:inline">Sort</span>
                 <ChevronRight size={16} />
               </Button>
             </DropdownMenuTrigger>
@@ -99,9 +100,10 @@ export default function ItemToolbar({
             </DropdownMenuContent>
           </DropdownMenu>
 
+          {/* Office Filter */}
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="outline" className="flex items-center gap-2 border-0 shadow-md">
+              <Button variant="outline" className="flex items-center gap-2 border-1 border-outline md:border-0 shadow-none md:shadow-md">
                 Offices
                 <ChevronDown size={14} />
               </Button>
@@ -124,9 +126,10 @@ export default function ItemToolbar({
             </DropdownMenuContent>
           </DropdownMenu>
 
+          {/* Date Picker */}
           <Popover>
             <PopoverTrigger asChild>
-              <Button variant="outline" className="flex items-center gap-2 border-0 shadow-md">
+              <Button variant="outline" className="flex items-center gap-2 border-1 border-outline md:border-0 shadow-none md:shadow-md">
                 Date
                 <ChevronDown size={14} />
               </Button>
@@ -141,8 +144,9 @@ export default function ItemToolbar({
             </PopoverContent>
           </Popover>
 
+          {/* Chips */}
           {hasFilters && (
-            <div className="h-7 w-0.5 rounded-lg bg-on-surface-foreground" />
+            <div className="h-0.5 md:h-7 w-full md:w-0.5 rounded-lg bg-on-surface-foreground" />
           )}
 
           <div className="flex gap-2 overflow-x-auto items-center">
@@ -182,25 +186,28 @@ export default function ItemToolbar({
           </div>
         </div>
 
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="outline" className="flex items-center gap-2 border-0 shadow-md">
-              {view === "list" ? <ListCollapse size={16} /> : <LayoutGrid size={16} />}
-              {view === "list" ? "List view" : "Grid view"}
-              <ChevronDown size={16} />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
-            <DropdownMenuItem onClick={() => setView("list")}>
-              <ListCollapse className="mr-2 h-4 w-4" />
-              List view
-            </DropdownMenuItem>
-            <DropdownMenuItem onClick={() => setView("grid")}>
-              <LayoutGrid className="mr-2 h-4 w-4" />
-              Grid view
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
+        {/* View Switch */}
+        <div className="self-start sm:self-auto mt-4 md:mt-0">
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="outline" className="flex items-center gap-2 border-1 border-outline md:border-0 shadow-none md:shadow-md">
+                {view === "list" ? <ListCollapse size={16} /> : <LayoutGrid size={16} />}
+                <span className="hidden sm:inline">{view === "list" ? "List view" : "Grid view"}</span>
+                <ChevronDown size={16} />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuItem onClick={() => setView("list")}>
+                <ListCollapse className="mr-2 h-4 w-4" />
+                List view
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => setView("grid")}>
+                <LayoutGrid className="mr-2 h-4 w-4" />
+                Grid view
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
       </div>
     </div>
   );

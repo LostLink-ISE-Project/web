@@ -47,7 +47,7 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-foreground">
+    <div className="min-h-screen flex items-center justify-center px-6 md:px-0 bg-foreground">
       {/* 🔙 Back button */}
       <Link
         to={"/"}
@@ -57,11 +57,11 @@ export default function LoginPage() {
         Back
       </Link>
 
-      <Card className="rounded-3xl py-16 px-24 border-0 shadow-lg space-y-13 bg-white">
+      <Card className="flex flex-col items-center rounded-3xl py-9 md:py-16 px-6 md:px-24 border-0 shadow-lg space-y-8 md:space-y-13 bg-white">
         <h1 className="text-3xl font-bold text-center">Sign In to LostLink</h1>
 
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 md:space-y-6">
             <FormField
               control={form.control}
               name="username"
@@ -72,7 +72,7 @@ export default function LoginPage() {
                       type="username" 
                       placeholder="Username" 
                       {...field} 
-                      className="w-[350px] p-4.5 rounded-xl min-h-10"
+                      className="w-[300px] md:w-[350px] p-4.5 rounded-xl h-14"
                     />
                   </FormControl>
                   <FormMessage />
@@ -90,7 +90,7 @@ export default function LoginPage() {
                       type="password" 
                       placeholder="Password" 
                       {...field} 
-                      className="w-[350px] p-4.5 rounded-xl min-h-10"
+                      className="w-[300px] md:w-[350px] p-4.5 rounded-xl h-14"
                     />
                   </FormControl>
                   <FormMessage />
@@ -100,7 +100,7 @@ export default function LoginPage() {
 
             <Button 
               type="submit" 
-              className="w-full text-white mt-5 rounded-xl min-h-10"
+              className="w-full text-white mt-5 rounded-xl md:text-xl h-14 min-h-10"
             >
               {loginMutation.isPending ? "Logging in..." : "Log In"}
             </Button>

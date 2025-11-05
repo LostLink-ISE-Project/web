@@ -37,7 +37,7 @@ export default function ItemsPage() {
     });
 
   return (
-    <Card className="border-0 shadow-xl rounded-2xl">
+    <Card className="border-0  shadow-none md:shadow-lg rounded-2xl">
       <CardHeader>
         <CardTitle className="text-xl">Items</CardTitle>
       </CardHeader>
