@@ -9,6 +9,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { useAuthStore } from "@/lib/stores/auth.store";
 import { useLogin } from "@/api/auth/hook";
 import { ArrowLeft } from "lucide-react";
+import { toast } from "sonner";
 
 export default function LoginPage() {
   const form = useForm<LoginSchema>({
@@ -25,13 +26,10 @@ export default function LoginPage() {
 
   const onSubmit = async (values: LoginSchema) => {
     try {
-      // 🚫 Disable API call for now
-      // const res = await loginMutation.mutateAsync(values);
-      // setToken(res.token);
-
-      // ✅ TEMPORARY MOCK LOGIN
-      setToken("mock-token");
+      const res = await loginMutation.mutateAsync(values);
+      setToken(res.token); // Save token to store + localStorage
       navigate("/dashboard");
+      toast.success("Login succesful");
     } catch (err: any) {
       const msg = err?.response?.data?.message || "Login failed";
 

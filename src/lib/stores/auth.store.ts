@@ -1,26 +1,25 @@
 import { create } from "zustand";
-import { persist } from "zustand/middleware";
-import api from "axios";
+import type { MeResponse } from "@/api/auth/auth.dto";
 
 interface AuthState {
   token: string | null;
-  setToken: (token: string) => void;
+  user: MeResponse | null;
+  setToken: (token: string | null) => void;
+  setUser: (user: MeResponse | null) => void;
   logout: () => void;
 }
 
-export const useAuthStore = create<AuthState>()(
-  persist(
-    (set) => ({
-      token: null,
-      setToken: (token) => {
-        api.defaults.headers.common["Authorization"] = `Bearer ${token}`;
-        set({ token });
-      },
-      logout: () => {
-        delete api.defaults.headers.common["Authorization"];
-        set({ token: null });
-      },
-    }),
-    { name: "lostlink-auth" }
-  )
-);
+export const useAuthStore = create<AuthState>((set) => ({
+  token: localStorage.getItem("accessToken"),
+  user: null,
+  setToken: (token) => {
+    if (token) localStorage.setItem("accessToken", token);
+    else localStorage.removeItem("accessToken");
+    set({ token });
+  },
+  setUser: (user) => set({ user }),
+  logout: () => {
+    localStorage.removeItem("accessToken");
+    set({ token: null, user: null });
+  },
+}));
