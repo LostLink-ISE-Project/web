@@ -7,38 +7,58 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
-interface AddOfficeModalProps {
+interface EditOfficeModalProps {
   open: boolean;
   onClose: () => void;
-  onSubmit: (data: {
+  office: {
+    id: number;
     name: string;
     location: string;
+    contact: string;
+    workHours: string; // format: "09:00 - 17:00"
+  };
+  onSubmit: (data: {
+    id: number;
+    name: string;
+    location: string;
+    contact: string;
     workHourStart: string;
     workHourEnd: string;
-    contact: string;
   }) => void;
 }
 
-export default function AddOfficeModal({
+export default function EditOfficeModal({
   open,
   onClose,
+  office,
   onSubmit,
-}: AddOfficeModalProps) {
-  const [name, setName] = useState("");
-  const [location, setLocation] = useState("");
-  const [contact, setContact] = useState("");
+}: EditOfficeModalProps) {
+  const [name, setName] = useState(office.name);
+  const [location, setLocation] = useState(office.location);
+  const [contact, setContact] = useState(office.contact);
   const [workHourStart, setWorkHourStart] = useState("");
   const [workHourEnd, setWorkHourEnd] = useState("");
 
+  useEffect(() => {
+    setName(office.name);
+    setLocation(office.location);
+    setContact(office.contact);
+    const [start, end] = office.workHours.split(" - ");
+    setWorkHourStart(start);
+    setWorkHourEnd(end);
+  }, [office]);
+
   const handleSubmit = () => {
-    onSubmit({ name, location, contact, workHourStart, workHourEnd });
-    setName("");
-    setLocation("");
-    setContact("");
-    setWorkHourStart("");
-    setWorkHourEnd("");
+    onSubmit({
+      id: office.id,
+      name,
+      location,
+      contact,
+      workHourStart,
+      workHourEnd,
+    });
     onClose();
   };
 
@@ -46,7 +66,7 @@ export default function AddOfficeModal({
     <Dialog open={open} onOpenChange={onClose}>
       <DialogContent className="rounded-2xl">
         <DialogHeader className="flex justify-between items-center mb-4">
-          <DialogTitle>Add Office</DialogTitle>
+          <DialogTitle>Edit Office</DialogTitle>
         </DialogHeader>
 
         <div className="flex flex-col gap-4 py-2">
@@ -81,7 +101,7 @@ export default function AddOfficeModal({
 
         <DialogFooter>
           <Button onClick={handleSubmit} className="text-white w-full">
-            Add
+            Save Changes
           </Button>
         </DialogFooter>
       </DialogContent>
