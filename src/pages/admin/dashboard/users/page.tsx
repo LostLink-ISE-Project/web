@@ -8,23 +8,51 @@ import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { MoreVertical, Pencil, ShieldCheck, ShieldOff, Trash } from "lucide-react";
 import { useState } from "react";
+import { useCreateUser, useDeleteUser, useUpdateUser, useUsers } from "@/api/users/hook";
 
 export default function UsersPage() {
     const [addOpen, setAddOpen] = useState(false);
     const [editOpen, setEditOpen] = useState(false);
-    const [selectedUser, setSelectedUser] = useState<{ name: string; status: "active" | "disabled" } | null>(null);
+    const [selectedUser, setSelectedUser] = useState<{
+        id: number;
+        name: string;
+        surname: string;
+        status: "active" | "disabled";
+    } | null>(null);
 
-    const userData = Array.from({ length: 5 }).map((_, i) => ({
-        name: `User ${i + 1}`,
-        status: i % 2 === 0 ? "active" : "disabled", // alternating statuses
-    }));
+    const { data: userData = [], isLoading } = useUsers();
+    const { mutate: createUser } = useCreateUser();
+    const { mutate: updateUser } = useUpdateUser();
+    const { mutate: deleteUser } = useDeleteUser();
 
-    const handleAddUser = (newUser: { name: string; status: "active" | "disabled" }) => {
-        console.log("New User:", newUser);
+    const handleAddUser = (newUser: {
+        name: string;
+        surname: string;
+        username: string;
+        password: string;
+        status: "ACTIVE" | "DISABLED";
+    }) => {
+        createUser({
+            name: newUser.name,
+            surname: newUser.surname,
+            username: newUser.username,
+            password: newUser.password,
+        });
     };
 
-    const handleEditUser = (updatedUser: { name: string; status: "active" | "disabled" }) => {
-        console.log("Updated User:", updatedUser);
+    const handleEditUser = (data: {
+        id: number;
+        name: string;
+        surname: string;
+        status: "ACTIVE" | "DISABLED";
+    }) => {
+    updateUser({
+        id: data.id,
+        payload: {
+        name: data.name,
+        surname: data.surname,
+        },
+    });
     };
 
     const [confirmAction, setConfirmAction] = useState<{
@@ -52,14 +80,12 @@ export default function UsersPage() {
             header: "Status",
             accessorKey: "status",
             cell: ({ row }: { row: any }) => {
-            const status = row.original.status;
-            return (
-                <Badge
-                    variant={status === "active" ? "default" : "secondary"}
-                >
-                    {status.charAt(0).toUpperCase() + status.slice(1)}
-                </Badge>
-            );
+                const status = row.original.status; // convert API to UI type
+                return (
+                    <Badge variant={status === "ACTIVE" ? "default" : "secondary"}>
+                        {status.charAt(0).toUpperCase() + status.slice(1)}
+                    </Badge>
+                );
             },
         },
         {
@@ -67,7 +93,7 @@ export default function UsersPage() {
             header: "",
             cell: ({ row }: { row: any }) => {
                 const { name, status } = row.original;
-                const isActive = status === "active";
+                const isActive = status === "ACTIVE";
                 return (
                     <DropdownMenu>
                         <DropdownMenuTrigger asChild>
@@ -78,7 +104,12 @@ export default function UsersPage() {
                         <DropdownMenuContent align="end" className="w-fit">
                             <DropdownMenuItem
                                 onClick={() => {
-                                    setSelectedUser({ name, status });
+                                    setSelectedUser({
+                                        id: row.original.id,
+                                        name: row.original.name,
+                                        surname: row.original.surname,
+                                        status: row.original.status, // if needed: normalize to "active" | "disabled"
+                                    });
                                     setEditOpen(true);
                                 }}
                                 className="flex gap-2 items-center"
@@ -87,9 +118,13 @@ export default function UsersPage() {
                                 Edit
                             </DropdownMenuItem>
                             <DropdownMenuItem
-                                onClick={() =>
-                                    setConfirmAction({ type: "delete", user: name })
-                                }
+                                onClick={() => {
+                                    if (confirmAction?.type === "delete") {
+                                        const user = userData.find((u) => u.name === confirmAction.user);
+                                        if (user) deleteUser(user.id);
+                                    }
+                                    setConfirmAction(null);
+                                }}
                                 className="flex items-center gap-2 text-destructive"
                             >
                                 <Trash className="w-4 h-4" />
@@ -136,14 +171,14 @@ export default function UsersPage() {
             </Card>
 
             <AddUserModal open={addOpen} onClose={() => setAddOpen(false)} onSubmit={handleAddUser} />
-            {selectedUser && (
+            {/* {selectedUser && (
                 <EditUserModal
                     open={editOpen}
                     onClose={() => setEditOpen(false)}
                     user={selectedUser}
                     onSubmit={handleEditUser}
                 />
-            )}
+            )} */}
 
             {confirmAction && (
                 <Dialog open={!!confirmAction} onOpenChange={() => setConfirmAction(null)}>
@@ -152,7 +187,7 @@ export default function UsersPage() {
                             <DialogTitle>
                                 {confirmAction.type === "delete"
                                     ? "Confirm Delete"
-                                    : confirmAction.currentStatus === "active"
+                                    : confirmAction.currentStatus === "ACTIVE"
                                     ? "Disable User"
                                     : "Activate User"}
                             </DialogTitle>
@@ -162,7 +197,7 @@ export default function UsersPage() {
                             <strong>
                                 {confirmAction.type === "delete"
                                     ? "delete"
-                                    : confirmAction.currentStatus === "active"
+                                    : confirmAction.currentStatus === "ACTIVE"
                                     ? "disable"
                                     : "activate"}
                             </strong>{" "}
@@ -179,7 +214,7 @@ export default function UsersPage() {
                                     console.log("Delete confirmed", confirmAction.user);
                                     } else {
                                     console.log(
-                                        confirmAction.currentStatus === "active"
+                                        confirmAction.currentStatus === "ACTIVE"
                                         ? "Disable confirmed"
                                         : "Activate confirmed",
                                         confirmAction.user
