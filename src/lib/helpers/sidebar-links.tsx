@@ -5,6 +5,7 @@ import {
   TabletSmartphone,
   UserRound,
   Settings,
+  LibraryBig,
 } from "lucide-react";
 import type { ReactNode } from "react";
 
@@ -48,6 +49,12 @@ export const useSidebarLinks = () => {
       title: "Users",
       icon: <UserRound size={18} />,
       href: "/dashboard/users",
+    },
+    {
+      id: ["categories"],
+      title: "Categories",
+      icon: <LibraryBig size={18} />,
+      href: "/dashboard/categories",
     },
     {
       id: ["settings"],
