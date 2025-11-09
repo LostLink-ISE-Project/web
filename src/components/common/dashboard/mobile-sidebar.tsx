@@ -1,9 +1,7 @@
 import { useSidebarLinks } from "@/lib/helpers/sidebar-links";
-import { cn } from "@/lib/utils";
 import { useNavigate } from "react-router-dom";
 import { Fragment } from "react";
-import { ArrowLeft, ArrowRight, LogOut, Menu, X } from "lucide-react";
-import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
+import { LogOut, Menu, X } from "lucide-react";
 import { useDashboardStore } from "@/lib/stores/sidebar.store";
 import { Button } from "@/components/ui/button";
 import LostLinkLogo from "@/assets/LostLink.svg";

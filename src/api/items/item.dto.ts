@@ -1,0 +1,29 @@
+// DTOs for Items
+
+export type ItemStatus = "SUBMITTED" | "LISTED" | "CLAIMED" | "ARCHIVED";
+
+export interface ItemResponse {
+  id: number;
+  itemName: string;
+  itemDescription: string;
+  foundLocation: string;
+  givenLocation: string;
+  image: string;
+  status: ItemStatus;
+  createdDate: string;
+  category: string;
+}
+
+export interface CreateItemDto {
+  itemName: string;
+  itemDescription: string;
+  foundLocation: string;
+  submitterEmail: string;
+  image: string;
+  givenLocation: string;
+  category: string;
+}
+
+export interface UpdateItemStatusDto {
+  status: ItemStatus;
+}

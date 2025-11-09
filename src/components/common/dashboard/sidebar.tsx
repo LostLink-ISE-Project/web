@@ -83,7 +83,7 @@ const Sidebar = () => {
       <div className="h-full flex flex-col justify-between px-3 py-6">
         <Button
           onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-          className="absolute top-1/2 -right-3 transform -translate-y-1/2 rounded-xl bg-primary text-white bg w-8 h-8 flex items-center justify-center shadow"
+          className="absolute top-1/2 -right-3 transform -translate-y-1/2 rounded-xl bg-primary text-white bg w-8 h-8 flex items-center justify-center shadow z-50"
         >
           {isSidebarOpen ? <ArrowLeft size={16} /> : <ArrowRight size={16} />}
         </Button>

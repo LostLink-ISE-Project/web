@@ -18,6 +18,7 @@ import QrCodeModal from "@/components/common/modals/qr-code-modal";
 import AddLocationModal from "@/components/common/modals/add-location-modal";
 import { useCreateLocation, useDeleteLocation, useLocations, useUpdateLocation } from "@/api/locations/hook";
 import EditLocationModal from "@/components/common/modals/edit-location-modal";
+import { toast } from "sonner";
 
 export default function LocationsPage() {
   const [qrOpen, setQrOpen] = useState(false);
@@ -43,21 +44,21 @@ export default function LocationsPage() {
     workHourEnd: string;
   }) => {
     const workHours = `${data.workHourStart} - ${data.workHourEnd}`;
-    const slug = data.name.toLowerCase().replace(/\s+/g, "-"); // e.g. "Main Hall" → "main-hall"
+    const slug = data.name.toLowerCase().replace(/\s+/g, "-");
 
-    createLocation({
-      name: data.name,
-      description: `${data.details} (${workHours})`,
-      slug,
-    });
+    createLocation(
+      {
+        name: data.name,
+        description: `${data.details} (${workHours})`,
+        slug,
+      },
+      {
+        onSuccess: () => toast.success("Location added successfully"),
+        onError: () => toast.error("Failed to add location"),
+      }
+    );
   };
 
-  // const locationData = Array.from({ length: 5 }).map((_, i) => ({
-  //   name: `Location ${i + 1}`,
-  //   details: "Building A, Room 101",
-  //   workHours: "09:00 - 16:00",
-  //   slug: `location-${i + 1}`, // for QR simulation
-  // }));
   const { data: locationData = [], isLoading } = useLocations();
   const { mutate: createLocation } = useCreateLocation();
   const { mutate: deleteLocation } = useDeleteLocation();
@@ -82,14 +83,20 @@ export default function LocationsPage() {
     const workHours = `${data.workHourStart} - ${data.workHourEnd}`;
     const slug = data.name.toLowerCase().replace(/\s+/g, "-");
 
-    updateLocation({
-      id: data.id,
-      payload: {
-        name: data.name,
-        description: `${data.details} (${workHours})`,
-        slug,
+    updateLocation(
+      {
+        id: data.id,
+        payload: {
+          name: data.name,
+          description: `${data.details} (${workHours})`,
+          slug,
+        },
       },
-    });
+      {
+        onSuccess: () => toast.success("Location updated successfully"),
+        onError: () => toast.error("Failed to update location"),
+      }
+    );
   };
 
   const columns = [
@@ -146,7 +153,12 @@ export default function LocationsPage() {
               Edit
             </DropdownMenuItem>
             <DropdownMenuItem
-              onClick={() => deleteLocation(row.original.id)}
+              onClick={() =>
+                deleteLocation(row.original.id, {
+                  onSuccess: () => toast.success("Location deleted successfully"),
+                  onError: () => toast.error("Failed to delete location"),
+                })
+              }
               className="flex items-center gap-2 text-destructive"
             >
               <Trash className="w-4 h-4" />

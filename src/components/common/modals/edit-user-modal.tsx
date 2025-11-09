@@ -7,15 +7,8 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import {
-  Select,
-  SelectTrigger,
-  SelectValue,
-  SelectContent,
-  SelectItem,
-} from "@/components/ui/select";
-import { useState, useEffect } from "react";
-import { ShieldCheck, ShieldOff } from "lucide-react";
+import { useForm } from "react-hook-form";
+import { useEffect } from "react";
 
 interface EditUserModalProps {
   open: boolean;
@@ -40,18 +33,32 @@ export default function EditUserModal({
   user,
   onSubmit,
 }: EditUserModalProps) {
-  const [name, setName] = useState(user.name);
-  const [surname, setSurname] = useState(user.surname || "");
-  const [status, setStatus] = useState<"ACTIVE" | "DISABLED">(user.status);
+  const {
+    register,
+    handleSubmit,
+    reset,
+    formState: { errors },
+  } = useForm({
+    defaultValues: {
+      name: user.name,
+      surname: user.surname,
+    },
+  });
 
   useEffect(() => {
-    setName(user.name);
-    setSurname(user.surname || "");
-    setStatus(user.status);
-  }, [user]);
+    reset({
+      name: user.name,
+      surname: user.surname,
+    });
+  }, [user, reset]);
 
-  const handleSubmit = () => {
-    onSubmit({ id: user.id, name, surname, status });
+  const handleFormSubmit = (data: { name: string; surname: string }) => {
+    onSubmit({
+      id: user.id,
+      name: data.name,
+      surname: data.surname,
+      status: user.status, // unchanged
+    });
     onClose();
   };
 
@@ -61,43 +68,30 @@ export default function EditUserModal({
         <DialogHeader className="flex justify-between items-center mb-4">
           <DialogTitle>Edit User</DialogTitle>
         </DialogHeader>
-        <div className="flex flex-col gap-4 py-4">
+        <form onSubmit={handleSubmit(handleFormSubmit)} className="flex flex-col gap-4 py-4">
           <div className="flex gap-4">
-            <Input
-              placeholder="Name"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-            />
-            <Input
-              placeholder="Surname"
-              value={surname}
-              onChange={(e) => setSurname(e.target.value)}
-            />
+            <div className="flex-1">
+              <Input
+                placeholder="Name"
+                {...register("name", { required: "Name is required" })}
+              />
+              {errors.name && <p className="text-red-500 text-sm mt-1">{errors.name.message}</p>}
+            </div>
+            <div className="flex-1">
+              <Input
+                placeholder="Surname"
+                {...register("surname", { required: "Surname is required" })}
+              />
+              {errors.surname && <p className="text-red-500 text-sm mt-1">{errors.surname.message}</p>}
+            </div>
           </div>
-          <Select
-            value={status}
-            onValueChange={(v) => setStatus(v as "ACTIVE" | "DISABLED")}
-          >
-            <SelectTrigger>
-              <SelectValue placeholder="Status" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="ACTIVE">
-                <ShieldCheck className="w-4 h-4 text-green-500" />
-                Active
-              </SelectItem>
-              <SelectItem value="DISABLED">
-                <ShieldOff className="w-4 h-4 text-orange-500" />
-                Disabled
-              </SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
-        <DialogFooter>
-          <Button onClick={handleSubmit} className="text-white w-full">
-            Save Changes
-          </Button>
-        </DialogFooter>
+
+          <DialogFooter>
+            <Button type="submit" className="text-white w-full">
+              Save Changes
+            </Button>
+          </DialogFooter>
+        </form>
       </DialogContent>
     </Dialog>
   );

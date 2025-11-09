@@ -7,7 +7,8 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
+import { useForm } from "react-hook-form";
 
 interface EditOfficeModalProps {
   open: boolean;
@@ -17,7 +18,7 @@ interface EditOfficeModalProps {
     name: string;
     location: string;
     contact: string;
-    workHours: string; // format: "09:00 - 17:00"
+    workHours: string; // "09:00 - 17:00"
   };
   onSubmit: (data: {
     id: number;
@@ -35,29 +36,36 @@ export default function EditOfficeModal({
   office,
   onSubmit,
 }: EditOfficeModalProps) {
-  const [name, setName] = useState(office.name);
-  const [location, setLocation] = useState(office.location);
-  const [contact, setContact] = useState(office.contact);
-  const [workHourStart, setWorkHourStart] = useState("");
-  const [workHourEnd, setWorkHourEnd] = useState("");
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+    reset,
+  } = useForm({
+    defaultValues: {
+      name: "",
+      location: "",
+      contact: "",
+      workHourStart: "",
+      workHourEnd: "",
+    },
+  });
 
   useEffect(() => {
-    setName(office.name);
-    setLocation(office.location);
-    setContact(office.contact);
     const [start, end] = office.workHours.split(" - ");
-    setWorkHourStart(start);
-    setWorkHourEnd(end);
-  }, [office]);
+    reset({
+      name: office.name,
+      location: office.location,
+      contact: office.contact,
+      workHourStart: start,
+      workHourEnd: end,
+    });
+  }, [office, reset]);
 
-  const handleSubmit = () => {
+  const handleFormSubmit = (data: any) => {
     onSubmit({
       id: office.id,
-      name,
-      location,
-      contact,
-      workHourStart,
-      workHourEnd,
+      ...data,
     });
     onClose();
   };
@@ -65,45 +73,47 @@ export default function EditOfficeModal({
   return (
     <Dialog open={open} onOpenChange={onClose}>
       <DialogContent className="rounded-2xl">
-        <DialogHeader className="flex justify-between items-center mb-4">
+        <DialogHeader className="mb-4">
           <DialogTitle>Edit Office</DialogTitle>
         </DialogHeader>
 
-        <div className="flex flex-col gap-4 py-2">
-          <Input
-            placeholder="Office Name"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-          />
-          <Input
-            placeholder="Location"
-            value={location}
-            onChange={(e) => setLocation(e.target.value)}
-          />
-          <Input
-            placeholder="Contact Info"
-            value={contact}
-            onChange={(e) => setContact(e.target.value)}
-          />
-          <div className="flex gap-4">
-            <Input
-              type="time"
-              value={workHourStart}
-              onChange={(e) => setWorkHourStart(e.target.value)}
-            />
-            <Input
-              type="time"
-              value={workHourEnd}
-              onChange={(e) => setWorkHourEnd(e.target.value)}
-            />
+        <form onSubmit={handleSubmit(handleFormSubmit)} className="flex flex-col gap-4 py-2">
+          <div>
+            <Input placeholder="Office Name" {...register("name", { required: true })} />
+            {errors.name && <p className="text-red-500 text-sm mt-1">Office name is required</p>}
           </div>
-        </div>
 
-        <DialogFooter>
-          <Button onClick={handleSubmit} className="text-white w-full">
-            Save Changes
-          </Button>
-        </DialogFooter>
+          <div>
+            <Input placeholder="Location" {...register("location", { required: true })} />
+            {errors.location && <p className="text-red-500 text-sm mt-1">Location is required</p>}
+          </div>
+
+          <div>
+            <Input placeholder="Contact Info" {...register("contact", { required: true })} />
+            {errors.contact && <p className="text-red-500 text-sm mt-1">Contact is required</p>}
+          </div>
+
+          <div className="flex gap-4">
+            <div className="flex-1">
+              <Input type="time" {...register("workHourStart", { required: true })} />
+              {errors.workHourStart && (
+                <p className="text-red-500 text-sm mt-1">Start time required</p>
+              )}
+            </div>
+            <div className="flex-1">
+              <Input type="time" {...register("workHourEnd", { required: true })} />
+              {errors.workHourEnd && (
+                <p className="text-red-500 text-sm mt-1">End time required</p>
+              )}
+            </div>
+          </div>
+
+          <DialogFooter>
+            <Button type="submit" className="w-full text-white">
+              Save Changes
+            </Button>
+          </DialogFooter>
+        </form>
       </DialogContent>
     </Dialog>
   );

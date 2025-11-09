@@ -13,6 +13,9 @@ export function useOffices() {
   return useQuery<Office[]>({
     queryKey: ["offices"],
     queryFn: getAllOffices,
+    staleTime: 1000 * 60 * 5, // 5 minutes, prevents frequent refetching
+    refetchOnWindowFocus: false,
+    refetchOnMount: false,
   });
 }
 

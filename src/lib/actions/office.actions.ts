@@ -2,7 +2,7 @@ import officeInterceptor from "@/api/office/inteceptor";
 import type { Office, CreateOfficeDto, UpdateOfficeDto } from "@/api/office/office.dto";
 
 export async function getAllOffices(): Promise<Office[]> {
-  const { data } = await officeInterceptor.get("/");
+  const { data } = await officeInterceptor.get("");
   return data.data;
 }
 
@@ -12,7 +12,7 @@ export async function getOfficeById(id: number): Promise<Office> {
 }
 
 export async function createOffice(payload: CreateOfficeDto): Promise<Office> {
-  const { data } = await officeInterceptor.post("/", payload);
+  const { data } = await officeInterceptor.post("", payload);
   return data.data;
 }
 

@@ -77,14 +77,14 @@ export default function HomePage() {
               : "flex flex-col gap-4"
           }
         >
-          {filteredItems.map((item) => (
+          {/* {filteredItems.map((item) => (
             <ItemCard
               key={item.id}
               item={item}
               variant={view}
               isForPublic={true}
             />
-          ))}
+          ))} */}
         </div>
       </div>
     </div>

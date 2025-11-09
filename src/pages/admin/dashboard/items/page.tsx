@@ -1,14 +1,23 @@
-import { useState } from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
-import { mockItems, type ItemStatus } from "@/lib/types/item";
+import { useState, useMemo } from "react";
+import {
+  Card, CardContent, CardHeader, CardTitle,
+} from "@/components/ui/card";
+import {
+  Tabs, TabsList, TabsTrigger, TabsContent,
+} from "@/components/ui/tabs";
 import { useDebouncedValue } from "@/lib/hooks/debounceValue";
 import ItemToolbar from "@/components/common/items/item-toolbar";
 import ItemCard from "@/components/common/items/item-card";
 import type { DateRange } from "react-day-picker";
+import { useItems } from "@/api/items/hook";
+import { toast } from "sonner";
+
+export type ItemStatus = "SUBMITTED" | "LISTED" | "CLAIMED" | "ARCHIVED";
+
+const STATUSES: ItemStatus[] = ["SUBMITTED", "LISTED", "CLAIMED", "ARCHIVED"];
 
 export default function ItemsPage() {
-  const [tab, setTab] = useState<ItemStatus>("submitted");
+  const [tab, setTab] = useState<ItemStatus>("SUBMITTED");
   const [view, setView] = useState<"list" | "grid">("list");
   const [keyword, setKeyword] = useState("");
   const [sort, setSort] = useState("newest");
@@ -16,37 +25,53 @@ export default function ItemsPage() {
   const [dateRange, setDateRange] = useState<DateRange | undefined>();
 
   const debouncedKeyword = useDebouncedValue(keyword, 300);
+  const { data, isLoading, isError } = useItems(false);
 
-  const filteredItems = mockItems
-    .filter((item) => {
-      const matchesStatus = item.status === tab;
-      const matchesKeyword = item.title.toLowerCase().includes(debouncedKeyword.toLowerCase());
-      const matchesOffice =
-        officeFilter.length === 0 || (item.officeInfo && officeFilter.includes(item.officeInfo));
-      const itemDate = new Date(item.date);
-      const matchesDate =
-        (!dateRange?.from || itemDate >= dateRange.from) &&
-        (!dateRange?.to || itemDate <= dateRange.to);
+  if (isError) toast.error("Failed to load items");
 
-      return matchesStatus && matchesKeyword && matchesOffice && matchesDate;
-    })
-    .sort((a, b) => {
-      const aDate = new Date(a.date);
-      const bDate = new Date(b.date);
-      return sort === "newest" ? bDate.getTime() - aDate.getTime() : aDate.getTime() - bDate.getTime();
-    });
+  const filteredItems = useMemo(() => {
+    const items = data ?? [];
+
+    return items
+      .map((item) => ({
+        id: String(item.id),
+        title: item.itemName,
+        description: item.itemDescription,
+        location: item.foundLocation,
+        date: item.createdDate,
+        status: item.status as ItemStatus,
+        image: `${import.meta.env.VITE_API_URL}/media/${item.image}`,
+        officeInfo: `${item.givenLocation}`, // replace with mapped office if needed
+      }))
+      .filter((item) => {
+        const matchesKeyword = item.title?.toLowerCase().includes(debouncedKeyword.toLowerCase());
+        const matchesOffice = officeFilter.length === 0 || officeFilter.includes(item.officeInfo);
+        const itemDate = new Date(item.date);
+        const matchesDate =
+          (!dateRange?.from || itemDate >= dateRange.from) &&
+          (!dateRange?.to || itemDate <= dateRange.to);
+        return matchesKeyword && matchesOffice && matchesDate;
+      })
+      .sort((a, b) => {
+        const aDate = new Date(a.date);
+        const bDate = new Date(b.date);
+        return sort === "newest" ? bDate.getTime() - aDate.getTime() : aDate.getTime() - bDate.getTime();
+      });
+  }, [data, debouncedKeyword, officeFilter, dateRange, sort]);
 
   return (
-    <Card className="border-0  shadow-none md:shadow-lg rounded-2xl">
+    <Card className="border-0 shadow-none md:shadow-lg rounded-2xl">
       <CardHeader>
         <CardTitle className="text-xl">Items</CardTitle>
       </CardHeader>
       <CardContent>
         <Tabs value={tab} onValueChange={(v) => setTab(v as ItemStatus)}>
-          <TabsList className="w-full mb-4 border-b rounded-none">
-            <TabsTrigger value="submitted">Submitted</TabsTrigger>
-            <TabsTrigger value="approved">Approved</TabsTrigger>
-            <TabsTrigger value="archived">Archived</TabsTrigger>
+          <TabsList className="w-full mb-4 border-b rounded-none overflow-x-auto">
+            {STATUSES.map((status) => (
+              <TabsTrigger key={status} value={status}>
+                {status.charAt(0) + status.slice(1).toLowerCase()}
+              </TabsTrigger>
+            ))}
           </TabsList>
 
           <ItemToolbar
@@ -62,8 +87,7 @@ export default function ItemsPage() {
             setOfficeFilter={setOfficeFilter}
           />
 
-
-          {["submitted", "approved", "archived"].map((status) => (
+          {STATUSES.map((status) => (
             <TabsContent key={status} value={status}>
               <div className="overflow-auto max-h-[58vh]">
                 <div
@@ -73,13 +97,15 @@ export default function ItemsPage() {
                       : "space-y-5 pb-2"
                   }
                 >
-                  {filteredItems.map((item) => (
-                    <ItemCard
-                      key={item.id}
-                      item={item}
-                      variant={view}
-                    />
-                  ))}
+                  {isLoading ? (
+                    <div className="text-muted text-sm px-4 py-2">Loading items...</div>
+                  ) : filteredItems.length === 0 ? (
+                    <div className="text-muted text-sm px-4 py-2">No items found.</div>
+                  ) : (
+                    filteredItems.map((item) => (
+                      <ItemCard key={item.id} item={item} variant={view} />
+                    ))
+                  )}
                 </div>
               </div>
             </TabsContent>

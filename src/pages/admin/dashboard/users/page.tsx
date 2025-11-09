@@ -9,6 +9,7 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import { MoreVertical, Pencil, ShieldCheck, ShieldOff, Trash } from "lucide-react";
 import { useState } from "react";
 import { useCreateUser, useDeleteUser, useUpdateUser, useUsers } from "@/api/users/hook";
+import { toast } from "sonner";
 
 export default function UsersPage() {
     const [addOpen, setAddOpen] = useState(false);
@@ -17,7 +18,7 @@ export default function UsersPage() {
         id: number;
         name: string;
         surname: string;
-        status: "active" | "disabled";
+        status: "ACTIVE" | "DISABLED";
     } | null>(null);
 
     const { data: userData = [], isLoading } = useUsers();
@@ -30,29 +31,46 @@ export default function UsersPage() {
         surname: string;
         username: string;
         password: string;
-        status: "ACTIVE" | "DISABLED";
     }) => {
-        createUser({
-            name: newUser.name,
-            surname: newUser.surname,
-            username: newUser.username,
-            password: newUser.password,
-        });
+        createUser(
+            {
+                name: newUser.name,
+                surname: newUser.surname,
+                username: newUser.username,
+                password: newUser.password,
+            },
+            {
+                onSuccess: () => toast.success("User added successfully"),
+                onError: () => toast.error("Failed to add user"),
+            }
+        );
     };
 
     const handleEditUser = (data: {
         id: number;
         name: string;
         surname: string;
-        status: "ACTIVE" | "DISABLED";
     }) => {
-    updateUser({
-        id: data.id,
-        payload: {
-        name: data.name,
-        surname: data.surname,
-        },
-    });
+        updateUser(
+            {
+                id: data.id,
+                payload: {
+                    name: data.name,
+                    surname: data.surname,
+                },
+            },
+            {
+                onSuccess: () => toast.success("User updated successfully"),
+                onError: () => toast.error("Failed to update user"),
+            }
+        );
+    };
+
+    const handleDeleteUser = (id: number) => {
+        deleteUser(id, {
+            onSuccess: () => toast.success("User deleted successfully"),
+            onError: () => toast.error("Failed to delete user"),
+        });
     };
 
     const [confirmAction, setConfirmAction] = useState<{
@@ -118,13 +136,9 @@ export default function UsersPage() {
                                 Edit
                             </DropdownMenuItem>
                             <DropdownMenuItem
-                                onClick={() => {
-                                    if (confirmAction?.type === "delete") {
-                                        const user = userData.find((u) => u.name === confirmAction.user);
-                                        if (user) deleteUser(user.id);
-                                    }
-                                    setConfirmAction(null);
-                                }}
+                                onClick={() =>
+                                    setConfirmAction({ type: "delete", user: name }) // ✅ this was missing
+                                }
                                 className="flex items-center gap-2 text-destructive"
                             >
                                 <Trash className="w-4 h-4" />
@@ -166,19 +180,25 @@ export default function UsersPage() {
                     </Button>
                 </CardHeader>
                 <CardContent>
-                    <SimpleTable columns={columns} data={userData} />
+                    {isLoading ? (
+                        <div className="p-4 text-center text-muted">Loading users...</div>
+                    ) : userData.length === 0 ? (
+                        <div className="p-4 text-center text-muted">No users found.</div>
+                    ): (
+                        <SimpleTable columns={columns} data={userData} />
+                    )}
                 </CardContent>
             </Card>
 
             <AddUserModal open={addOpen} onClose={() => setAddOpen(false)} onSubmit={handleAddUser} />
-            {/* {selectedUser && (
+            {selectedUser && (
                 <EditUserModal
                     open={editOpen}
                     onClose={() => setEditOpen(false)}
                     user={selectedUser}
                     onSubmit={handleEditUser}
                 />
-            )} */}
+            )}
 
             {confirmAction && (
                 <Dialog open={!!confirmAction} onOpenChange={() => setConfirmAction(null)}>
@@ -211,14 +231,10 @@ export default function UsersPage() {
                                 variant={confirmAction.type === "delete" ? "destructive" : "default"}
                                 onClick={() => {
                                     if (confirmAction.type === "delete") {
-                                    console.log("Delete confirmed", confirmAction.user);
+                                        const user = userData.find((u) => u.name === confirmAction.user);
+                                        if (user) handleDeleteUser(user.id);
                                     } else {
-                                    console.log(
-                                        confirmAction.currentStatus === "ACTIVE"
-                                        ? "Disable confirmed"
-                                        : "Activate confirmed",
-                                        confirmAction.user
-                                    );
+                                        toast.info("Status toggle not yet implemented");
                                     }
                                     setConfirmAction(null);
                                 }}

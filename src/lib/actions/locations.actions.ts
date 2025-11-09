@@ -2,7 +2,7 @@ import locationInterceptor from "@/api/locations/inceptor";
 import type { CreateLocationDto, Location, UpdateLocationDto } from "@/api/locations/location.dto";
 
 export async function getAllLocations(): Promise<Location[]> {
-  const { data } = await locationInterceptor.get("/");
+  const { data } = await locationInterceptor.get("");
   return data.data;
 }
 
@@ -12,7 +12,7 @@ export async function getLocationById(id: number): Promise<Location> {
 }
 
 export async function createLocation(payload: CreateLocationDto): Promise<Location> {
-  const { data } = await locationInterceptor.post("/", payload);
+  const { data } = await locationInterceptor.post("", payload);
   return data.data;
 }
 

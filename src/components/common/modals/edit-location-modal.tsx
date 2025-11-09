@@ -7,7 +7,8 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { useState, useEffect } from "react";
+import { useEffect } from "react";
+import { useForm } from "react-hook-form";
 
 interface EditLocationModalProps {
   open: boolean;
@@ -32,35 +33,32 @@ export default function EditLocationModal({
   location,
   onSubmit,
 }: EditLocationModalProps) {
-  const [name, setName] = useState(location.name);
-  const [details, setDetails] = useState("");
-  const [workHourStart, setWorkHourStart] = useState("");
-  const [workHourEnd, setWorkHourEnd] = useState("");
+  const {
+    register,
+    handleSubmit,
+    reset,
+    formState: { errors },
+  } = useForm({
+    defaultValues: {
+      name: "",
+      details: "",
+      workHourStart: "",
+      workHourEnd: "",
+    },
+  });
 
   useEffect(() => {
-    setName(location.name);
-
-    // Extract description and work hours from description string
     const match = location.description.match(/^(.*) \((.*) - (.*)\)$/);
-    if (match) {
-      setDetails(match[1]);
-      setWorkHourStart(match[2]);
-      setWorkHourEnd(match[3]);
-    } else {
-      setDetails(location.description);
-      setWorkHourStart("");
-      setWorkHourEnd("");
-    }
-  }, [location]);
-
-  const handleSubmit = () => {
-    onSubmit({
-      id: location.id,
-      name,
-      details,
-      workHourStart,
-      workHourEnd,
+    reset({
+      name: location.name,
+      details: match ? match[1] : location.description,
+      workHourStart: match ? match[2] : "",
+      workHourEnd: match ? match[3] : "",
     });
+  }, [location, reset]);
+
+  const handleFormSubmit = (data: any) => {
+    onSubmit({ id: location.id, ...data });
     onClose();
   };
 
@@ -70,35 +68,39 @@ export default function EditLocationModal({
         <DialogHeader className="flex justify-between items-center mb-4">
           <DialogTitle>Edit Location</DialogTitle>
         </DialogHeader>
-        <div className="flex flex-col gap-4 py-2">
-          <Input
-            placeholder="Location Name"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-          />
-          <Input
-            placeholder="Details"
-            value={details}
-            onChange={(e) => setDetails(e.target.value)}
-          />
-          <div className="flex gap-4">
-            <Input
-              type="time"
-              value={workHourStart}
-              onChange={(e) => setWorkHourStart(e.target.value)}
-            />
-            <Input
-              type="time"
-              value={workHourEnd}
-              onChange={(e) => setWorkHourEnd(e.target.value)}
-            />
+
+        <form onSubmit={handleSubmit(handleFormSubmit)} className="flex flex-col gap-4 py-2">
+          <div>
+            <Input placeholder="Location Name" {...register("name", { required: true })} />
+            {errors.name && <p className="text-red-500 text-sm mt-1">Location name is required</p>}
           </div>
-        </div>
-        <DialogFooter>
-          <Button onClick={handleSubmit} className="text-white w-full">
-            Save Changes
-          </Button>
-        </DialogFooter>
+
+          <div>
+            <Input placeholder="Details" {...register("details", { required: true })} />
+            {errors.details && <p className="text-red-500 text-sm mt-1">Details are required</p>}
+          </div>
+
+          <div className="flex gap-4">
+            <div className="flex-1">
+              <Input type="time" {...register("workHourStart", { required: true })} />
+              {errors.workHourStart && (
+                <p className="text-red-500 text-sm mt-1">Start time required</p>
+              )}
+            </div>
+            <div className="flex-1">
+              <Input type="time" {...register("workHourEnd", { required: true })} />
+              {errors.workHourEnd && (
+                <p className="text-red-500 text-sm mt-1">End time required</p>
+              )}
+            </div>
+          </div>
+
+          <DialogFooter>
+            <Button type="submit" className="text-white w-full">
+              Save Changes
+            </Button>
+          </DialogFooter>
+        </form>
       </DialogContent>
     </Dialog>
   );

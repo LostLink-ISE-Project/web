@@ -7,15 +7,7 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import {
-  Select,
-  SelectTrigger,
-  SelectValue,
-  SelectContent,
-  SelectItem,
-} from "@/components/ui/select";
-import { useState } from "react";
-import { ShieldCheck, ShieldOff } from "lucide-react";
+import { useForm } from "react-hook-form";
 
 interface AddUserModalProps {
   open: boolean;
@@ -25,24 +17,32 @@ interface AddUserModalProps {
     surname: string;
     username: string;
     password: string;
-    status: "ACTIVE" | "DISABLED";
   }) => void;
 }
 
 export default function AddUserModal({ open, onClose, onSubmit }: AddUserModalProps) {
-  const [name, setName] = useState("");
-  const [surname, setSurname] = useState("");
-  const [username, setUsername] = useState("");
-  const [password, setPassword] = useState("");
-  const [status, setStatus] = useState<"ACTIVE" | "DISABLED">("ACTIVE");
+  const {
+    register,
+    handleSubmit,
+    reset,
+    formState: { errors },
+  } = useForm({
+    defaultValues: {
+      name: "",
+      surname: "",
+      username: "",
+      password: "",
+    },
+  });
 
-  const handleSubmit = () => {
-    onSubmit({ name, surname, username, password, status });
-    setName("");
-    setSurname("");
-    setUsername("");
-    setPassword("");
-    setStatus("ACTIVE");
+  const handleFormSubmit = (data: {
+    name: string;
+    surname: string;
+    username: string;
+    password: string;
+  }) => {
+    onSubmit({ ...data});
+    reset();
     onClose();
   };
 
@@ -52,53 +52,57 @@ export default function AddUserModal({ open, onClose, onSubmit }: AddUserModalPr
         <DialogHeader className="flex justify-between items-center mb-4">
           <DialogTitle>Add User</DialogTitle>
         </DialogHeader>
-        <div className="flex flex-col gap-4 py-4">
+        <form onSubmit={handleSubmit(handleFormSubmit)} className="flex flex-col gap-4 py-4">
           <div className="flex gap-4">
-            <Input
-              placeholder="Name"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-            />
-            <Input
-              placeholder="Surname"
-              value={surname}
-              onChange={(e) => setSurname(e.target.value)}
-            />
+            <div className="flex-1">
+              <Input
+                placeholder="Name"
+                {...register("name", { required: "Name is required" })}
+              />
+              {errors.name && <p className="text-red-500 text-sm mt-1">{errors.name.message}</p>}
+            </div>
+            <div className="flex-1">
+              <Input
+                placeholder="Surname"
+                {...register("surname", { required: "Surname is required" })}
+              />
+              {errors.surname && (
+                <p className="text-red-500 text-sm mt-1">{errors.surname.message}</p>
+              )}
+            </div>
           </div>
+
           <div className="flex gap-4">
-            <Input
-              placeholder="Username"
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
-            />
-            <Input
-              type="password"
-              placeholder="Password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-            />
+            <div className="flex-1">
+              <Input
+                placeholder="Username"
+                {...register("username", { required: "Username is required" })}
+              />
+              {errors.username && (
+                <p className="text-red-500 text-sm mt-1">{errors.username.message}</p>
+              )}
+            </div>
+            <div className="flex-1">
+              <Input
+                type="password"
+                placeholder="Password"
+                {...register("password", {
+                  required: "Password is required",
+                  minLength: { value: 4, message: "Min 4 characters" },
+                })}
+              />
+              {errors.password && (
+                <p className="text-red-500 text-sm mt-1">{errors.password.message}</p>
+              )}
+            </div>
           </div>
-          <Select value={status} onValueChange={(v) => setStatus(v as "ACTIVE" | "DISABLED")}>
-            <SelectTrigger>
-              <SelectValue placeholder="Status" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="ACTIVE">
-                <ShieldCheck className="w-4 h-4 text-green-500" />
-                Active
-              </SelectItem>
-              <SelectItem value="DISABLED">
-                <ShieldOff className="w-4 h-4 text-orange-500" />
-                Disabled
-              </SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
-        <DialogFooter>
-          <Button onClick={handleSubmit} className="text-white w-full">
-            Add
-          </Button>
-        </DialogFooter>
+
+          <DialogFooter>
+            <Button type="submit" className="text-white w-full">
+              Add
+            </Button>
+          </DialogFooter>
+        </form>
       </DialogContent>
     </Dialog>
   );

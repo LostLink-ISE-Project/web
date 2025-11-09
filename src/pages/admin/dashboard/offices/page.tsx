@@ -7,6 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { MoreVertical, Pencil, Trash } from "lucide-react";
 import { useState } from "react";
+import { toast } from "sonner";
 
 export default function OfficesPage() {
     const [addOpen, setAddOpen] = useState(false);
@@ -32,13 +33,24 @@ export default function OfficesPage() {
         workHourStart: string;
         workHourEnd: string;
     }) => {
-        const fullHours = `${data.workHourStart} - ${data.workHourEnd}`;
-        createOffice({
+        const workHours = `${data.workHourStart} - ${data.workHourEnd}`;
+
+        createOffice(
+            {
             name: data.name,
             location: data.location,
             contact: data.contact,
-            workHours: fullHours,
-        });
+            workHours,
+            },
+            {
+            onSuccess: () => {
+                toast.success("Office added successfully");
+            },
+            onError: () => {
+                toast.error("Failed to add office");
+            },
+            }
+        );
     };
 
     const handleEditOffice = (data: {
@@ -50,7 +62,26 @@ export default function OfficesPage() {
         workHourEnd: string;
     }) => {
         const workHours = `${data.workHourStart} - ${data.workHourEnd}`;
-        updateOffice({ id: data.id, payload: { ...data, workHours } });
+
+        updateOffice(
+            {
+                id: data.id,
+                payload: {
+                    name: data.name,
+                    location: data.location,
+                    contact: data.contact,
+                    workHours,
+                },
+            },
+            {
+                onSuccess: () => {
+                    toast.success("Office updated successfully");
+                },
+                onError: () => {
+                    toast.error("Failed to update office");
+                },
+            }
+        );
     };
 
     const columns = [
@@ -104,7 +135,12 @@ export default function OfficesPage() {
                             Edit
                         </DropdownMenuItem>
                         <DropdownMenuItem
-                            onClick={() => deleteOffice(row.original.id)}
+                            onClick={() => 
+                                deleteOffice(row.original.id, {
+                                    onSuccess: () => toast.success("Office deleted successfully"),
+                                    onError: () => toast.error("Failed to delete Office"),
+                                })
+                            }
                             className="flex items-center gap-2 text-destructive"
                         >
                             <Trash className="w-4 h-4" />
@@ -129,6 +165,8 @@ export default function OfficesPage() {
                 <CardContent>
                     {isLoading ? (
                         <div className="p-4 text-center text-muted">Loading offices...</div>
+                    ) : officeData.length === 0 ? (
+                        <div className="p-4 text-center text-muted">No offices found.</div>
                     ) : (
                         <SimpleTable columns={columns} data={officeData} />
                     )}
