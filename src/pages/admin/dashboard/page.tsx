@@ -114,9 +114,9 @@ export default function DashboardPage() {
           <CardContent className="space-y-5">
             {submittedItems.length > 0 ? (
               <>
-                {submittedItems.map((item) => (
+                {/* {submittedItems.map((item) => (
                   <ItemCard key={item.id} item={item} variant="list" />
-                ))}
+                ))} */}
                 <div className="flex justify-end">
                   <Button
                     className="w-full md:w-fit flex text-white items-center py-5 rounded-lg"
