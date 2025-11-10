@@ -1,3 +1,4 @@
+import { useEffect, useMemo } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -8,11 +9,10 @@ import {
 } from "@/components/ui/dropdown-menu";
 import {
   Popover,
-  PopoverContent,
   PopoverTrigger,
+  PopoverContent,
 } from "@/components/ui/popover";
 import { Calendar } from "@/components/ui/calendar";
-import { format } from "date-fns";
 import {
   ListFilter,
   LayoutGrid,
@@ -22,7 +22,10 @@ import {
   ChevronRight,
   FilePlus2,
 } from "lucide-react";
+import { format } from "date-fns";
 import type { DateRange } from "react-day-picker";
+import { useOffices } from "@/api/office/hook";
+import { toast } from "sonner";
 
 interface ItemToolbarProps {
   view: "list" | "grid";
@@ -38,13 +41,6 @@ interface ItemToolbarProps {
   isForPublic?: boolean;
 }
 
-// 🔹 Replace with API later
-const mockOffices = [
-  { id: "1", name: "Building A" },
-  { id: "2", name: "Building B" },
-  { id: "3", name: "Library Office" },
-];
-
 export default function ItemToolbar({
   view,
   setView,
@@ -58,8 +54,18 @@ export default function ItemToolbar({
   dateRange,
   setDateRange,
 }: ItemToolbarProps) {
+  const { data: offices = [], isLoading, isError } = useOffices();
+
+  useEffect(() => {
+    if (isError) toast.error("Failed to load offices.");
+  }, [isError]);
+
   const hasFilters =
     keyword || sort !== "newest" || officeFilter.length > 0 || dateRange?.from;
+
+  const formattedOffices = useMemo(() => {
+    return offices.map((o) => o.name);
+  }, [offices]);
 
   return (
     <div className="flex flex-col gap-4 mb-6 w-full">
@@ -85,7 +91,7 @@ export default function ItemToolbar({
 
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div className="flex flex-wrap items-center gap-3">
-          {/* Sorting */}
+          {/* Sort */}
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="outline" className="flex items-center gap-2 border-1 border-outline md:border-0 shadow-none md:shadow-md">
@@ -109,20 +115,26 @@ export default function ItemToolbar({
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="start">
-              {mockOffices.map((office) => (
-                <DropdownMenuItem
-                  key={office.id}
-                  onClick={() => {
-                    setOfficeFilter((prev) =>
-                      prev.includes(office.name)
-                        ? prev.filter((o) => o !== office.name)
-                        : [...prev, office.name]
-                    );
-                  }}
-                >
-                  <span>{office.name}</span>
-                </DropdownMenuItem>
-              ))}
+              {isLoading ? (
+                <DropdownMenuItem disabled>Loading...</DropdownMenuItem>
+              ) : formattedOffices.length === 0 ? (
+                <DropdownMenuItem disabled>No offices found</DropdownMenuItem>
+              ) : (
+                formattedOffices.map((office) => (
+                  <DropdownMenuItem
+                    key={office}
+                    onClick={() =>
+                      setOfficeFilter((prev) =>
+                        prev.includes(office)
+                          ? prev.filter((o) => o !== office)
+                          : [...prev, office]
+                      )
+                    }
+                  >
+                    <span>{office}</span>
+                  </DropdownMenuItem>
+                ))
+              )}
             </DropdownMenuContent>
           </DropdownMenu>
 

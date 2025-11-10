@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import {
   CalendarIcon,
   ChevronDown,
@@ -19,28 +19,46 @@ import {
 import { Calendar } from "@/components/ui/calendar";
 import { format } from "date-fns";
 import type { DateRange } from "react-day-picker";
-import { mockItems } from "@/lib/types/item";
+import { useItems } from "@/api/items/hook";
 import ItemCard from "@/components/common/items/item-card";
 import { useNavigate } from "react-router-dom";
 import ReportModal from "@/components/common/modals/report-modal";
+import { toast } from "sonner";
 
 export default function DashboardPage() {
   const [dateRange, setDateRange] = useState<DateRange | undefined>();
   const [reportModalOpen, setReportModalOpen] = useState(false);
-
   const navigate = useNavigate();
 
-  // Get max 5 submitted items (filtered by date if applicable)
-  const submittedItems = mockItems
-    .filter((item) => {
-      const isSubmitted = item.status === "submitted";
-      const itemDate = new Date(item.date);
-      const matchesDate =
-        (!dateRange?.from || itemDate >= dateRange.from) &&
-        (!dateRange?.to || itemDate <= dateRange.to);
-      return isSubmitted && matchesDate;
-    })
-    .slice(0, 5); // max 5
+  const { data, isLoading, isError } = useItems(false, "SUBMITTED");
+
+  if (isError) toast.error("Failed to load submitted items");
+
+  const submittedItems = useMemo(() => {
+    const items = data ?? [];
+
+    return items
+      .map((item) => ({
+        id: String(item.id),
+        title: item.itemName,
+        description: item.itemDescription,
+        location: item.foundLocation,
+        date: item.createdDate,
+        status: item.itemStatus,
+        image: `${import.meta.env.VITE_API_URL}/media/${item.image}`,
+        officeInfo: `${item.givenLocation}`,
+        category: item.category,
+      }))
+      .filter((item) => {
+        const itemDate = new Date(item.date);
+        return (
+          (!dateRange?.from || itemDate >= dateRange.from) &&
+          (!dateRange?.to || itemDate <= dateRange.to)
+        );
+      })
+      .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
+      .slice(0, 5);
+  }, [data, dateRange]);
 
   return (
     <>
@@ -112,11 +130,13 @@ export default function DashboardPage() {
             <CardTitle className="text-xl">Last Submitted Items</CardTitle>
           </CardHeader>
           <CardContent className="space-y-5">
-            {submittedItems.length > 0 ? (
+            {isLoading ? (
+              <p className="text-muted-foreground">Loading submitted items...</p>
+            ) : submittedItems.length > 0 ? (
               <>
-                {/* {submittedItems.map((item) => (
+                {submittedItems.map((item) => (
                   <ItemCard key={item.id} item={item} variant="list" />
-                ))} */}
+                ))}
                 <div className="flex justify-end">
                   <Button
                     className="w-full md:w-fit flex text-white items-center py-5 rounded-lg"

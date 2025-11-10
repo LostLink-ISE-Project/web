@@ -17,11 +17,6 @@ export default function OfficesPage() {
 
     const { mutate: updateOffice } = useUpdateOffice();
 
-    // const officeData = Array.from({ length: 5 }).map((_, i) => ({
-    //     name: `Location ${i + 1}`,
-    //     location: "Building A, Room 201",
-    //     workHours: "09:00 - 16:00",
-    // }));
     const { data: officeData = [], isLoading } = useOffices();
     const { mutate: createOffice } = useCreateOffice();
     const { mutate: deleteOffice } = useDeleteOffice();

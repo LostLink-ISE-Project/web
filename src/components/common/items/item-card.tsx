@@ -7,7 +7,7 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
 } from "@/components/ui/dropdown-menu";
-import { Pencil, Trash, ChevronDown, MoreVertical } from "lucide-react";
+import { Trash, ChevronDown, MoreVertical } from "lucide-react";
 import { format } from "date-fns";
 import ItemInfoModal from "./item-modal";
 import { useDeleteItem, useUpdateItemStatus } from "@/api/items/hook";
@@ -30,6 +30,7 @@ export interface ItemCardProps {
     status: "SUBMITTED" | "LISTED" | "CLAIMED" | "ARCHIVED";
     image: string;
     officeInfo: string;
+    category: string;
   };
   variant: "list" | "grid";
   isForPublic?: boolean;
@@ -43,9 +44,9 @@ export default function ItemCard({
   const isList = variant === "list";
   const [openModal, setOpenModal] = useState(false);
   const [confirmDialog, setConfirmDialog] = useState<{
-    status: "LISTED" | "ARCHIVED";
+    status: ItemCardProps["item"]["status"];
     open: boolean;
-  }>({ status: "LISTED", open: false });
+  }>({ status: item.status, open: false });
 
   const deleteItem = useDeleteItem();
   const updateStatus = useUpdateItemStatus();
@@ -73,6 +74,13 @@ export default function ItemCard({
     }
   };
 
+  const STATUSES: ItemCardProps["item"]["status"][] = [
+    "SUBMITTED",
+    "LISTED",
+    "CLAIMED",
+    "ARCHIVED",
+  ];
+
   const AdminActions = () => (
     <div className="flex flex-row gap-2 items-center justify-between">
       <DropdownMenu>
@@ -81,17 +89,22 @@ export default function ItemCard({
             variant="outline"
             className="flex items-center border-on-surface-foreground text-primary rounded-lg w-32"
           >
-            {item.status.charAt(0).toUpperCase() + item.status.slice(1)}
+            {item.status.charAt(0).toUpperCase() + item.status.slice(1).toLowerCase()}
             <ChevronDown />
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end" className="w-fit">
-          <DropdownMenuItem onClick={() => setConfirmDialog({ status: "LISTED", open: true })}>
-            Approve
-          </DropdownMenuItem>
-          <DropdownMenuItem onClick={() => setConfirmDialog({ status: "ARCHIVED", open: true })}>
-            Archive
-          </DropdownMenuItem>
+          {STATUSES.filter((s) => s !== item.status).map((status) => (
+            <DropdownMenuItem
+              key={status}
+              onClick={(e) => {
+                e.stopPropagation(); // prevent opening item modal
+                setConfirmDialog({ status, open: true });
+              }}
+            >
+              {status.charAt(0).toUpperCase() + status.slice(1).toLowerCase()}
+            </DropdownMenuItem>
+          ))}
         </DropdownMenuContent>
       </DropdownMenu>
 
@@ -102,13 +115,13 @@ export default function ItemCard({
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end" className="w-fit">
-          <DropdownMenuItem
+          {/* <DropdownMenuItem
             onClick={() => toast.info("Edit functionality coming soon")}
             className="flex gap-2 items-center"
           >
             <Pencil className="w-4 h-4" />
             Edit
-          </DropdownMenuItem>
+          </DropdownMenuItem> */}
           <DropdownMenuItem
             onClick={handleDelete}
             className="flex gap-2 text-destructive items-center"
@@ -193,7 +206,10 @@ export default function ItemCard({
           <DialogHeader>
             <DialogTitle>Confirm Status Change</DialogTitle>
           </DialogHeader>
-          <p>Are you sure you want to mark this item as <strong>{confirmDialog.status}</strong>?</p>
+          <p>
+            Are you sure you want to mark this item as{" "}
+            <strong>{confirmDialog.status}</strong>?
+          </p>
           <DialogFooter className="mt-4">
             <Button variant="ghost" onClick={() => setConfirmDialog({ ...confirmDialog, open: false })}>
               Cancel
