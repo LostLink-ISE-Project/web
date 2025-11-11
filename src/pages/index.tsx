@@ -3,8 +3,7 @@ import LostLinkLogo from "@/assets/LostLink.svg";
 import { LogIn } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useState } from "react";
-import { mockItems } from "@/lib/types/item";
-import ItemCard from "@/components/common/items/item-card";
+// import ItemCard from "@/components/common/items/item-card";
 import ItemToolbar from "@/components/common/items/item-toolbar";
 import type { DateRange } from "react-day-picker";
 
@@ -15,36 +14,17 @@ export default function HomePage() {
   const [officeFilter, setOfficeFilter] = useState<string[]>([]);
   const [dateRange, setDateRange] = useState<DateRange | undefined>();
 
-  const filteredItems = mockItems
-    .filter((item) => {
-      const isApproved = item.status === "approved";
-      const matchesKeyword = item.title.toLowerCase().includes(keyword.toLowerCase());
-      const matchesOffice =
-        officeFilter.length === 0 || (item.officeInfo && officeFilter.includes(item.officeInfo));
-      const itemDate = new Date(item.date);
-      const matchesDate =
-        (!dateRange?.from || itemDate >= dateRange.from) &&
-        (!dateRange?.to || itemDate <= dateRange.to);
-
-      return isApproved && matchesKeyword && matchesOffice && matchesDate;
-    })
-    .sort((a, b) => {
-      const aDate = new Date(a.date);
-      const bDate = new Date(b.date);
-      return sort === "newest"
-        ? bDate.getTime() - aDate.getTime()
-        : aDate.getTime() - bDate.getTime();
-    });
-
   return (
     <div className="flex flex-col px-4 sm:px-8 md:px-16 lg:px-32 py-6 gap-4 overflow-y-scroll">
       <div className="flex justify-between items-center">
         <div>
-          <img
-            src={LostLinkLogo}
-            alt="Logo"
-            className={"transition-all w-24 sm:w-32"}
-          />
+          <a href="/">
+            <img
+              src={LostLinkLogo}
+              alt="Logo"
+              className={"transition-all w-24 sm:w-32"}
+            />
+          </a>
         </div>
 
         <Link to={"/login"}>

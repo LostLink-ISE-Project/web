@@ -1,18 +1,14 @@
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 import {
   DropdownMenu,
   DropdownMenuTrigger,
   DropdownMenuContent,
   DropdownMenuItem,
-} from "@/components/ui/dropdown-menu";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
-import { Calendar } from "@/components/ui/calendar";
-import { format } from "date-fns";
+} from '@/components/ui/dropdown-menu';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { Calendar } from '@/components/ui/calendar';
+import { format } from 'date-fns';
 import {
   ListFilter,
   LayoutGrid,
@@ -21,12 +17,12 @@ import {
   ListCollapse,
   ChevronRight,
   FilePlus2,
-} from "lucide-react";
-import type { DateRange } from "react-day-picker";
+} from 'lucide-react';
+import type { DateRange } from 'react-day-picker';
 
 interface ItemToolbarProps {
-  view: "list" | "grid";
-  setView: (v: "list" | "grid") => void;
+  view: 'list' | 'grid';
+  setView: (v: 'list' | 'grid') => void;
   keyword: string;
   setKeyword: (v: string) => void;
   sort: string;
@@ -40,9 +36,9 @@ interface ItemToolbarProps {
 
 // 🔹 Replace with API later
 const mockOffices = [
-  { id: "1", name: "Building A" },
-  { id: "2", name: "Building B" },
-  { id: "3", name: "Library Office" },
+  { id: '1', name: 'Building A' },
+  { id: '2', name: 'Building B' },
+  { id: '3', name: 'Library Office' },
 ];
 
 export default function ItemToolbar({
@@ -58,8 +54,7 @@ export default function ItemToolbar({
   dateRange,
   setDateRange,
 }: ItemToolbarProps) {
-  const hasFilters =
-    keyword || sort !== "newest" || officeFilter.length > 0 || dateRange?.from;
+  const hasFilters = keyword || sort !== 'newest' || officeFilter.length > 0 || dateRange?.from;
 
   return (
     <div className="flex flex-col gap-4 mb-6 w-full">
@@ -76,9 +71,11 @@ export default function ItemToolbar({
         </div>
 
         {isForPublic && (
-          <Button className="flex text-white items-center py-5 rounded-lg gap-2">
-            <FilePlus2 size={18} />
-            <span className="hidden sm:inline">New Submission</span>
+          <Button asChild className="flex text-white items-center py-5 rounded-lg gap-2">
+            <a href="https://lostlink-form.usg.az" target="_blank">
+              <FilePlus2 size={18} />
+              <span className="hidden sm:inline">New Submission</span>
+            </a>
           </Button>
         )}
       </div>
@@ -88,22 +85,28 @@ export default function ItemToolbar({
           {/* Sorting */}
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="outline" className="flex items-center gap-2 border-1 border-outline md:border-0 shadow-none md:shadow-md">
+              <Button
+                variant="outline"
+                className="flex items-center gap-2 border-1 border-outline md:border-0 shadow-none md:shadow-md"
+              >
                 <ListFilter size={16} />
                 <span className="hidden sm:inline">Sort</span>
                 <ChevronRight size={16} />
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="start">
-              <DropdownMenuItem onClick={() => setSort("newest")}>Newest first</DropdownMenuItem>
-              <DropdownMenuItem onClick={() => setSort("oldest")}>Oldest first</DropdownMenuItem>
+              <DropdownMenuItem onClick={() => setSort('newest')}>Newest first</DropdownMenuItem>
+              <DropdownMenuItem onClick={() => setSort('oldest')}>Oldest first</DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
 
           {/* Office Filter */}
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="outline" className="flex items-center gap-2 border-1 border-outline md:border-0 shadow-none md:shadow-md">
+              <Button
+                variant="outline"
+                className="flex items-center gap-2 border-1 border-outline md:border-0 shadow-none md:shadow-md"
+              >
                 Offices
                 <ChevronDown size={14} />
               </Button>
@@ -129,7 +132,10 @@ export default function ItemToolbar({
           {/* Date Picker */}
           <Popover>
             <PopoverTrigger asChild>
-              <Button variant="outline" className="flex items-center gap-2 border-1 border-outline md:border-0 shadow-none md:shadow-md">
+              <Button
+                variant="outline"
+                className="flex items-center gap-2 border-1 border-outline md:border-0 shadow-none md:shadow-md"
+              >
                 Date
                 <ChevronDown size={14} />
               </Button>
@@ -151,11 +157,13 @@ export default function ItemToolbar({
 
           <div className="flex gap-2 overflow-x-auto items-center">
             {keyword && (
-              <Button variant="outline" className="rounded-lg px-4 border-outline">{keyword}</Button>
-            )}
-            {sort !== "newest" && (
               <Button variant="outline" className="rounded-lg px-4 border-outline">
-                {sort === "oldest" ? "Oldest first" : sort}
+                {keyword}
+              </Button>
+            )}
+            {sort !== 'newest' && (
+              <Button variant="outline" className="rounded-lg px-4 border-outline">
+                {sort === 'oldest' ? 'Oldest first' : sort}
               </Button>
             )}
             {officeFilter.map((o) => (
@@ -165,8 +173,8 @@ export default function ItemToolbar({
             ))}
             {dateRange?.from && (
               <Button variant="outline" className="rounded-lg px-4 border-outline">
-                {format(dateRange.from, "dd/MM/yyyy")}
-                {dateRange.to && ` - ${format(dateRange.to, "dd/MM/yyyy")}`}
+                {format(dateRange.from, 'dd/MM/yyyy')}
+                {dateRange.to && ` - ${format(dateRange.to, 'dd/MM/yyyy')}`}
               </Button>
             )}
             {hasFilters && (
@@ -174,8 +182,8 @@ export default function ItemToolbar({
                 variant="ghost"
                 size="sm"
                 onClick={() => {
-                  setKeyword("");
-                  setSort("newest");
+                  setKeyword('');
+                  setSort('newest');
                   setOfficeFilter([]);
                   setDateRange(undefined);
                 }}
@@ -190,18 +198,23 @@ export default function ItemToolbar({
         <div className="self-start sm:self-auto mt-4 md:mt-0">
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="outline" className="flex items-center gap-2 border-1 border-outline md:border-0 shadow-none md:shadow-md">
-                {view === "list" ? <ListCollapse size={16} /> : <LayoutGrid size={16} />}
-                <span className="hidden sm:inline">{view === "list" ? "List view" : "Grid view"}</span>
+              <Button
+                variant="outline"
+                className="flex items-center gap-2 border-1 border-outline md:border-0 shadow-none md:shadow-md"
+              >
+                {view === 'list' ? <ListCollapse size={16} /> : <LayoutGrid size={16} />}
+                <span className="hidden sm:inline">
+                  {view === 'list' ? 'List view' : 'Grid view'}
+                </span>
                 <ChevronDown size={16} />
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
-              <DropdownMenuItem onClick={() => setView("list")}>
+              <DropdownMenuItem onClick={() => setView('list')}>
                 <ListCollapse className="mr-2 h-4 w-4" />
                 List view
               </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => setView("grid")}>
+              <DropdownMenuItem onClick={() => setView('grid')}>
                 <LayoutGrid className="mr-2 h-4 w-4" />
                 Grid view
               </DropdownMenuItem>
