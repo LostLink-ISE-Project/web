@@ -1,6 +1,5 @@
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
@@ -11,14 +10,17 @@ import { toast } from "sonner";
 import { passwordSchema, profileSchema } from "@/lib/schemas/profileSchema";
 import { useAuthStore } from "@/lib/stores/auth.store";
 import { useMe, useUpdateMe, useResetPassword } from "@/api/auth/hook";
+import { useNavigate } from "react-router-dom";
 
 export default function SettingsPage() {
-  const [tab, setTab] = useState("profile");
 
-  const { user: storedUser, setUser } = useAuthStore();
+  const { setUser } = useAuthStore();
   const { data: user } = useMe();
   const updateMe = useUpdateMe();
   const resetPassword = useResetPassword();
+
+  const logout = useAuthStore((s) => s.logout);
+  const navigate = useNavigate();
 
   const profileForm = useForm({
     resolver: zodResolver(profileSchema),
@@ -55,7 +57,11 @@ export default function SettingsPage() {
     try {
       await resetPassword.mutateAsync(values);
       toast.success("Password changed successfully!");
+      
       passwordForm.reset();
+
+      logout();
+      navigate("/login");
     } catch (err) {
       toast.error("Failed to change password.");
     }
@@ -64,62 +70,63 @@ export default function SettingsPage() {
   return (
     <Card className="border-0 shadow-xl rounded-2xl">
       <CardHeader>
-        <CardTitle className="text-xl">Settings</CardTitle>
+        <CardTitle className="text-2xl">Settings</CardTitle>
       </CardHeader>
-      <CardContent>
-        <Tabs value={tab} onValueChange={setTab}>
-          <TabsList className="w-full mb-4 border-b rounded-none">
-            <TabsTrigger value="profile">Profile</TabsTrigger>
-            <TabsTrigger value="password">Password</TabsTrigger>
-          </TabsList>
+      <CardContent className="flex md:flex-row flex-col gap-10 md:gap-40 w-full justify-between">
+        <div className="flex flex-col gap-4 w-full">
+          <h2 className="font-semibold text-xl">Profile</h2>
 
-          <TabsContent value="profile">
-            <form
-              onSubmit={profileForm.handleSubmit(handleProfileSubmit)}
-              className="space-y-4 max-w-md"
-            >
-              <div className="space-y-2">
-                <Label htmlFor="name">Name</Label>
-                <Input id="name" {...profileForm.register("name")} />
-              </div>
+          <form
+            onSubmit={profileForm.handleSubmit(handleProfileSubmit)}
+            className="space-y-4"
+          >
+            <div className="space-y-2">
+              <Label htmlFor="name">Name</Label>
+              <Input id="name" {...profileForm.register("name")} />
+            </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="surname">Surname</Label>
-                <Input id="surname" {...profileForm.register("surname")} />
-              </div>
+            <div className="space-y-2">
+              <Label htmlFor="surname">Surname</Label>
+              <Input id="surname" {...profileForm.register("surname")} />
+            </div>
 
-              <Button type="submit" className="text-white py-5 rounded-lg w-full">
-                Update Profile
-              </Button>
-            </form>
-          </TabsContent>
+            <Button type="submit" className="text-white py-5 rounded-lg w-full">
+              Update Profile
+            </Button>
+          </form>
+        </div>
 
-          <TabsContent value="password">
-            <form
-              onSubmit={passwordForm.handleSubmit(handlePasswordSubmit)}
-              className="space-y-4 max-w-md"
-            >
-              <div className="space-y-2">
-                <Label htmlFor="currentPassword">Current Password</Label>
-                <Input type="password" id="currentPassword" {...passwordForm.register("currentPassword")} />
-              </div>
+        <div className=" w-full md:w-2 rounded-lg bg-on-surface" />
 
-              <div className="space-y-2">
+        <div className="flex flex-col gap-4 w-full">
+          <h2 className="font-semibold text-xl">Password</h2>
+
+          <form
+            onSubmit={passwordForm.handleSubmit(handlePasswordSubmit)}
+            className="space-y-4"
+          >
+            <div className="space-y-2">
+              <Label htmlFor="currentPassword">Current Password</Label>
+              <Input type="password" id="currentPassword" {...passwordForm.register("currentPassword")} />
+            </div>
+
+            <div className="flex justify-between gap-6">
+              <div className="space-y-2 w-full">
                 <Label htmlFor="newPassword">New Password</Label>
                 <Input type="password" id="newPassword" {...passwordForm.register("newPassword")} />
               </div>
 
-              <div className="space-y-2">
+              <div className="space-y-2 w-full">
                 <Label htmlFor="confirmNewPassword">Confirm New Password</Label>
                 <Input type="password" id="confirmNewPassword" {...passwordForm.register("confirmNewPassword")} />
               </div>
+            </div>
 
-              <Button type="submit" className="text-white py-5 rounded-lg w-full">
-                Change Password
-              </Button>
-            </form>
-          </TabsContent>
-        </Tabs>
+            <Button type="submit" className="text-white py-5 rounded-lg w-full">
+              Change Password
+            </Button>
+          </form>
+        </div>
       </CardContent>
     </Card>
   );

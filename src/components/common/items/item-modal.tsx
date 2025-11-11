@@ -1,3 +1,4 @@
+import { Badge } from "@/components/ui/badge";
 import {
   Dialog,
   DialogContent,
@@ -23,7 +24,12 @@ export default function ItemInfoModal({ open, onClose, item }: any) {
         />
 
         <div className="text-sm space-y-4 break-words whitespace-pre-wrap overflow-hidden w-full">
-          <h3 className="text-lg font-semibold">{item.title}</h3>
+          <div className="flex items-center justify-between gap-2 flex-wrap">
+            <h3 className="text-lg font-semibold">{item.title}</h3>
+            <Badge variant="default" className="rounded-full border-primary text-primary font-semibold whitespace-nowrap">
+              {item.category ?? "Uncategorized"}
+            </Badge>
+          </div>
 
           <p>
             {item.description}

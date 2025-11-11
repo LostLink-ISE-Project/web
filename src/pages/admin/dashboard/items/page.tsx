@@ -25,12 +25,14 @@ export default function ItemsPage() {
   const [dateRange, setDateRange] = useState<DateRange | undefined>();
 
   const debouncedKeyword = useDebouncedValue(keyword, 300);
-  const { data, isLoading, isError } = useItems(false);
+  const { data, isLoading, isError } = useItems(false, tab);
 
   if (isError) toast.error("Failed to load items");
 
   const filteredItems = useMemo(() => {
     const items = data ?? [];
+
+    console.log(items);
 
     return items
       .map((item) => ({
@@ -39,9 +41,10 @@ export default function ItemsPage() {
         description: item.itemDescription,
         location: item.foundLocation,
         date: item.createdDate,
-        status: item.status as ItemStatus,
+        status: item.itemStatus,
         image: `${import.meta.env.VITE_API_URL}/media/${item.image}`,
         officeInfo: `${item.givenLocation}`, // replace with mapped office if needed
+        category: item.category,
       }))
       .filter((item) => {
         const matchesKeyword = item.title?.toLowerCase().includes(debouncedKeyword.toLowerCase());
