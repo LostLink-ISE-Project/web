@@ -1,24 +1,24 @@
-import { Button } from "@/components/ui/button";
-import LostLinkLogo from "@/assets/LostLink.svg";
-import { LogIn } from "lucide-react";
-import { Link } from "react-router-dom";
-import { useState, useMemo } from "react";
-import ItemCard from "@/components/common/items/item-card";
-import ItemToolbar from "@/components/common/items/item-toolbar";
-import type { DateRange } from "react-day-picker";
-import { useItems } from "@/api/items/hook";
-import { toast } from "sonner";
+import { Button } from '@/components/ui/button';
+import LostLinkLogo from '@/assets/LostLink.svg';
+import { LogIn } from 'lucide-react';
+import { Link } from 'react-router-dom';
+import { useState, useMemo } from 'react';
+import ItemCard from '@/components/common/items/item-card';
+import ItemToolbar from '@/components/common/items/item-toolbar';
+import type { DateRange } from 'react-day-picker';
+import { useItems } from '@/api/items/hook';
+import { toast } from 'sonner';
 
 export default function HomePage() {
-  const [view, setView] = useState<"list" | "grid">("list");
-  const [keyword, setKeyword] = useState("");
-  const [sort, setSort] = useState("newest");
+  const [view, setView] = useState<'list' | 'grid'>('list');
+  const [keyword, setKeyword] = useState('');
+  const [sort, setSort] = useState('newest');
   const [officeFilter, setOfficeFilter] = useState<string[]>([]);
   const [dateRange, setDateRange] = useState<DateRange | undefined>();
 
-  const { data, isLoading, isError } = useItems(false, "LISTED");
+  const { data, isLoading, isError } = useItems(false, 'LISTED');
 
-  if (isError) toast.error("Failed to load items");
+  if (isError) toast.error('Failed to load items');
 
   const filteredItems = useMemo(() => {
     const items = data ?? [];
@@ -37,8 +37,7 @@ export default function HomePage() {
       }))
       .filter((item) => {
         const matchesKeyword = item.title?.toLowerCase().includes(keyword.toLowerCase());
-        const matchesOffice =
-          officeFilter.length === 0 || officeFilter.includes(item.officeInfo);
+        const matchesOffice = officeFilter.length === 0 || officeFilter.includes(item.officeInfo);
         const itemDate = new Date(item.date);
         const matchesDate =
           (!dateRange?.from || itemDate >= dateRange.from) &&
@@ -49,7 +48,9 @@ export default function HomePage() {
       .sort((a, b) => {
         const aDate = new Date(a.date);
         const bDate = new Date(b.date);
-        return sort === "newest" ? bDate.getTime() - aDate.getTime() : aDate.getTime() - bDate.getTime();
+        return sort === 'newest'
+          ? bDate.getTime() - aDate.getTime()
+          : aDate.getTime() - bDate.getTime();
       });
   }, [data, keyword, sort, officeFilter, dateRange]);
 
@@ -57,8 +58,10 @@ export default function HomePage() {
     <div className="flex flex-col px-4 sm:px-8 md:px-16 lg:px-32 py-6 gap-4 overflow-y-scroll">
       {/* Header */}
       <div className="flex justify-between items-center">
-        <img src={LostLinkLogo} alt="Logo" className="transition-all w-24 sm:w-32" />
-        <Link to={"/login"}>
+        <a href="/">
+          <img src={LostLinkLogo} alt="Logo" className="transition-all w-24 sm:w-32" />
+        </a>
+        <Link to={'/login'}>
           <Button className="flex text-white items-center py-5 rounded-lg gap-2">
             <span className="hidden sm:inline">Log In</span>
             <LogIn size={18} />
@@ -84,9 +87,9 @@ export default function HomePage() {
 
         <div
           className={
-            view === "grid"
-              ? "grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5"
-              : "flex flex-col gap-4"
+            view === 'grid'
+              ? 'grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5'
+              : 'flex flex-col gap-4'
           }
         >
           {isLoading ? (

@@ -1,24 +1,26 @@
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { Button } from "@/components/ui/button";
-import { Form, FormField, FormItem, FormControl, FormMessage } from "@/components/ui/form";
-import { loginSchema, type LoginSchema } from "@/lib/schemas/loginSchema";
-import { Input } from "@/components/ui/input";
-import { Card } from "@/components/ui/card";
-import { Link, useNavigate } from "react-router-dom";
-import { useAuthStore } from "@/lib/stores/auth.store";
-import { useLogin } from "@/api/auth/hook";
-import { ArrowLeft } from "lucide-react";
-import { toast } from "sonner";
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { Button } from '@/components/ui/button';
+import { Form, FormField, FormItem, FormControl, FormMessage } from '@/components/ui/form';
+import { loginSchema, type LoginSchema } from '@/lib/schemas/loginSchema';
+import { Input } from '@/components/ui/input';
+import { Card } from '@/components/ui/card';
+import { Link, useNavigate } from 'react-router-dom';
+import { useAuthStore } from '@/lib/stores/auth.store';
+import { useLogin } from '@/api/auth/hook';
+import { ArrowLeft } from 'lucide-react';
+import { toast } from 'sonner';
+import { useState } from 'react';
 
 export default function LoginPage() {
   const form = useForm<LoginSchema>({
     resolver: zodResolver(loginSchema),
     defaultValues: {
-      username: "",
-      password: "",
+      username: '',
+      password: '',
     },
   });
+  const [error, setError] = useState<string | null>(null);
 
   const navigate = useNavigate();
   const setToken = useAuthStore((s) => s.setToken);
@@ -28,19 +30,10 @@ export default function LoginPage() {
     try {
       const res = await loginMutation.mutateAsync(values);
       setToken(res.token); // Save token to store + localStorage
-      navigate("/dashboard");
-      toast.success("Login succesful");
+      navigate('/dashboard');
+      toast.success('Login succesful');
     } catch (err: any) {
-      const msg = err?.response?.data?.message || "Login failed";
-
-      if (msg.toLowerCase().includes("username")) {
-        form.setError("username", { type: "manual", message: msg });
-      } else if (msg.toLowerCase().includes("password")) {
-        form.setError("password", { type: "manual", message: msg });
-      } else {
-        form.setError("username", { type: "manual", message: msg });
-        form.setError("password", { type: "manual", message: msg });
-      }
+      setError(err.response.data.message);
     }
   };
 
@@ -48,14 +41,14 @@ export default function LoginPage() {
     <div className="min-h-screen flex items-center justify-center px-6 md:px-0 bg-foreground">
       {/* 🔙 Back button */}
       <Link
-        to={"/"}
+        to={'/'}
         className="absolute flex items-center text-lg font-semibold top-6 left-6 hover:text-primary"
       >
         <ArrowLeft size={24} />
         Back
       </Link>
 
-      <Card className="flex flex-col items-center rounded-3xl py-9 md:py-16 px-6 md:px-24 border-0 shadow-lg space-y-8 md:space-y-13 bg-white">
+      <Card className="flex flex-col items-center lg:rounded-3xl md:rounded-3xl rounded-none lg:p-12 md:p-12 p-0 border-0 lg:shadow-lg md:shadow-lg shadow-none gap-14 lg:bg-white md:bg-white bg-transparent">
         <h1 className="text-3xl font-bold text-center">Sign In to LostLink</h1>
 
         <Form {...form}>
@@ -66,10 +59,10 @@ export default function LoginPage() {
               render={({ field }) => (
                 <FormItem>
                   <FormControl>
-                    <Input 
-                      type="username" 
-                      placeholder="Username" 
-                      {...field} 
+                    <Input
+                      type="username"
+                      placeholder="Username"
+                      {...field}
                       className="w-[300px] md:w-[350px] p-4.5 rounded-xl h-14"
                     />
                   </FormControl>
@@ -84,10 +77,10 @@ export default function LoginPage() {
               render={({ field }) => (
                 <FormItem>
                   <FormControl>
-                    <Input 
-                      type="password" 
-                      placeholder="Password" 
-                      {...field} 
+                    <Input
+                      type="password"
+                      placeholder="Password"
+                      {...field}
                       className="w-[300px] md:w-[350px] p-4.5 rounded-xl h-14"
                     />
                   </FormControl>
@@ -96,11 +89,14 @@ export default function LoginPage() {
               )}
             />
 
-            <Button 
-              type="submit" 
+            {error && <p className="text-red-500">{error}</p>}
+
+            <Button
+              type="submit"
               className="w-full text-white mt-5 rounded-xl md:text-xl h-14 min-h-10"
+              disabled={loginMutation.isPending}
             >
-              {loginMutation.isPending ? "Logging in..." : "Log In"}
+              {loginMutation.isPending ? 'Logging in...' : 'Log In'}
             </Button>
           </form>
         </Form>
