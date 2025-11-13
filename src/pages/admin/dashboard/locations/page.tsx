@@ -191,7 +191,7 @@ export default function LocationsPage() {
       <QrCodeModal
         open={qrOpen}
         onClose={() => setQrOpen(false)}
-        qrValue={`https://lostlink.com/?ref=${selectedLocation?.slug || ""}`}
+        qrValue={`https://lostlink-form.usg.az/?ref=${selectedLocation?.slug || ""}`}
         label={selectedLocation?.name}
       />
 
