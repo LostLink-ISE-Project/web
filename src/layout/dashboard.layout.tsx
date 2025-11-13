@@ -20,31 +20,11 @@ export default function DashboardLayout() {
       </div>
 
       <section
-        className={cn(
-          'w-full flex flex-col flex-1',
-          isSidebarOpen ? 'pl-0 md:pl-72' : 'pl-0 md:pl-20'
-        )}
+        className={cn('w-full flex flex-col', isSidebarOpen ? 'pl-0 md:pl-72' : 'pl-0 md:pl-20')}
       >
-        <div className="p-6 px-0 md:p-12 flex-1">
+        <div className="p-6 px-0 md:p-12">
           <Outlet />
         </div>
-
-        {/* Footer */}
-        <footer
-          className={cn(
-            'border-t bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60',
-            isSidebarOpen ? 'pl-0 md:pl-72' : 'pl-0 md:pl-20'
-          )}
-        >
-          <div className="container flex flex-col items-center justify-between gap-4 py-4 md:h-16 md:flex-row md:py-0">
-            <div className="flex flex-col items-center gap-4 px-8 md:flex-row md:gap-2 md:px-0">
-              <p className="text-center text-sm leading-loose text-muted-foreground md:text-left">
-                © {new Date().getFullYear()} All rights reserved. Powered by{' '}
-                <span className="font-semibold">USG Future Hub</span>
-              </p>
-            </div>
-          </div>
-        </footer>
       </section>
     </main>
   );
