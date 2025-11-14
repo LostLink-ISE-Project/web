@@ -1,4 +1,4 @@
-import { useMutation, useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, type UseQueryOptions } from "@tanstack/react-query";
 import type {
   AuthResponse,
   LoginDto,
@@ -19,13 +19,15 @@ export function useLogin() {
 }
 
 // GET CURRENT USER
-export function useMe() {
+export function useMe(options?: Partial<UseQueryOptions<MeResponse>>) {
   return useQuery<MeResponse>({
     queryKey: ["me"],
     queryFn: async () => {
       const { data } = await authInterceptor.get("/me");
       return data.data;
     },
+    // safely spread the optional overrides
+    ...options,
   });
 }
 

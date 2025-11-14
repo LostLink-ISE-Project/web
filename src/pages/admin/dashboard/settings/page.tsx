@@ -70,7 +70,7 @@ export default function SettingsPage() {
       resetPasswordForm();
 
       logout();
-      navigate("/login");
+      navigate("/");
     } catch (err) {
       toast.error("Failed to change password.");
     }
@@ -81,7 +81,7 @@ export default function SettingsPage() {
       <CardHeader>
         <CardTitle className="text-2xl">Settings</CardTitle>
       </CardHeader>
-      <CardContent className="flex md:flex-row flex-col gap-10 md:gap-40 w-full justify-between">
+      <CardContent className="flex md:flex-row flex-col gap-10 md:gap-20 lg:gap-30 w-full justify-between">
         <div className="flex flex-col gap-4 w-full">
           <h2 className="font-semibold text-xl">Profile</h2>
 
@@ -128,7 +128,7 @@ export default function SettingsPage() {
               )}
             </div>
 
-            <div className="flex justify-between gap-6">
+            <div className="flex flex-col lg:flex-row justify-between gap-4">
               <div className="space-y-2 w-full">
                 <Label htmlFor="newPassword">New Password</Label>
                 <Input 

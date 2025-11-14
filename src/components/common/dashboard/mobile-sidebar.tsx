@@ -1,5 +1,4 @@
 import { useSidebarLinks } from "@/lib/helpers/sidebar-links";
-import { useNavigate } from "react-router-dom";
 import { Fragment } from "react";
 import { LogOut, Menu, X } from "lucide-react";
 import { useDashboardStore } from "@/lib/stores/sidebar.store";
@@ -13,11 +12,9 @@ const MobileSidebar = () => {
   const { links } = useSidebarLinks();
 
   const logout = useAuthStore((s) => s.logout);
-  const navigate = useNavigate();
 
   const handleLogout = () => {
     logout();
-    navigate("/login");
   };
 
   return (

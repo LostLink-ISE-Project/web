@@ -1,7 +1,7 @@
 import type { SidebarLinkType } from "@/lib/helpers/sidebar-links";
 import { useSidebarLinks } from "@/lib/helpers/sidebar-links";
 import { cn } from "@/lib/utils";
-import { Link, useLocation, useNavigate } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import { Fragment } from "react";
 import { ArrowLeft, ArrowRight, LogOut } from "lucide-react";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
@@ -66,11 +66,9 @@ const Sidebar = () => {
   const { links } = useSidebarLinks();
 
   const logout = useAuthStore((s) => s.logout);
-  const navigate = useNavigate();
 
   const handleLogout = () => {
     logout();
-    navigate("/login");
   };
 
   return (

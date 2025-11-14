@@ -1,6 +1,6 @@
 import { Button } from '@/components/ui/button';
 import LostLinkLogo from '@/assets/LostLink.svg';
-import { LogIn } from 'lucide-react';
+import { LayoutDashboard, LogIn } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useState, useMemo } from 'react';
 import ItemCard from '@/components/common/items/item-card';
@@ -8,6 +8,7 @@ import ItemToolbar from '@/components/common/items/item-toolbar';
 import type { DateRange } from 'react-day-picker';
 import { useItems } from '@/api/items/hook';
 import { toast } from 'sonner';
+import { useAuthStore } from '@/lib/stores/auth.store';
 
 export default function HomePage() {
   const [view, setView] = useState<'list' | 'grid'>('list');
@@ -15,6 +16,8 @@ export default function HomePage() {
   const [sort, setSort] = useState('newest');
   const [officeFilter, setOfficeFilter] = useState<string[]>([]);
   const [dateRange, setDateRange] = useState<DateRange | undefined>();
+
+  const token = useAuthStore((s) => s.token);
 
   const { data, isLoading, isError } = useItems(false, 'LISTED');
 
@@ -61,12 +64,21 @@ export default function HomePage() {
         <a href="/">
           <img src={LostLinkLogo} alt="Logo" className="transition-all w-24 sm:w-32" />
         </a>
-        <Link to={'/login'}>
-          <Button className="flex text-white items-center py-5 rounded-lg gap-2">
-            <span className="hidden sm:inline">Log In</span>
-            <LogIn size={18} />
-          </Button>
-        </Link>
+        {token ? (
+          <Link to="/dashboard">
+            <Button className="flex text-white items-center py-5 rounded-lg gap-2">
+              <span className="hidden sm:inline">Dashboard</span>
+              <LayoutDashboard size={18} />
+            </Button>
+          </Link>
+        ) : (
+          <Link to="/login">
+            <Button className="flex text-white items-center py-5 rounded-lg gap-2">
+              <span className="hidden sm:inline">Log In</span>
+              <LogIn size={18} />
+            </Button>
+          </Link>
+        )}
       </div>
 
       {/* Filters + Items */}
@@ -93,9 +105,9 @@ export default function HomePage() {
           }
         >
           {isLoading ? (
-            <p className="text-muted-foreground px-2">Loading items...</p>
+            <p className="text-muted-foreground px-2 self-center">Loading items...</p>
           ) : filteredItems.length === 0 ? (
-            <p className="text-muted-foreground px-2">No listed items found.</p>
+            <p className="text-muted-foreground px-2 self-center">No listed items found.</p>
           ) : (
             filteredItems.map((item) => (
               <ItemCard key={item.id} item={item} variant={view} isForPublic />

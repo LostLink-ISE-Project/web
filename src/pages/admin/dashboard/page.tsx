@@ -30,7 +30,21 @@ export default function DashboardPage() {
   const [reportModalOpen, setReportModalOpen] = useState(false);
   const navigate = useNavigate();
 
-  const { data, isLoading, isError } = useItems(false, "SUBMITTED");
+  const { data, isLoading, isError } = useItems(true);
+
+  const filteredItems = useMemo(() => {
+    return (data ?? []).filter((item) => {
+      const itemDate = new Date(item.createdDate);
+      return (
+        (!dateRange?.from || itemDate >= dateRange.from) &&
+        (!dateRange?.to || itemDate <= dateRange.to)
+      );
+    });
+  }, [data, dateRange]);
+
+  const totalFound = filteredItems.length;
+  const claimedCount = filteredItems.filter((item) => item.itemStatus === "CLAIMED").length;
+  const archivedCount = filteredItems.filter((item) => item.itemStatus === "ARCHIVED").length;
 
   if (isError) toast.error("Failed to load submitted items");
 
@@ -38,6 +52,14 @@ export default function DashboardPage() {
     const items = data ?? [];
 
     return items
+      .filter((item) => item.itemStatus === "SUBMITTED")
+      .filter((item) => {
+        const itemDate = new Date(item.createdDate);
+        return (
+          (!dateRange?.from || itemDate >= dateRange.from) &&
+          (!dateRange?.to || itemDate <= dateRange.to)
+        );
+      })
       .map((item) => ({
         id: String(item.id),
         title: item.itemName,
@@ -49,13 +71,6 @@ export default function DashboardPage() {
         officeInfo: `${item.givenLocation}`,
         category: item.category,
       }))
-      .filter((item) => {
-        const itemDate = new Date(item.date);
-        return (
-          (!dateRange?.from || itemDate >= dateRange.from) &&
-          (!dateRange?.to || itemDate <= dateRange.to)
-        );
-      })
       .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
       .slice(0, 5);
   }, [data, dateRange]);
@@ -109,15 +124,15 @@ export default function DashboardPage() {
             {/* Stat Cards */}
             <div className="flex flex-col md:flex-row gap-4 h-fit w-full justify-between">
               <Card className="flex flex-col gap-2 p-4 font-semibold w-full border-outline shadow-none">
-                <p className="text-2xl text-on-surface">32</p>
+                <p className="text-2xl text-on-surface">{totalFound}</p>
                 <p className="text-on-surface-foreground">Found items</p>
               </Card>
               <Card className="flex flex-col gap-2 p-4 font-semibold w-full border-outline shadow-none">
-                <p className="text-2xl text-on-surface">8</p>
+                <p className="text-2xl text-on-surface">{claimedCount}</p>
                 <p className="text-on-surface-foreground">Claimed items</p>
               </Card>
               <Card className="flex flex-col gap-2 p-4 font-semibold w-full border-outline shadow-none">
-                <p className="text-2xl text-on-surface">23</p>
+                <p className="text-2xl text-on-surface">{archivedCount}</p>
                 <p className="text-on-surface-foreground">Archived items</p>
               </Card>
             </div>
