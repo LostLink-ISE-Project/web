@@ -19,6 +19,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import ConfirmActionModal from "../modals/confirm-modal";
 
 export interface ItemCardProps {
   item: {
@@ -47,6 +48,7 @@ export default function ItemCard({
     status: ItemCardProps["item"]["status"];
     open: boolean;
   }>({ status: item.status, open: false });
+  const [confirmDelete, setConfirmDelete] = useState(false);
 
   const deleteItem = useDeleteItem();
   const updateStatus = useUpdateItemStatus();
@@ -115,15 +117,15 @@ export default function ItemCard({
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end" className="w-fit">
-          {/* <DropdownMenuItem
-            onClick={() => toast.info("Edit functionality coming soon")}
-            className="flex gap-2 items-center"
-          >
-            <Pencil className="w-4 h-4" />
-            Edit
-          </DropdownMenuItem> */}
           <DropdownMenuItem
-            onClick={handleDelete}
+            onClick={(e) => {
+              if (item.status !== "SUBMITTED") {
+                toast.warning("Only SUBMITTED items can be deleted.");
+                return;
+              }
+              e.stopPropagation();
+              setConfirmDelete(true);
+            }}
             className="flex gap-2 text-destructive items-center"
           >
             <Trash className="w-4 h-4" />
@@ -136,68 +138,67 @@ export default function ItemCard({
 
   return (
     <>
-      <div onClick={() => setOpenModal(true)}>
-        <Card
-          className={`cursor-pointer border-0 transition hover:shadow-md ${
-            isList
-              ? "flex flex-row justify-between md:items-center gap-2 md:gap-8 p-0 md:p-4"
-              : "flex flex-col p-4 h-96"
+      <Card
+        onClick={() => setOpenModal(true)}
+        className={`cursor-pointer border-0 transition hover:shadow-md ${
+          isList
+            ? "flex flex-row justify-between md:items-center gap-2 md:gap-8 p-0 md:p-4"
+            : "flex flex-col p-4 h-96"
+        }`}
+      >
+        <img
+          src={item.image}
+          alt={item.title}
+          className={`rounded-lg object-cover border ${
+            !isList
+              ? "self-center w-full h-[200px]"
+              : "h-auto w-full min-w-30 sm:w-28 sm:h-28"
           }`}
-        >
-          <img
-            src={item.image}
-            alt={item.title}
-            className={`rounded-lg object-cover border ${
-              !isList
-                ? "self-center w-full h-[200px]"
-                : "h-auto w-full min-w-30 sm:w-28 sm:h-28"
-            }`}
-          />
-          <div className={`flex flex-col justify-between ${isList ? "w-full p-4 pt-3 sm:pt-0" : "p-2"}`}>
-            <div className="flex flex-col md:flex-row justify-between items-start md:items-center">
-              <h4 className="font-semibold">{item.title}</h4>
-              {!isForPublic && isList && <AdminActions />}
-            </div>
-            <div className="text-sm mt-2 space-y-1">
-              {isList ? (
-                <>
-                  <p className="line-clamp-1">{item.description}</p>
-                  <p className="line-clamp-1">
-                    <strong>Location:</strong> {item.location}
-                  </p>
-                  <p>
-                    <strong>Date:</strong> {format(new Date(item.date), "PPP")}
-                  </p>
-                  <p className="line-clamp-1">
-                    <strong>Office Info:</strong> {item.officeInfo}
-                  </p>
-                </>
-              ) : (
-                <>
-                  <p className="line-clamp-2 mb-2">{item.description}</p>
-                  <p className="text-xs text-muted-foreground">
-                    Found on <span className="font-semibold underline">{format(new Date(item.date), "PPP")}</span> in <span className="font-semibold underline">{item.location}</span>
-                  </p>
-                </>
-              )}
-            </div>
-            {isForPublic && (
-              <Button
-                variant="link"
-                size="sm"
-                className="mt-3 p-0 text-primary w-fit"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  setOpenModal(true);
-                }}
-              >
-                See more
-              </Button>
-            )}
-            {!isForPublic && !isList && <div className="mt-3"><AdminActions /></div>}
+        />
+        <div className={`flex flex-col justify-between ${isList ? "w-full p-4 pt-3 sm:pt-0" : "p-2"}`}>
+          <div className="flex flex-col md:flex-row justify-between items-start md:items-center">
+            <h4 className="font-semibold">{item.title}</h4>
+            {!isForPublic && isList && <AdminActions />}
           </div>
-        </Card>
-      </div>
+          <div className="text-sm mt-2 space-y-1">
+            {isList ? (
+              <>
+                <p className="line-clamp-1">{item.description}</p>
+                <p className="line-clamp-1">
+                  <strong>Location:</strong> {item.location}
+                </p>
+                <p>
+                  <strong>Date:</strong> {format(new Date(item.date), "PPP")}
+                </p>
+                <p className="line-clamp-1">
+                  <strong>Office Info:</strong> {item.officeInfo}
+                </p>
+              </>
+            ) : (
+              <>
+                <p className="line-clamp-2 mb-2">{item.description}</p>
+                <p className="text-xs text-muted-foreground">
+                  Found on <span className="font-semibold underline">{format(new Date(item.date), "PPP")}</span> in <span className="font-semibold underline">{item.location}</span>
+                </p>
+              </>
+            )}
+          </div>
+          {isForPublic && (
+            <Button
+              variant="link"
+              size="sm"
+              className="mt-3 p-0 text-primary w-fit"
+              onClick={(e) => {
+                e.stopPropagation();
+                setOpenModal(true);
+              }}
+            >
+              See more
+            </Button>
+          )}
+          {!isForPublic && !isList && <div className="mt-3"><AdminActions /></div>}
+        </div>
+      </Card>
 
       <ItemInfoModal open={openModal} onClose={() => setOpenModal(false)} item={item} />
 
@@ -220,6 +221,17 @@ export default function ItemCard({
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      <ConfirmActionModal
+        open={confirmDelete}
+        title="Delete Item"
+        description={`Are you sure you want to delete "${item.title}"?`}
+        onCancel={() => setConfirmDelete(false)}
+        onConfirm={() => {
+          handleDelete();
+          setConfirmDelete(false);
+        }}
+      />
     </>
   );
 }

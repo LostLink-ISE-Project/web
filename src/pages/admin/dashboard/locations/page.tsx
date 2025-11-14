@@ -19,6 +19,7 @@ import AddLocationModal from "@/components/common/modals/add-location-modal";
 import { useCreateLocation, useDeleteLocation, useLocations, useUpdateLocation } from "@/api/locations/hook";
 import EditLocationModal from "@/components/common/modals/edit-location-modal";
 import { toast } from "sonner";
+import ConfirmActionModal from "@/components/common/modals/confirm-modal";
 
 export default function LocationsPage() {
   const [qrOpen, setQrOpen] = useState(false);
@@ -35,21 +36,20 @@ export default function LocationsPage() {
     slug: string;
   } | null>(null);
 
+  const [confirmDelete, setConfirmDelete] = useState<{ id: number; name: string } | null>(null); // ✅ NEW
+
   const [addOpen, setAddOpen] = useState(false);
 
   const handleAddLocation = (data: {
     name: string;
     details: string;
-    workHourStart: string;
-    workHourEnd: string;
   }) => {
-    const workHours = `${data.workHourStart} - ${data.workHourEnd}`;
     const slug = data.name.toLowerCase().replace(/\s+/g, "-");
 
     createLocation(
       {
         name: data.name,
-        description: `${data.details} (${workHours})`,
+        description: data.details,
         slug,
       },
       {
@@ -77,10 +77,7 @@ export default function LocationsPage() {
     id: number;
     name: string;
     details: string;
-    workHourStart: string;
-    workHourEnd: string;
   }) => {
-    const workHours = `${data.workHourStart} - ${data.workHourEnd}`;
     const slug = data.name.toLowerCase().replace(/\s+/g, "-");
 
     updateLocation(
@@ -88,7 +85,7 @@ export default function LocationsPage() {
         id: data.id,
         payload: {
           name: data.name,
-          description: `${data.details} (${workHours})`,
+          description: data.details,
           slug,
         },
       },
@@ -153,12 +150,7 @@ export default function LocationsPage() {
               Edit
             </DropdownMenuItem>
             <DropdownMenuItem
-              onClick={() =>
-                deleteLocation(row.original.id, {
-                  onSuccess: () => toast.success("Location deleted successfully"),
-                  onError: () => toast.error("Failed to delete location"),
-                })
-              }
+              onClick={() => setConfirmDelete({ id: row.original.id, name: row.original.name })}
               className="flex items-center gap-2 text-destructive"
             >
               <Trash className="w-4 h-4" />
@@ -191,7 +183,7 @@ export default function LocationsPage() {
       <QrCodeModal
         open={qrOpen}
         onClose={() => setQrOpen(false)}
-        qrValue={`https://lostlink-form.usg.az/?ref=${selectedLocation?.slug || ""}`}
+        qrValue={`https://lostlink-form.usg.az/?src=${selectedLocation?.name || ""}`}
         label={selectedLocation?.name}
       />
 
@@ -207,6 +199,22 @@ export default function LocationsPage() {
           onClose={() => setEditOpen(false)}
           location={selectedEditLocation}
           onSubmit={handleEditLocation}
+        />
+      )}
+
+      {confirmDelete && (
+        <ConfirmActionModal
+          open={!!confirmDelete}
+          title="Delete Location"
+          description={`Are you sure you want to delete "${confirmDelete.name}"?`}
+          onCancel={() => setConfirmDelete(null)}
+          onConfirm={() => {
+            deleteLocation(confirmDelete.id, {
+              onSuccess: () => toast.success("Location deleted successfully"),
+              onError: () => toast.error("Failed to delete location"),
+            });
+            setConfirmDelete(null);
+          }}
         />
       )}
     </>

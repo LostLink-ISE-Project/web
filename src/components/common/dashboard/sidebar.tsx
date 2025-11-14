@@ -90,15 +90,17 @@ const Sidebar = () => {
 
         <div className="flex flex-col gap-2">
           <div className={`pb-6 flex ${isSidebarOpen ? "justify-start pl-4" : "justify-center pl-0"} items-center h-12`}>
-            {isSidebarOpen ? (
-              <img
-                src={LostLinkLogo}
-                alt="Logo"
-                className="transition-all w-32"
-              />
-            ) : (
-              <span className="text-primary text-3xl font-bold">L</span>
-            )}
+            <Link to="/" className="flex items-center">
+              {isSidebarOpen ? (
+                <img
+                  src={LostLinkLogo}
+                  alt="Logo"
+                  className="transition-all w-32"
+                />
+              ) : (
+                <span className="text-primary text-3xl font-bold">L</span>
+              )}
+            </Link>
           </div>
 
           {links.map((link) => (

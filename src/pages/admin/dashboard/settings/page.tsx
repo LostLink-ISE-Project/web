@@ -13,7 +13,6 @@ import { useMe, useUpdateMe, useResetPassword } from "@/api/auth/hook";
 import { useNavigate } from "react-router-dom";
 
 export default function SettingsPage() {
-
   const { setUser } = useAuthStore();
   const { data: user } = useMe();
   const updateMe = useUpdateMe();
@@ -22,7 +21,12 @@ export default function SettingsPage() {
   const logout = useAuthStore((s) => s.logout);
   const navigate = useNavigate();
 
-  const profileForm = useForm({
+  const {
+    register: registerProfile,
+    handleSubmit: handleSubmitProfile,
+    reset: resetProfile,
+    formState: { errors: profileErrors },
+  } = useForm({
     resolver: zodResolver(profileSchema),
     defaultValues: {
       name: "",
@@ -30,13 +34,18 @@ export default function SettingsPage() {
     },
   });
 
-  const passwordForm = useForm({
+  const {
+    register: registerPassword,
+    handleSubmit: handleSubmitPassword,
+    reset: resetPasswordForm,
+    formState: { errors: passwordErrors },
+  } = useForm({
     resolver: zodResolver(passwordSchema),
   });
 
   useEffect(() => {
     if (user) {
-      profileForm.reset({
+      resetProfile({
         name: user.name,
         surname: user.surname,
       });
@@ -58,7 +67,7 @@ export default function SettingsPage() {
       await resetPassword.mutateAsync(values);
       toast.success("Password changed successfully!");
       
-      passwordForm.reset();
+      resetPasswordForm();
 
       logout();
       navigate("/login");
@@ -77,17 +86,23 @@ export default function SettingsPage() {
           <h2 className="font-semibold text-xl">Profile</h2>
 
           <form
-            onSubmit={profileForm.handleSubmit(handleProfileSubmit)}
+            onSubmit={handleSubmitProfile(handleProfileSubmit)}
             className="space-y-4"
           >
             <div className="space-y-2">
               <Label htmlFor="name">Name</Label>
-              <Input id="name" {...profileForm.register("name")} />
+              <Input id="name" {...registerProfile("name")} />
+              {profileErrors.name && (
+                <p className="text-xs text-red-500">{profileErrors.name.message}</p>
+              )}
             </div>
 
             <div className="space-y-2">
               <Label htmlFor="surname">Surname</Label>
-              <Input id="surname" {...profileForm.register("surname")} />
+              <Input id="surname" {...registerProfile("surname")} />
+              {profileErrors.surname && (
+                <p className="text-xs text-red-500">{profileErrors.surname.message}</p>
+              )}
             </div>
 
             <Button type="submit" className="text-white py-5 rounded-lg w-full">
@@ -96,29 +111,46 @@ export default function SettingsPage() {
           </form>
         </div>
 
-        <div className=" w-full md:w-2 rounded-lg bg-on-surface" />
+        <div className="w-full md:w-0.5 rounded-lg bg-on-surface" />
 
         <div className="flex flex-col gap-4 w-full">
           <h2 className="font-semibold text-xl">Password</h2>
 
           <form
-            onSubmit={passwordForm.handleSubmit(handlePasswordSubmit)}
+            onSubmit={handleSubmitPassword(handlePasswordSubmit)}
             className="space-y-4"
           >
             <div className="space-y-2">
               <Label htmlFor="currentPassword">Current Password</Label>
-              <Input type="password" id="currentPassword" {...passwordForm.register("currentPassword")} />
+              <Input type="password" id="currentPassword" {...registerPassword("currentPassword")} />
+              {passwordErrors.currentPassword && (
+                <p className="text-xs text-red-500">{passwordErrors.currentPassword.message}</p>
+              )}
             </div>
 
             <div className="flex justify-between gap-6">
               <div className="space-y-2 w-full">
                 <Label htmlFor="newPassword">New Password</Label>
-                <Input type="password" id="newPassword" {...passwordForm.register("newPassword")} />
+                <Input 
+                  type="password" 
+                  id="newPassword" 
+                  {...registerPassword("newPassword")} 
+                />
+                {passwordErrors.newPassword && (
+                  <p className="text-xs text-red-500">{passwordErrors.newPassword.message}</p>
+                )}
               </div>
 
               <div className="space-y-2 w-full">
                 <Label htmlFor="confirmNewPassword">Confirm New Password</Label>
-                <Input type="password" id="confirmNewPassword" {...passwordForm.register("confirmNewPassword")} />
+                <Input
+                  type="password"
+                  id="confirmNewPassword"
+                  {...registerPassword("confirmNewPassword")}
+                />
+                {passwordErrors.confirmNewPassword && (
+                  <p className="text-xs text-red-500">{passwordErrors.confirmNewPassword.message}</p>
+                )}
               </div>
             </div>
 

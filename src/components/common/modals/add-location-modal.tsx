@@ -9,8 +9,6 @@ interface AddLocationModalProps {
   onSubmit: (data: {
     name: string;
     details: string;
-    workHourStart: string;
-    workHourEnd: string;
   }) => void;
 }
 
@@ -24,8 +22,6 @@ export default function AddLocationModal({ open, onClose, onSubmit }: AddLocatio
     defaultValues: {
       name: "",
       details: "",
-      workHourStart: "",
-      workHourEnd: "",
     },
     mode: "onTouched",
   });
@@ -52,17 +48,6 @@ export default function AddLocationModal({ open, onClose, onSubmit }: AddLocatio
           <div>
             <Input placeholder="Details (e.g., Building A, Room 101)" {...register("details", { required: true })} />
             {errors.details && <p className="text-red-500 text-sm mt-1">Details are required</p>}
-          </div>
-
-          <div className="flex gap-4">
-            <div className="flex-1">
-              <Input type="time" {...register("workHourStart", { required: true })} />
-              {errors.workHourStart && <p className="text-red-500 text-sm mt-1">Start time required</p>}
-            </div>
-            <div className="flex-1">
-              <Input type="time" {...register("workHourEnd", { required: true })} />
-              {errors.workHourEnd && <p className="text-red-500 text-sm mt-1">End time required</p>}
-            </div>
           </div>
 
           <DialogFooter>
