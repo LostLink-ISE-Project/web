@@ -33,7 +33,7 @@ export default function ConfirmActionModal({
           <Button variant="ghost" onClick={onCancel}>
             {cancelLabel}
           </Button>
-          <Button variant="destructive" onClick={onConfirm}>
+          <Button variant="destructive" onClick={onConfirm} >
             {confirmLabel}
           </Button>
         </DialogFooter>

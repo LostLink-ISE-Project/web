@@ -11,6 +11,7 @@ import ItemCard from "@/components/common/items/item-card";
 import type { DateRange } from "react-day-picker";
 import { useItems } from "@/api/items/hook";
 import { toast } from "sonner";
+import { useViewStore } from "@/lib/stores/view.store";
 
 export type ItemStatus = "SUBMITTED" | "LISTED" | "CLAIMED" | "ARCHIVED";
 
@@ -18,7 +19,10 @@ const STATUSES: ItemStatus[] = ["SUBMITTED", "LISTED", "CLAIMED", "ARCHIVED"];
 
 export default function ItemsPage() {
   const [tab, setTab] = useState<ItemStatus>("SUBMITTED");
-  const [view, setView] = useState<"list" | "grid">("list");
+
+  const view = useViewStore((s) => s.viewType);
+  const setView = useViewStore((s) => s.setViewType);
+  
   const [keyword, setKeyword] = useState("");
   const [sort, setSort] = useState("newest");
   const [officeFilter, setOfficeFilter] = useState<string[]>([]);

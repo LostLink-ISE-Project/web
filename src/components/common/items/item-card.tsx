@@ -20,6 +20,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import ConfirmActionModal from "../modals/confirm-modal";
+import { Badge } from "@/components/ui/badge";
 
 export interface ItemCardProps {
   item: {
@@ -146,20 +147,37 @@ export default function ItemCard({
             : "flex flex-col p-4 h-96"
         }`}
       >
-        <img
-          src={item.image}
-          alt={item.title}
-          className={`rounded-lg object-cover border ${
+        <div
+          className={`rounded-lg overflow-hidden shadow-md ${
             !isList
-              ? "self-center w-full h-[200px]"
-              : "h-auto w-full min-w-30 sm:w-28 sm:h-28"
+              ? "w-full h-[200px]" // grid: fixed height
+              : "min-w-50 sm:w-28 sm:h-40" // list: keep as is
           }`}
-        />
+        >
+          <img
+            src={item.image}
+            alt={item.title}
+            className="w-full h-full object-cover"
+          />
+        </div>
         <div className={`flex flex-col justify-between ${isList ? "w-full p-4 pt-3 sm:pt-0" : "p-2"}`}>
           <div className="flex flex-col md:flex-row justify-between items-start md:items-center">
-            <h4 className="font-semibold">{item.title}</h4>
+            <div
+              className={`flex items-center ${
+                isList ? "gap-x-2" : "justify-between w-full"
+              } flex-wrap`}
+            >
+              <h4 className="font-semibold">{item.title}</h4>
+              <Badge
+                variant="outline"
+                className="rounded-full text-xs border-primary text-primary px-2 py-0.5 whitespace-nowrap"
+              >
+                {item.category || "Uncategorized"}
+              </Badge>
+            </div>
             {!isForPublic && isList && <AdminActions />}
           </div>
+
           <div className="text-sm mt-2 space-y-1">
             {isList ? (
               <>
@@ -183,6 +201,7 @@ export default function ItemCard({
               </>
             )}
           </div>
+
           {isForPublic && (
             <Button
               variant="link"
@@ -196,6 +215,7 @@ export default function ItemCard({
               See more
             </Button>
           )}
+          
           {!isForPublic && !isList && <div className="mt-3"><AdminActions /></div>}
         </div>
       </Card>
@@ -215,7 +235,7 @@ export default function ItemCard({
             <Button variant="ghost" onClick={() => setConfirmDialog({ ...confirmDialog, open: false })}>
               Cancel
             </Button>
-            <Button onClick={handleStatusChange}>
+            <Button onClick={handleStatusChange} className="text-white">
               Confirm
             </Button>
           </DialogFooter>

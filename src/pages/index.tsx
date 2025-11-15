@@ -9,9 +9,12 @@ import type { DateRange } from 'react-day-picker';
 import { useItems } from '@/api/items/hook';
 import { toast } from 'sonner';
 import { useAuthStore } from '@/lib/stores/auth.store';
+import { useViewStore } from '@/lib/stores/view.store';
 
 export default function HomePage() {
-  const [view, setView] = useState<'list' | 'grid'>('list');
+  const view = useViewStore((s) => s.viewType);
+  const setView = useViewStore((s) => s.setViewType);
+
   const [keyword, setKeyword] = useState('');
   const [sort, setSort] = useState('newest');
   const [officeFilter, setOfficeFilter] = useState<string[]>([]);
@@ -97,23 +100,23 @@ export default function HomePage() {
           setOfficeFilter={setOfficeFilter}
         />
 
-        <div
-          className={
-            view === 'grid'
-              ? 'grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5'
-              : 'flex flex-col gap-4'
-          }
-        >
-          {isLoading ? (
-            <p className="text-muted-foreground px-2 self-center">Loading items...</p>
-          ) : filteredItems.length === 0 ? (
-            <p className="text-muted-foreground px-2 self-center">No listed items found.</p>
-          ) : (
-            filteredItems.map((item) => (
+        {isLoading ? (
+          <p className="text-muted-foreground px-2 self-center">Loading items...</p>
+        ) : filteredItems.length === 0 ? (
+          <p className="text-muted-foreground px-2 self-center">No listed items found.</p>
+        ) : (
+          <div
+            className={
+              view === 'grid'
+                ? 'grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 gap-14'
+                : 'flex flex-col gap-4'
+            }
+          >
+            {filteredItems.map((item) => (
               <ItemCard key={item.id} item={item} variant={view} isForPublic />
-            ))
-          )}
-        </div>
+            ))}
+          </div>
+        )}
       </div>
     </div>
   );

@@ -116,6 +116,27 @@ export default function LocationsPage() {
       accessorKey: "description",
     },
     {
+      id: "copyQr",
+      header: "Link",
+      cell: ({ row }: { row: any }) => {
+        const url = `https://lostlink-form.usg.az/?src=${row.original.slug}`;
+        const handleCopy = () => {
+          navigator.clipboard.writeText(url);
+          toast.success("QR link copied to clipboard");
+        };
+
+        return (
+          <Button
+            size={"sm"}
+            onClick={handleCopy}
+            className="text-xs font-medium text-white w-fit"
+          >
+            Copy Link
+          </Button>
+        );
+      },
+    },
+    {
       id: "qrCode",
       header: "QR Code",
       cell: ({ row }: { row: any }) => (

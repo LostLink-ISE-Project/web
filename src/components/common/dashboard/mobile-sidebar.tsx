@@ -8,7 +8,7 @@ import { useAuthStore } from "@/lib/stores/auth.store";
 import { SidebarLink } from "./sidebar";
 
 const MobileSidebar = () => {
-  const { isSidebarOpen, setIsSidebarOpen } = useDashboardStore();
+  const { isMobileSidebarOpen, setIsMobileSidebarOpen } = useDashboardStore();
   const { links } = useSidebarLinks();
 
   const logout = useAuthStore((s) => s.logout);
@@ -25,7 +25,7 @@ const MobileSidebar = () => {
         <Button
           variant="ghost"
           size="icon"
-          onClick={() => setIsSidebarOpen(true)}
+          onClick={() => setIsMobileSidebarOpen(true)}
           className="text-muted-foreground"
         >
           <Menu />
@@ -33,12 +33,12 @@ const MobileSidebar = () => {
       </div>
 
       {/* Sidebar full screen overlay */}
-      {isSidebarOpen && (
+      {isMobileSidebarOpen && (
         <aside className="fixed top-0 left-0 z-50 h-screen w-full bg-white flex flex-col px-4 py-6">
           {/* Header with close */}
           <div className="flex justify-between items-center mb-6">
             <img src={LostLinkLogo} alt="Logo" className="w-28" />
-            <Button variant="ghost" size="icon" onClick={() => setIsSidebarOpen(false)}>
+            <Button variant="ghost" size="icon" onClick={() => setIsMobileSidebarOpen(false)}>
               <X />
             </Button>
           </div>
@@ -59,7 +59,7 @@ const MobileSidebar = () => {
               variant="ghost"
               onClick={() => {
                 handleLogout();
-                setIsSidebarOpen(false);
+                setIsMobileSidebarOpen(false);
               }}
               className="w-full h-12 font-medium rounded-2xl hover:bg-destructive/10 hover:text-destructive text-sm flex gap-2 justify-start items-center p-4"
             >
