@@ -144,13 +144,13 @@ export default function ItemCard({
         className={`cursor-pointer border-0 transition hover:shadow-md ${
           isList
             ? "flex flex-row justify-between md:items-center gap-2 md:gap-8 p-0 md:p-4"
-            : "flex flex-col p-4 h-96"
+            : "flex flex-col p-4 h-[460px]"
         }`}
       >
         <div
           className={`rounded-lg overflow-hidden shadow-md ${
             !isList
-              ? "w-full h-[200px]" // grid: fixed height
+              ? "w-full h-[270px]" // grid: fixed height
               : "min-w-50 sm:w-28 sm:h-40" // list: keep as is
           }`}
         >

@@ -20,7 +20,7 @@ export default function ItemInfoModal({ open, onClose, item }: any) {
         <img
           src={item.image}
           alt="Item"
-          className="rounded-lg mb-4 w-full h-64 object-cover"
+          className="rounded-lg mb-4 w-full h-80 object-cover shadow-md"
         />
 
         <div className="text-sm space-y-4 break-words whitespace-pre-wrap overflow-hidden w-full">
