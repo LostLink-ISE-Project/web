@@ -1,34 +1,32 @@
-import type { SidebarLinkType } from "@/lib/helpers/sidebar-links";
-import { useSidebarLinks } from "@/lib/helpers/sidebar-links";
-import { cn } from "@/lib/utils";
-import { Link, useLocation } from "react-router-dom";
-import { Fragment } from "react";
-import { ArrowLeft, ArrowRight, LogOut } from "lucide-react";
-import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
-import { useDashboardStore } from "@/lib/stores/sidebar.store";
-import { Button } from "@/components/ui/button";
-import LostLinkLogo from "@/assets/LostLink.svg";
-import { useAuthStore } from "@/lib/stores/auth.store";
+import type { SidebarLinkType } from '@/lib/helpers/sidebar-links';
+import { useSidebarLinks } from '@/lib/helpers/sidebar-links';
+import { cn } from '@/lib/utils';
+import { Link, useLocation } from 'react-router-dom';
+import { Fragment } from 'react';
+import { ArrowLeft, ArrowRight, LogOut } from 'lucide-react';
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
+import { useDashboardStore } from '@/lib/stores/sidebar.store';
+import { Button } from '@/components/ui/button';
+import LostLinkLogo from '@/assets/LostLink.svg';
+import { useAuthStore } from '@/lib/stores/auth.store';
 
 export const SidebarLink = ({ link, open }: { link: SidebarLinkType; open: boolean }) => {
   const { pathname } = useLocation();
 
   const isActive =
-    link.href === "/dashboard"
-      ? pathname === "/dashboard"
-      : pathname.startsWith(link.href);
+    link.href === '/dashboard' ? pathname === '/dashboard' : pathname.startsWith(link.href);
 
   if (open) {
     return (
       <div className="relative">
         <Link
-          to={link.locked ? "" : link.href}
-          title={link.locked ? "Coming soon" : ""}
+          to={link.locked ? '' : link.href}
+          title={link.locked ? 'Coming soon' : ''}
           className={cn(
             `h-12 font-medium rounded-2xl hover:bg-primary/10 hover:text-primary text-sm flex gap-2 items-center p-4 transition-all duration-200`,
-            isActive && "bg-foreground",
-            !open && "justify-center",
-            link.locked && "opacity-30 pointer-events-none"
+            isActive && 'bg-foreground',
+            !open && 'justify-center',
+            link.locked && 'opacity-30 pointer-events-none'
           )}
         >
           <span>{link.icon}</span>
@@ -43,19 +41,21 @@ export const SidebarLink = ({ link, open }: { link: SidebarLinkType; open: boole
       <Tooltip>
         <TooltipTrigger asChild>
           <Link
-            to={link.locked ? "" : link.href}
-            title={link.locked ? "Coming soon" : ""}
+            to={link.locked ? '' : link.href}
+            title={link.locked ? 'Coming soon' : ''}
             className={cn(
               `h-12 font-medium rounded-2xl hover:bg-primary/10 hover:text-primary text-sm flex gap-2 items-center p-4 transition-all duration-200`,
-              isActive && "bg-foreground",
-              "justify-center",
-              link.locked && "opacity-30 pointer-events-none"
+              isActive && 'bg-foreground',
+              'justify-center',
+              link.locked && 'opacity-30 pointer-events-none'
             )}
           >
             <span>{link.icon}</span>
           </Link>
         </TooltipTrigger>
-        <TooltipContent side="right" className="text-white">{link.title}</TooltipContent>
+        <TooltipContent side="right" className="text-white">
+          {link.title}
+        </TooltipContent>
       </Tooltip>
     </div>
   );
@@ -74,8 +74,8 @@ const Sidebar = () => {
   return (
     <aside
       className={cn(
-        "fixed top-0 left-0 z-30 h-screen bg-white rounded-e-3xl shadow-2xl transition-all",
-        isSidebarOpen ? "w-72" : "w-20"
+        'fixed top-0 left-0 z-30 h-screen bg-white rounded-e-3xl shadow-2xl transition-all',
+        isSidebarOpen ? 'w-72' : 'w-20'
       )}
     >
       <div className="h-full flex flex-col justify-between px-3 py-6">
@@ -87,14 +87,12 @@ const Sidebar = () => {
         </Button>
 
         <div className="flex flex-col gap-2">
-          <div className={`pb-6 flex ${isSidebarOpen ? "justify-start pl-4" : "justify-center pl-0"} items-center h-12`}>
+          <div
+            className={`pb-6 flex ${isSidebarOpen ? 'justify-start pl-4' : 'justify-center pl-0'} items-center h-12`}
+          >
             <Link to="/" className="flex items-center">
               {isSidebarOpen ? (
-                <img
-                  src={LostLinkLogo}
-                  alt="Logo"
-                  className="transition-all w-32"
-                />
+                <img src={LostLinkLogo} alt="Logo" className="transition-all w-32" />
               ) : (
                 <span className="text-primary text-3xl font-bold">L</span>
               )}
@@ -133,7 +131,9 @@ const Sidebar = () => {
                   <LogOut size={18} />
                 </Button>
               </TooltipTrigger>
-              <TooltipContent side="right" className="text-white">Logout</TooltipContent>
+              <TooltipContent side="right" className="text-white">
+                Logout
+              </TooltipContent>
             </Tooltip>
           )}
         </div>
@@ -142,4 +142,4 @@ const Sidebar = () => {
   );
 };
 
-export default Sidebar; 
+export default Sidebar;
