@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-import { MoreVertical, Pencil, ShieldOff } from "lucide-react";
+import { MoreVertical, Pencil, ShieldCheck, ShieldOff } from "lucide-react";
 import { useState } from "react";
 import { useCreateUser, useDisableUser, useUpdateUser, useUsers } from "@/api/users/hook";
 import { toast } from "sonner";
@@ -136,7 +136,7 @@ export default function UsersPage() {
                                 <Pencil className="w-4 h-4" />
                                 Edit
                             </DropdownMenuItem>
-                            {isActive && (
+                            {isActive ? (
                                 <DropdownMenuItem
                                     onClick={() =>
                                         setConfirmAction({ type: "disable", id: row.original.id, user: name, currentStatus: status })
@@ -145,6 +145,13 @@ export default function UsersPage() {
                                 >
                                     <ShieldOff className="w-4 h-4" />
                                     Disable
+                                </DropdownMenuItem>
+                            ): (
+                                <DropdownMenuItem
+                                    className="flex items-center gap-2 text-green-500"
+                                >
+                                    <ShieldCheck className="w-4 h-4" />
+                                    Activate
                                 </DropdownMenuItem>
                             )}
                         </DropdownMenuContent>

@@ -1,4 +1,4 @@
-import { useEffect, useMemo } from 'react';
+import { useEffect, useMemo, type Dispatch, type SetStateAction } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import {
@@ -28,8 +28,8 @@ interface ItemToolbarProps {
   setView: (v: 'list' | 'grid') => void;
   keyword: string;
   setKeyword: (v: string) => void;
-  sort: string;
-  setSort: (v: string) => void;
+  sort: 'newest' | 'oldest';
+  setSort: Dispatch<SetStateAction<'newest' | 'oldest'>>;
   officeFilter: string[];
   setOfficeFilter: React.Dispatch<React.SetStateAction<string[]>>;
   dateRange: DateRange | undefined;

@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect, useRef } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { useDebouncedValue } from '@/lib/hooks/debounceValue';
@@ -12,6 +12,7 @@ import { useViewStore } from '@/lib/stores/view.store';
 export type ItemStatus = 'SUBMITTED' | 'LISTED' | 'CLAIMED' | 'ARCHIVED';
 
 const STATUSES: ItemStatus[] = ['SUBMITTED', 'LISTED', 'CLAIMED', 'ARCHIVED'];
+const PAGE_SIZE = 10;
 
 export default function ItemsPage() {
   const [tab, setTab] = useState<ItemStatus>('SUBMITTED');
@@ -20,7 +21,7 @@ export default function ItemsPage() {
   const setView = useViewStore((s) => s.setViewType);
 
   const [keyword, setKeyword] = useState('');
-  const [sort, setSort] = useState('newest');
+  const [sort, setSort] = useState<'newest' | 'oldest'>('newest');
   const [officeFilter, setOfficeFilter] = useState<string[]>([]);
   const [dateRange, setDateRange] = useState<DateRange | undefined>();
 
@@ -42,7 +43,7 @@ export default function ItemsPage() {
         status: item.itemStatus,
         image: `${import.meta.env.VITE_API_URL}/media/${item.image}`,
         submitterEmail: item.submitterEmail,
-        officeInfo: `${item.givenLocation}`, // replace with mapped office if needed
+        officeInfo: `${item.givenLocation}`,
         category: item.category,
       }))
       .filter((item) => {
@@ -62,6 +63,50 @@ export default function ItemsPage() {
           : aDate.getTime() - bDate.getTime();
       });
   }, [data, debouncedKeyword, officeFilter, dateRange, sort]);
+
+  const [visibleCount, setVisibleCount] = useState(PAGE_SIZE);
+  const [isLoadingMore, setIsLoadingMore] = useState(false);
+  const scrollRootRef = useRef<HTMLDivElement | null>(null); // per-active tab container
+  const sentinelRef = useRef<HTMLDivElement | null>(null);
+
+  useEffect(() => {
+    setVisibleCount(PAGE_SIZE);
+    setIsLoadingMore(false);
+    // scroll the active tab container to top after render
+    const id = requestAnimationFrame(() => {
+      scrollRootRef.current?.scrollTo?.({ top: 0 });
+    });
+    return () => cancelAnimationFrame(id);
+  }, [tab, data, debouncedKeyword, officeFilter, dateRange, sort]);
+
+  useEffect(() => {
+    if (!sentinelRef.current) return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        const entry = entries[0];
+        if (!entry.isIntersecting) return;
+        if (visibleCount >= filteredItems.length) return;
+
+        setIsLoadingMore(true);
+        requestAnimationFrame(() => {
+          setVisibleCount((c) => Math.min(c + PAGE_SIZE, filteredItems.length));
+          setIsLoadingMore(false);
+        });
+      },
+      {
+        root: scrollRootRef.current ?? null,
+        rootMargin: '0px 0px 200px 0px',
+        threshold: 0.1,
+      }
+    );
+
+    observer.observe(sentinelRef.current);
+    return () => observer.disconnect();
+  }, [filteredItems.length, visibleCount]);
+
+  const itemsToRender = filteredItems.slice(0, visibleCount);
+  const hasMore = visibleCount < filteredItems.length;
 
   return (
     <Card className="border-0 shadow-none md:shadow-lg rounded-2xl">
@@ -93,7 +138,10 @@ export default function ItemsPage() {
 
           {STATUSES.map((status) => (
             <TabsContent key={status} value={status}>
-              <div className="overflow-auto max-h-[58vh]">
+              <div 
+                className="overflow-auto max-h-[58vh]"
+                ref={status === tab ? scrollRootRef : null}
+              >
                 <div
                   className={
                     view === 'grid'
@@ -106,9 +154,22 @@ export default function ItemsPage() {
                   ) : filteredItems.length === 0 ? (
                     <div className="text-muted text-sm px-4 py-2">No items found.</div>
                   ) : (
-                    filteredItems.map((item) => (
-                      <ItemCard key={item.id} item={item} variant={view} />
-                    ))
+                    <>
+                      {itemsToRender.map((item) => (
+                        <ItemCard key={item.id} item={item} variant={view} />
+                      ))}
+
+                      {!isLoading && filteredItems.length > 0 && (
+                        <>
+                          <div ref={sentinelRef} className="h-8" />
+                          {hasMore && (
+                            <p className="text-xs text-muted-foreground text-center pb-3">
+                              {isLoadingMore ? 'Loading more…' : 'Scroll to load more'}
+                            </p>
+                          )}
+                        </>
+                      )}
+                    </>
                   )}
                 </div>
               </div>
