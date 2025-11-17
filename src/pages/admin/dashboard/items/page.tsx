@@ -1,42 +1,36 @@
-import { useState, useMemo } from "react";
-import {
-  Card, CardContent, CardHeader, CardTitle,
-} from "@/components/ui/card";
-import {
-  Tabs, TabsList, TabsTrigger, TabsContent,
-} from "@/components/ui/tabs";
-import { useDebouncedValue } from "@/lib/hooks/debounceValue";
-import ItemToolbar from "@/components/common/items/item-toolbar";
-import ItemCard from "@/components/common/items/item-card";
-import type { DateRange } from "react-day-picker";
-import { useItems } from "@/api/items/hook";
-import { toast } from "sonner";
-import { useViewStore } from "@/lib/stores/view.store";
+import { useState, useMemo } from 'react';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
+import { useDebouncedValue } from '@/lib/hooks/debounceValue';
+import ItemToolbar from '@/components/common/items/item-toolbar';
+import ItemCard from '@/components/common/items/item-card';
+import type { DateRange } from 'react-day-picker';
+import { useItems } from '@/api/items/hook';
+import { toast } from 'sonner';
+import { useViewStore } from '@/lib/stores/view.store';
 
-export type ItemStatus = "SUBMITTED" | "LISTED" | "CLAIMED" | "ARCHIVED";
+export type ItemStatus = 'SUBMITTED' | 'LISTED' | 'CLAIMED' | 'ARCHIVED';
 
-const STATUSES: ItemStatus[] = ["SUBMITTED", "LISTED", "CLAIMED", "ARCHIVED"];
+const STATUSES: ItemStatus[] = ['SUBMITTED', 'LISTED', 'CLAIMED', 'ARCHIVED'];
 
 export default function ItemsPage() {
-  const [tab, setTab] = useState<ItemStatus>("SUBMITTED");
+  const [tab, setTab] = useState<ItemStatus>('SUBMITTED');
 
   const view = useViewStore((s) => s.viewType);
   const setView = useViewStore((s) => s.setViewType);
-  
-  const [keyword, setKeyword] = useState("");
-  const [sort, setSort] = useState("newest");
+
+  const [keyword, setKeyword] = useState('');
+  const [sort, setSort] = useState('newest');
   const [officeFilter, setOfficeFilter] = useState<string[]>([]);
   const [dateRange, setDateRange] = useState<DateRange | undefined>();
 
   const debouncedKeyword = useDebouncedValue(keyword, 300);
   const { data, isLoading, isError } = useItems(false, tab);
 
-  if (isError) toast.error("Failed to load items");
+  if (isError) toast.error('Failed to load items');
 
   const filteredItems = useMemo(() => {
     const items = data ?? [];
-
-    console.log(items);
 
     return items
       .map((item) => ({
@@ -47,6 +41,7 @@ export default function ItemsPage() {
         date: item.createdDate,
         status: item.itemStatus,
         image: `${import.meta.env.VITE_API_URL}/media/${item.image}`,
+        submitterEmail: item.submitterEmail,
         officeInfo: `${item.givenLocation}`, // replace with mapped office if needed
         category: item.category,
       }))
@@ -62,7 +57,9 @@ export default function ItemsPage() {
       .sort((a, b) => {
         const aDate = new Date(a.date);
         const bDate = new Date(b.date);
-        return sort === "newest" ? bDate.getTime() - aDate.getTime() : aDate.getTime() - bDate.getTime();
+        return sort === 'newest'
+          ? bDate.getTime() - aDate.getTime()
+          : aDate.getTime() - bDate.getTime();
       });
   }, [data, debouncedKeyword, officeFilter, dateRange, sort]);
 
@@ -99,9 +96,9 @@ export default function ItemsPage() {
               <div className="overflow-auto max-h-[58vh]">
                 <div
                   className={
-                    view === "grid"
-                      ? "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-20 gap-y-10 pb-2"
-                      : "space-y-5 pb-2"
+                    view === 'grid'
+                      ? 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-20 gap-y-10 pb-2'
+                      : 'space-y-5 pb-2'
                   }
                 >
                   {isLoading ? (

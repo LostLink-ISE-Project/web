@@ -1,25 +1,25 @@
-import { useState } from "react";
-import SimpleTable from "@/components/common/table/simple-table";
-import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { useState } from 'react';
+import SimpleTable from '@/components/common/table/simple-table';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { MoreVertical, Pencil, Trash } from "lucide-react";
-import QrCodeModal from "@/components/common/modals/qr-code-modal";
-import AddLocationModal from "@/components/common/modals/add-location-modal";
-import { useCreateLocation, useDeleteLocation, useLocations, useUpdateLocation } from "@/api/locations/hook";
-import EditLocationModal from "@/components/common/modals/edit-location-modal";
-import { toast } from "sonner";
-import ConfirmActionModal from "@/components/common/modals/confirm-modal";
+} from '@/components/ui/dropdown-menu';
+import { Copy, MoreVertical, Pencil, Trash } from 'lucide-react';
+import QrCodeModal from '@/components/common/modals/qr-code-modal';
+import AddLocationModal from '@/components/common/modals/add-location-modal';
+import {
+  useCreateLocation,
+  useDeleteLocation,
+  useLocations,
+  useUpdateLocation,
+} from '@/api/locations/hook';
+import EditLocationModal from '@/components/common/modals/edit-location-modal';
+import { toast } from 'sonner';
+import ConfirmActionModal from '@/components/common/modals/confirm-modal';
 
 export default function LocationsPage() {
   const [qrOpen, setQrOpen] = useState(false);
@@ -40,11 +40,8 @@ export default function LocationsPage() {
 
   const [addOpen, setAddOpen] = useState(false);
 
-  const handleAddLocation = (data: {
-    name: string;
-    details: string;
-  }) => {
-    const slug = data.name.toLowerCase().replace(/\s+/g, "-");
+  const handleAddLocation = (data: { name: string; details: string }) => {
+    const slug = data.name.toLowerCase().replace(/\s+/g, '-');
 
     createLocation(
       {
@@ -53,8 +50,8 @@ export default function LocationsPage() {
         slug,
       },
       {
-        onSuccess: () => toast.success("Location added successfully"),
-        onError: () => toast.error("Failed to add location"),
+        onSuccess: () => toast.success('Location added successfully'),
+        onError: () => toast.error('Failed to add location'),
       }
     );
   };
@@ -73,12 +70,8 @@ export default function LocationsPage() {
 
   const { mutate: updateLocation } = useUpdateLocation();
 
-  const handleEditLocation = (data: {
-    id: number;
-    name: string;
-    details: string;
-  }) => {
-    const slug = data.name.toLowerCase().replace(/\s+/g, "-");
+  const handleEditLocation = (data: { id: number; name: string; details: string }) => {
+    const slug = data.name.toLowerCase().replace(/\s+/g, '-');
 
     updateLocation(
       {
@@ -90,55 +83,49 @@ export default function LocationsPage() {
         },
       },
       {
-        onSuccess: () => toast.success("Location updated successfully"),
-        onError: () => toast.error("Failed to update location"),
+        onSuccess: () => toast.success('Location updated successfully'),
+        onError: () => toast.error('Failed to update location'),
       }
     );
   };
 
   const columns = [
     {
-      id: "index",
-      header: "#",
+      id: 'index',
+      header: '#',
       cell: ({ row }: { row: any }) => <span>{Number(row.id) + 1}</span>,
     },
     {
-      id: "name",
-      header: "Name",
-      accessorKey: "name",
-      cell: ({ row }: { row: any }) => (
-        <span className="font-semibold">{row.original.name}</span>
-      ),
+      id: 'name',
+      header: 'Name',
+      accessorKey: 'name',
+      cell: ({ row }: { row: any }) => <span className="font-semibold">{row.original.name}</span>,
     },
     {
-      id: "description",
-      header: "Description",
-      accessorKey: "description",
+      id: 'description',
+      header: 'Description',
+      accessorKey: 'description',
     },
     {
-      id: "copyQr",
-      header: "Link",
+      id: 'copyQr',
+      header: 'Link',
       cell: ({ row }: { row: any }) => {
         const url = `https://lostlink-form.usg.az/?src=${row.original.slug}`;
         const handleCopy = () => {
           navigator.clipboard.writeText(url);
-          toast.success("QR link copied to clipboard");
+          toast.success('QR link copied to clipboard');
         };
 
         return (
-          <Button
-            size={"sm"}
-            onClick={handleCopy}
-            className="text-xs font-medium text-white w-fit"
-          >
-            Copy Link
+          <Button size={'sm'} onClick={handleCopy} className="text-xs font-medium text-white w-fit">
+            <Copy className="w-4 h-4" /> Copy Link
           </Button>
         );
       },
     },
     {
-      id: "qrCode",
-      header: "QR Code",
+      id: 'qrCode',
+      header: 'QR Code',
       cell: ({ row }: { row: any }) => (
         <Button
           variant="ghost"
@@ -150,8 +137,8 @@ export default function LocationsPage() {
       ),
     },
     {
-      id: "actions",
-      header: "",
+      id: 'actions',
+      header: '',
       cell: ({ row }: { row: any }) => (
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
@@ -204,7 +191,7 @@ export default function LocationsPage() {
       <QrCodeModal
         open={qrOpen}
         onClose={() => setQrOpen(false)}
-        qrValue={`https://lostlink-form.usg.az/?src=${selectedLocation?.name || ""}`}
+        qrValue={`https://lostlink-form.usg.az/?src=${selectedLocation?.name || ''}`}
         label={selectedLocation?.name}
       />
 
@@ -231,8 +218,8 @@ export default function LocationsPage() {
           onCancel={() => setConfirmDelete(null)}
           onConfirm={() => {
             deleteLocation(confirmDelete.id, {
-              onSuccess: () => toast.success("Location deleted successfully"),
-              onError: () => toast.error("Failed to delete location"),
+              onSuccess: () => toast.success('Location deleted successfully'),
+              onError: () => toast.error('Failed to delete location'),
             });
             setConfirmDelete(null);
           }}

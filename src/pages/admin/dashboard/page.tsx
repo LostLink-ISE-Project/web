@@ -1,29 +1,16 @@
-import { useState, useMemo } from "react";
-import {
-  CalendarIcon,
-  ChevronDown,
-  FileChartColumn,
-} from "lucide-react";
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
-import { Calendar } from "@/components/ui/calendar";
-import { format } from "date-fns";
-import type { DateRange } from "react-day-picker";
-import { useItems } from "@/api/items/hook";
-import ItemCard from "@/components/common/items/item-card";
-import { useNavigate } from "react-router-dom";
-import ReportModal from "@/components/common/modals/report-modal";
-import { toast } from "sonner";
+import { useState, useMemo } from 'react';
+import { CalendarIcon, ChevronDown, FileChartColumn, X } from 'lucide-react';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { Calendar } from '@/components/ui/calendar';
+import { format } from 'date-fns';
+import type { DateRange } from 'react-day-picker';
+import { useItems } from '@/api/items/hook';
+import ItemCard from '@/components/common/items/item-card';
+import { useNavigate } from 'react-router-dom';
+import ReportModal from '@/components/common/modals/report-modal';
+import { toast } from 'sonner';
 
 export default function DashboardPage() {
   const [dateRange, setDateRange] = useState<DateRange | undefined>();
@@ -43,16 +30,16 @@ export default function DashboardPage() {
   }, [data, dateRange]);
 
   const totalFound = filteredItems.length;
-  const claimedCount = filteredItems.filter((item) => item.itemStatus === "CLAIMED").length;
-  const archivedCount = filteredItems.filter((item) => item.itemStatus === "ARCHIVED").length;
+  const claimedCount = filteredItems.filter((item) => item.itemStatus === 'CLAIMED').length;
+  const archivedCount = filteredItems.filter((item) => item.itemStatus === 'ARCHIVED').length;
 
-  if (isError) toast.error("Failed to load submitted items");
+  if (isError) toast.error('Failed to load submitted items');
 
   const submittedItems = useMemo(() => {
     const items = data ?? [];
 
     return items
-      .filter((item) => item.itemStatus === "SUBMITTED")
+      .filter((item) => item.itemStatus === 'SUBMITTED')
       .filter((item) => {
         const itemDate = new Date(item.createdDate);
         return (
@@ -67,6 +54,7 @@ export default function DashboardPage() {
         location: item.foundLocation,
         date: item.createdDate,
         status: item.itemStatus,
+        submitterEmail: item.submitterEmail,        
         image: `${import.meta.env.VITE_API_URL}/media/${item.image}`,
         officeInfo: `${item.givenLocation}`,
         category: item.category,
@@ -81,8 +69,8 @@ export default function DashboardPage() {
         {/* ▶️ Stats and Report */}
         <Card className="border-0 shadow-lg rounded-2xl mx-6 md:mx-0">
           <CardHeader className="flex flex-row items-center justify-between gap-4 flex-wrap">
-            <CardTitle className="text-xl">Stats and Report</CardTitle>
-            <Button 
+            <CardTitle className="text-xl">Statistics and Report</CardTitle>
+            <Button
               className="flex text-white items-center py-5 rounded-lg"
               onClick={() => setReportModalOpen(true)}
             >
@@ -100,10 +88,8 @@ export default function DashboardPage() {
                   <CalendarIcon className="w-4 h-4" />
                   {dateRange?.from ? (
                     <span>
-                      {format(dateRange.from, "dd/MM/yyyy")}
-                      {dateRange.to
-                        ? ` - ${format(dateRange.to, "dd/MM/yyyy")}`
-                        : ""}
+                      {format(dateRange.from, 'dd/MM/yyyy')}
+                      {dateRange.to ? ` - ${format(dateRange.to, 'dd/MM/yyyy')}` : ''}
                     </span>
                   ) : (
                     <span>Set range</span>
@@ -120,6 +106,18 @@ export default function DashboardPage() {
                 />
               </PopoverContent>
             </Popover>
+
+            {dateRange?.from && (
+              <Button
+                variant="outline"
+                size="sm"
+                className="flex items-center gap-2 border-outline rounded-lg"
+                onClick={() => setDateRange(undefined)}
+              >
+                <X className="w-4 h-4" />
+                Reset filter
+              </Button>
+            )}
 
             {/* Stat Cards */}
             <div className="flex flex-col md:flex-row gap-4 h-fit w-full justify-between">
@@ -155,7 +153,7 @@ export default function DashboardPage() {
                 <div className="flex justify-end">
                   <Button
                     className="w-full md:w-fit flex text-white items-center py-5 rounded-lg"
-                    onClick={() => navigate("/dashboard/items")}
+                    onClick={() => navigate('/dashboard/items')}
                   >
                     See more
                   </Button>

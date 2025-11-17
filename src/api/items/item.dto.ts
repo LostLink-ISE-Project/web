@@ -12,6 +12,7 @@ export interface ItemResponse {
   itemStatus: ItemStatus;
   createdDate: string;
   category: string;
+  submitterEmail: string;
 }
 
 export interface CreateItemDto {

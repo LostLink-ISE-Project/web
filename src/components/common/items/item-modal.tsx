@@ -20,7 +20,7 @@ export default function ItemInfoModal({ open, onClose, item }: any) {
         <img
           src={item.image}
           alt="Item"
-          className="rounded-lg mb-4 w-full h-80 object-cover shadow-md"
+          className="rounded-lg mb-4 w-full h-[400px] object-scale-down shadow-md"
         />
 
         <div className="text-sm space-y-4 break-words whitespace-pre-wrap overflow-hidden w-full">
@@ -36,6 +36,9 @@ export default function ItemInfoModal({ open, onClose, item }: any) {
           </p>
           <p>
             <strong>Found in:</strong> {item.location}
+          </p>
+          <p>
+            <strong>Found by:</strong> {item.submitterEmail}
           </p>
           <p>
             <strong>Listing Date:</strong> {format(new Date(item.date), "PPP")}

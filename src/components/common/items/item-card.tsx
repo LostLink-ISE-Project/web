@@ -1,26 +1,26 @@
-import { useState } from "react";
-import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
+import { useState } from 'react';
+import { Button } from '@/components/ui/button';
+import { Card } from '@/components/ui/card';
 import {
   DropdownMenu,
   DropdownMenuTrigger,
   DropdownMenuContent,
   DropdownMenuItem,
-} from "@/components/ui/dropdown-menu";
-import { Trash, ChevronDown, MoreVertical } from "lucide-react";
-import { format } from "date-fns";
-import ItemInfoModal from "./item-modal";
-import { useDeleteItem, useUpdateItemStatus } from "@/api/items/hook";
-import { toast } from "sonner";
+} from '@/components/ui/dropdown-menu';
+import { Trash, ChevronDown, MoreVertical } from 'lucide-react';
+import { format } from 'date-fns';
+import ItemInfoModal from './item-modal';
+import { useDeleteItem, useUpdateItemStatus } from '@/api/items/hook';
+import { toast } from 'sonner';
 import {
   Dialog,
   DialogContent,
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from "@/components/ui/dialog";
-import ConfirmActionModal from "../modals/confirm-modal";
-import { Badge } from "@/components/ui/badge";
+} from '@/components/ui/dialog';
+import ConfirmActionModal from '../modals/confirm-modal';
+import { Badge } from '@/components/ui/badge';
 
 export interface ItemCardProps {
   item: {
@@ -29,24 +29,20 @@ export interface ItemCardProps {
     description: string;
     location: string;
     date: string;
-    status: "SUBMITTED" | "LISTED" | "CLAIMED" | "ARCHIVED";
+    status: 'SUBMITTED' | 'LISTED' | 'CLAIMED' | 'ARCHIVED';
     image: string;
     officeInfo: string;
     category: string;
   };
-  variant: "list" | "grid";
+  variant: 'list' | 'grid';
   isForPublic?: boolean;
 }
 
-export default function ItemCard({
-  item,
-  variant,
-  isForPublic = false,
-}: ItemCardProps) {
-  const isList = variant === "list";
+export default function ItemCard({ item, variant, isForPublic = false }: ItemCardProps) {
+  const isList = variant === 'list';
   const [openModal, setOpenModal] = useState(false);
   const [confirmDialog, setConfirmDialog] = useState<{
-    status: ItemCardProps["item"]["status"];
+    status: ItemCardProps['item']['status'];
     open: boolean;
   }>({ status: item.status, open: false });
   const [confirmDelete, setConfirmDelete] = useState(false);
@@ -57,9 +53,9 @@ export default function ItemCard({
   const handleDelete = async () => {
     try {
       await deleteItem.mutateAsync(Number(item.id));
-      toast.success("Item deleted successfully.");
+      toast.success('Item deleted successfully.');
     } catch {
-      toast.error("Failed to delete item. Can only delete items with status SUBMITTED.");
+      toast.error('Failed to delete item. Can only delete items with status SUBMITTED.');
     }
   };
 
@@ -71,17 +67,17 @@ export default function ItemCard({
       });
       toast.success(`Item marked as ${confirmDialog.status}.`);
     } catch {
-      toast.error("Failed to update item status.");
+      toast.error('Failed to update item status.');
     } finally {
       setConfirmDialog({ ...confirmDialog, open: false });
     }
   };
 
-  const STATUSES: ItemCardProps["item"]["status"][] = [
-    "SUBMITTED",
-    "LISTED",
-    "CLAIMED",
-    "ARCHIVED",
+  const STATUSES: ItemCardProps['item']['status'][] = [
+    'SUBMITTED',
+    'LISTED',
+    'CLAIMED',
+    'ARCHIVED',
   ];
 
   const AdminActions = () => (
@@ -92,7 +88,7 @@ export default function ItemCard({
             variant="outline"
             className="flex items-center border-on-surface-foreground text-primary rounded-lg w-32"
           >
-            {item.status.charAt(0).toUpperCase() + item.status.slice(1).toLowerCase()}
+            {item.status?.charAt(0).toUpperCase() + item.status?.slice(1).toLowerCase()}
             <ChevronDown />
           </Button>
         </DropdownMenuTrigger>
@@ -105,35 +101,37 @@ export default function ItemCard({
                 setConfirmDialog({ status, open: true });
               }}
             >
-              {status.charAt(0).toUpperCase() + status.slice(1).toLowerCase()}
+              {status?.charAt(0).toUpperCase() + status?.slice(1).toLowerCase()}
             </DropdownMenuItem>
           ))}
         </DropdownMenuContent>
       </DropdownMenu>
 
-      <DropdownMenu>
-        <DropdownMenuTrigger asChild>
-          <Button variant="ghost" size="icon" className="h-8 w-8">
-            <MoreVertical className="w-4 h-4" />
-          </Button>
-        </DropdownMenuTrigger>
-        <DropdownMenuContent align="end" className="w-fit">
-          <DropdownMenuItem
-            onClick={(e) => {
-              if (item.status !== "SUBMITTED") {
-                toast.warning("Only SUBMITTED items can be deleted.");
-                return;
-              }
-              e.stopPropagation();
-              setConfirmDelete(true);
-            }}
-            className="flex gap-2 text-destructive items-center"
-          >
-            <Trash className="w-4 h-4" />
-            Delete
-          </DropdownMenuItem>
-        </DropdownMenuContent>
-      </DropdownMenu>
+      {item.status === 'SUBMITTED' && (
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button variant="ghost" size="icon" className="h-8 w-8">
+              <MoreVertical className="w-4 h-4" />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end" className="w-fit">
+            <DropdownMenuItem
+              onClick={(e) => {
+                if (item.status !== 'SUBMITTED') {
+                  toast.warning('Only SUBMITTED items can be deleted.');
+                  return;
+                }
+                e.stopPropagation();
+                setConfirmDelete(true);
+              }}
+              className="flex gap-2 text-destructive items-center"
+            >
+              <Trash className="w-4 h-4" />
+              Delete
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+      )}
     </div>
   );
 
@@ -143,28 +141,31 @@ export default function ItemCard({
         onClick={() => setOpenModal(true)}
         className={`cursor-pointer border-0 transition hover:shadow-md ${
           isList
-            ? "flex flex-row justify-between md:items-center gap-2 md:gap-8 p-0 md:p-4"
-            : "flex flex-col p-4 h-[460px]"
+            ? 'flex flex-row justify-between md:items-center gap-2 md:gap-8 p-0 md:p-4'
+            : 'flex flex-col p-4 h-[540px]'
         }`}
       >
         <div
           className={`rounded-lg overflow-hidden shadow-md ${
             !isList
-              ? "w-full h-[270px]" // grid: fixed height
-              : "min-w-50 sm:w-28 sm:h-40" // list: keep as is
+              ? 'w-full h-[350px]' // grid: fixed height
+              : 'min-w-50 sm:w-28 sm:h-40' // list: keep as is
           }`}
         >
           <img
             src={item.image}
             alt={item.title}
-            className="w-full h-full object-cover"
+            className="w-full h-full object-scale-down"
+            loading="lazy"
           />
         </div>
-        <div className={`flex flex-col justify-between ${isList ? "w-full p-4 pt-3 sm:pt-0" : "p-2"}`}>
+        <div
+          className={`flex flex-col justify-between ${isList ? 'w-full p-4 pt-3 sm:pt-0' : 'p-2'}`}
+        >
           <div className="flex flex-col md:flex-row justify-between items-start md:items-center">
             <div
               className={`flex items-center ${
-                isList ? "gap-x-2" : "justify-between w-full"
+                isList ? 'gap-x-2' : 'justify-between w-full'
               } flex-wrap`}
             >
               <h4 className="font-semibold">{item.title}</h4>
@@ -172,7 +173,7 @@ export default function ItemCard({
                 variant="outline"
                 className="rounded-full text-xs border-primary text-primary px-2 py-0.5 whitespace-nowrap"
               >
-                {item.category || "Uncategorized"}
+                {item.category || 'Uncategorized'}
               </Badge>
             </div>
             {!isForPublic && isList && <AdminActions />}
@@ -186,7 +187,7 @@ export default function ItemCard({
                   <strong>Location:</strong> {item.location}
                 </p>
                 <p>
-                  <strong>Date:</strong> {format(new Date(item.date), "PPP")}
+                  <strong>Date:</strong> {format(new Date(item.date), 'PPP')}
                 </p>
                 <p className="line-clamp-1">
                   <strong>Office Info:</strong> {item.officeInfo}
@@ -196,7 +197,11 @@ export default function ItemCard({
               <>
                 <p className="line-clamp-2 mb-2">{item.description}</p>
                 <p className="text-xs text-muted-foreground">
-                  Found on <span className="font-semibold underline">{format(new Date(item.date), "PPP")}</span> in <span className="font-semibold underline">{item.location}</span>
+                  Found on{' '}
+                  <span className="font-semibold underline">
+                    {format(new Date(item.date), 'PPP')}
+                  </span>{' '}
+                  in <span className="font-semibold underline">{item.location}</span>
                 </p>
               </>
             )}
@@ -215,24 +220,33 @@ export default function ItemCard({
               See more
             </Button>
           )}
-          
-          {!isForPublic && !isList && <div className="mt-3"><AdminActions /></div>}
+
+          {!isForPublic && !isList && (
+            <div className="mt-3">
+              <AdminActions />
+            </div>
+          )}
         </div>
       </Card>
 
       <ItemInfoModal open={openModal} onClose={() => setOpenModal(false)} item={item} />
 
-      <Dialog open={confirmDialog.open} onOpenChange={(open) => setConfirmDialog({ ...confirmDialog, open })}>
+      <Dialog
+        open={confirmDialog.open}
+        onOpenChange={(open) => setConfirmDialog({ ...confirmDialog, open })}
+      >
         <DialogContent className="rounded-2xl">
           <DialogHeader>
             <DialogTitle>Confirm Status Change</DialogTitle>
           </DialogHeader>
           <p>
-            Are you sure you want to mark this item as{" "}
-            <strong>{confirmDialog.status}</strong>?
+            Are you sure you want to mark this item as <strong>{confirmDialog.status}</strong>?
           </p>
           <DialogFooter className="mt-4">
-            <Button variant="ghost" onClick={() => setConfirmDialog({ ...confirmDialog, open: false })}>
+            <Button
+              variant="ghost"
+              onClick={() => setConfirmDialog({ ...confirmDialog, open: false })}
+            >
               Cancel
             </Button>
             <Button onClick={handleStatusChange} className="text-white">
