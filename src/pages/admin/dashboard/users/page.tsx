@@ -8,7 +8,7 @@ import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { MoreVertical, Pencil, ShieldCheck, ShieldOff } from "lucide-react";
 import { useState } from "react";
-import { useCreateUser, useDisableUser, useUpdateUser, useUsers } from "@/api/users/hook";
+import { useCreateUser, useStatusUser, useUpdateUser, useUsers } from "@/api/users/hook";
 import { toast } from "sonner";
 export default function UsersPage() {
     const [addOpen, setAddOpen] = useState(false);
@@ -21,7 +21,6 @@ export default function UsersPage() {
     } | null>(null);
     
     const [confirmAction, setConfirmAction] = useState<{
-        type: "disable";
         id: number;
         user: string;
         currentStatus: "ACTIVE" | "DISABLED";
@@ -30,7 +29,7 @@ export default function UsersPage() {
     const { data: userData = [], isLoading } = useUsers();
     const { mutate: createUser } = useCreateUser();
     const { mutate: updateUser } = useUpdateUser();
-    const { mutate: disableUSer } = useDisableUser();
+    const { mutate: statusUser } = useStatusUser();
 
     const handleAddUser = (newUser: {
         name: string;
@@ -72,10 +71,10 @@ export default function UsersPage() {
         );
     };
 
-    const handleDisableUser = (id: number) => {
-        disableUSer(id, {
-            onSuccess: () => toast.success("User disabled successfully"),
-            onError: () => toast.error("Failed to disable user"),
+    const handleStatusUser = (id: number) => {
+        statusUser(id, {
+            onSuccess: () => toast.success("User status changed successfully"),
+            onError: () => toast.error("Failed to change user status"),
         });
     };
 
@@ -139,7 +138,7 @@ export default function UsersPage() {
                             {isActive ? (
                                 <DropdownMenuItem
                                     onClick={() =>
-                                        setConfirmAction({ type: "disable", id: row.original.id, user: name, currentStatus: status })
+                                        setConfirmAction({ id: row.original.id, user: name, currentStatus: status })
                                     }
                                     className="flex items-center gap-2 text-orange-500"
                                 >
@@ -148,6 +147,9 @@ export default function UsersPage() {
                                 </DropdownMenuItem>
                             ): (
                                 <DropdownMenuItem
+                                    onClick={() =>
+                                        setConfirmAction({ id: row.original.id, user: name, currentStatus: status })
+                                    }
                                     className="flex items-center gap-2 text-green-500"
                                 >
                                     <ShieldCheck className="w-4 h-4" />
@@ -196,11 +198,14 @@ export default function UsersPage() {
                 <Dialog open onOpenChange={() => setConfirmAction(null)}>
                     <DialogContent className="rounded-2xl">
                         <DialogHeader>
-                            <DialogTitle>Disable User</DialogTitle>
+                            <DialogTitle>
+                                {confirmAction.currentStatus === "ACTIVE" ? "Disable User" : "Activate User"}
+                            </DialogTitle>
                         </DialogHeader>
 
                         <div className="py-4 text-sm">
-                            Are you sure you want to <strong>disable</strong>{" "}
+                            Are you sure you want to{" "}
+                            <strong>{confirmAction.currentStatus === "ACTIVE" ? "disable" : "activate"}</strong>{" "}
                             <span className="font-semibold">{confirmAction.user}</span>?
                         </div>
 
@@ -210,9 +215,9 @@ export default function UsersPage() {
                             </Button>
                             
                             <Button
-                                variant="destructive"
+                                variant={confirmAction.currentStatus === "ACTIVE" ? "destructive" : "default"}
                                 onClick={() => {
-                                handleDisableUser(confirmAction.id);
+                                handleStatusUser(confirmAction.id);
                                 setConfirmAction(null);
                                 }}
                             >
