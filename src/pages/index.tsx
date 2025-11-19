@@ -10,6 +10,7 @@ import { useItems } from '@/api/items/hook';
 import { toast } from 'sonner';
 import { useAuthStore } from '@/lib/stores/auth.store';
 import { useViewStore } from '@/lib/stores/view.store';
+import { version } from '../../package.json';
 
 const PAGE_SIZE = 10;
 
@@ -104,72 +105,87 @@ export default function HomePage() {
   const hasMore = visibleCount < filteredItems.length;
 
   return (
-    <div className="flex flex-col px-4 sm:px-8 md:px-16 lg:px-32 py-6 gap-4 overflow-y-scroll">
-      {/* Header */}
-      <div className="flex justify-between items-center">
-        <a href="/">
-          <img src={LostLinkLogo} alt="Logo" className="transition-all w-24 sm:w-32" />
-        </a>
-        {token ? (
-          <Link to="/dashboard">
-            <Button className="flex text-white items-center py-5 rounded-lg gap-2">
-              <span className="hidden sm:inline">Dashboard</span>
-              <LayoutDashboard size={18} />
-            </Button>
-          </Link>
-        ) : (
-          <Link to="/login">
-            <Button className="flex text-white items-center py-5 rounded-lg gap-2">
-              <span className="hidden sm:inline">Log In</span>
-              <LogIn size={18} />
-            </Button>
-          </Link>
-        )}
-      </div>
+    <>
+      <div className="flex flex-col px-4 sm:px-8 md:px-16 lg:px-32 py-6 gap-4 overflow-y-scroll">
+        {/* Header */}
+        <div className="flex justify-between items-center">
+          <a href="/">
+            <img src={LostLinkLogo} alt="Logo" className="transition-all w-24 sm:w-32" />
+          </a>
+          {token ? (
+            <Link to="/dashboard">
+              <Button className="flex text-white items-center py-5 rounded-lg gap-2">
+                <span className="hidden sm:inline">Dashboard</span>
+                <LayoutDashboard size={18} />
+              </Button>
+            </Link>
+          ) : (
+            <Link to="/login">
+              <Button className="flex text-white items-center py-5 rounded-lg gap-2">
+                <span className="hidden sm:inline">Log In</span>
+                <LogIn size={18} />
+              </Button>
+            </Link>
+          )}
+        </div>
 
-      {/* Filters + Items */}
-      <div className="flex flex-col p-0 md:p-9 gap-0 md:gap-6">
-        <ItemToolbar
-          view={view}
-          setView={setView}
-          keyword={keyword}
-          setKeyword={setKeyword}
-          sort={sort}
-          setSort={setSort}
-          isForPublic
-          dateRange={dateRange}
-          setDateRange={setDateRange}
-          officeFilter={officeFilter}
-          setOfficeFilter={setOfficeFilter}
-        />
+        {/* Filters + Items */}
+        <div className="flex flex-col p-0 md:p-9 gap-0 md:gap-6">
+          <ItemToolbar
+            view={view}
+            setView={setView}
+            keyword={keyword}
+            setKeyword={setKeyword}
+            sort={sort}
+            setSort={setSort}
+            isForPublic
+            dateRange={dateRange}
+            setDateRange={setDateRange}
+            officeFilter={officeFilter}
+            setOfficeFilter={setOfficeFilter}
+          />
 
-        {isLoading ? (
-          <p className="text-muted-foreground px-2 self-center">Loading items...</p>
-        ) : filteredItems.length === 0 ? (
-          <p className="text-muted-foreground px-2 self-center">No listed items found.</p>
-        ) : (
-          <>
-            <div
-              className={
-                view === 'grid'
-                  ? 'grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 gap-14'
-                  : 'flex flex-col gap-4'
-              }
-            >
-              {itemsToRender.map((item) => (
+          {isLoading ? (
+            <p className="text-muted-foreground px-2 self-center">Loading items...</p>
+          ) : filteredItems.length === 0 ? (
+            <p className="text-muted-foreground px-2 self-center">No listed items found.</p>
+          ) : (
+            <>
+              <div
+                className={
+                  view === 'grid'
+                    ? 'grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 gap-14'
+                    : 'flex flex-col gap-4'
+                }
+              >
+                {itemsToRender.map((item) => (
                   <ItemCard key={item.id} item={item} variant={view} isForPublic />
-              ))}
-            </div>
+                ))}
+              </div>
 
-            <div ref={sentinelRef} className="h-8" />
-            {hasMore && (
-              <p className="text-xs text-muted-foreground text-center pb-6">
-                {isLoadingMore ? 'Loading more…' : 'Scroll to load more'}
-              </p>
-            )}
-          </>
-        )}
+              <div ref={sentinelRef} className="h-8" />
+              {hasMore && (
+                <p className="text-xs text-muted-foreground text-center pb-6">
+                  {isLoadingMore ? 'Loading more…' : 'Scroll to load more'}
+                </p>
+              )}
+            </>
+          )}
+        </div>
       </div>
-    </div>
+      {/* Footer */}
+      <footer className="flex flex-col gap-2 justify-center items-center py-4">
+        <p className="text-sm text-gray-700">
+          &copy; {new Date().getFullYear()} LostLink. All rights reserved.
+        </p>
+        <p className="text-sm text-gray-700">
+          Powered by{' '}
+          <a href="https://fh.usg.az" target="_blank" className="hover:underline">
+            Future Hub
+          </a>
+        </p>
+        <p className="text-sm text-gray-700">v{version}</p>
+      </footer>
+    </>
   );
 }

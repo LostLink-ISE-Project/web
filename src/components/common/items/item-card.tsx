@@ -36,9 +36,15 @@ export interface ItemCardProps {
   };
   variant: 'list' | 'grid';
   isForPublic?: boolean;
+  selecting?: boolean;
 }
 
-export default function ItemCard({ item, variant, isForPublic = false }: ItemCardProps) {
+export default function ItemCard({
+  item,
+  variant,
+  isForPublic = false,
+  selecting = false,
+}: ItemCardProps) {
   const isList = variant === 'list';
   const [openModal, setOpenModal] = useState(false);
   const [confirmDialog, setConfirmDialog] = useState<{
@@ -73,72 +79,84 @@ export default function ItemCard({ item, variant, isForPublic = false }: ItemCar
     }
   };
 
-  const STATUSES: ItemCardProps['item']['status'][] = [
-    'SUBMITTED',
-    'LISTED',
-    'CLAIMED',
-    'ARCHIVED',
-  ];
+  // status list removed; transitions are enforced explicitly per current status
 
-  const AdminActions = () => (
-    <div className="flex flex-row gap-2 items-center justify-between">
-      <DropdownMenu>
-        <DropdownMenuTrigger asChild>
-          <Button
-            variant="outline"
-            className="flex items-center border-on-surface-foreground text-primary rounded-lg w-32"
-          >
-            {item.status?.charAt(0).toUpperCase() + item.status?.slice(1).toLowerCase()}
-            <ChevronDown />
-          </Button>
-        </DropdownMenuTrigger>
-        <DropdownMenuContent align="end" className="w-fit">
-          {STATUSES.filter((s) => s !== item.status).map((status) => (
-            <DropdownMenuItem
-              key={status}
-              onClick={(e) => {
-                e.stopPropagation(); // prevent opening item modal
-                setConfirmDialog({ status, open: true });
-              }}
-            >
-              {status?.charAt(0).toUpperCase() + status?.slice(1).toLowerCase()}
-            </DropdownMenuItem>
-          ))}
-        </DropdownMenuContent>
-      </DropdownMenu>
+  const AdminActions = () => {
+    const canDelete = item.status === 'SUBMITTED';
+    const allowedStatuses: ItemCardProps['item']['status'][] =
+      item.status === 'SUBMITTED'
+        ? ['LISTED']
+        : item.status === 'LISTED'
+          ? ['CLAIMED', 'ARCHIVED']
+          : [];
 
-      {item.status === 'SUBMITTED' && (
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="ghost" size="icon" className="h-8 w-8">
-              <MoreVertical className="w-4 h-4" />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end" className="w-fit">
-            <DropdownMenuItem
-              onClick={(e) => {
-                if (item.status !== 'SUBMITTED') {
-                  toast.warning('Only SUBMITTED items can be deleted.');
-                  return;
-                }
-                e.stopPropagation();
-                setConfirmDelete(true);
-              }}
-              className="flex gap-2 text-destructive items-center"
-            >
-              <Trash className="w-4 h-4" />
-              Delete
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
-      )}
-    </div>
-  );
+    if (allowedStatuses.length === 0 && !canDelete) return null;
+
+    return (
+      <div className="flex flex-row gap-2 items-center justify-between">
+        {allowedStatuses.length > 0 && (
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button
+                variant="outline"
+                className="flex items-center border-on-surface-foreground text-primary rounded-lg w-32"
+              >
+                {item.status?.charAt(0).toUpperCase() + item.status?.slice(1).toLowerCase()}
+                <ChevronDown />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="w-fit">
+              {allowedStatuses.map((status) => (
+                <DropdownMenuItem
+                  key={status}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setConfirmDialog({ status, open: true });
+                  }}
+                >
+                  {status?.charAt(0).toUpperCase() + status?.slice(1).toLowerCase()}
+                </DropdownMenuItem>
+              ))}
+            </DropdownMenuContent>
+          </DropdownMenu>
+        )}
+
+        {canDelete && (
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="ghost" size="icon" className="h-8 w-8">
+                <MoreVertical className="w-4 h-4" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="w-fit">
+              <DropdownMenuItem
+                onClick={(e) => {
+                  if (item.status !== 'SUBMITTED') {
+                    toast.warning('Only SUBMITTED items can be deleted.');
+                    return;
+                  }
+                  e.stopPropagation();
+                  setConfirmDelete(true);
+                }}
+                className="flex gap-2 text-destructive items-center"
+              >
+                <Trash className="w-4 h-4" />
+                Delete
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        )}
+      </div>
+    );
+  };
 
   return (
     <>
       <Card
-        onClick={() => setOpenModal(true)}
+        onClick={() => {
+          if (selecting) return;
+          setOpenModal(true);
+        }}
         className={`cursor-pointer border-0 transition hover:shadow-md ${
           isList
             ? 'flex flex-row justify-between md:items-center gap-2 md:gap-8 p-0 md:p-4'
