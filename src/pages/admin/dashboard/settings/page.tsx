@@ -11,12 +11,16 @@ import { passwordSchema, profileSchema } from "@/lib/schemas/profileSchema";
 import { useAuthStore } from "@/lib/stores/auth.store";
 import { useMe, useUpdateMe, useResetPassword } from "@/api/auth/hook";
 import { useNavigate } from "react-router-dom";
+import { useQueryClient } from "@tanstack/react-query";
 
 export default function SettingsPage() {
   const { setUser } = useAuthStore();
   const { data: user } = useMe();
   const updateMe = useUpdateMe();
   const resetPassword = useResetPassword();
+
+  const qc = useQueryClient();
+  const token = useAuthStore((s) => s.token);
 
   const logout = useAuthStore((s) => s.logout);
   const navigate = useNavigate();
@@ -50,12 +54,20 @@ export default function SettingsPage() {
         surname: user.surname,
       });
     }
-  }, [user]);
+  }, [user, resetProfile]);
 
   const handleProfileSubmit = async (values: z.infer<typeof profileSchema>) => {
     try {
       const updated = await updateMe.mutateAsync(values);
       setUser(updated);
+
+      // update React Query cache for current user immediately
+      qc.setQueryData(["me", token], updated);
+      // update the form with fresh values so inputs reflect changes
+      resetProfile({ name: updated.name, surname: updated.surname });
+      // if any users list/table shows the current user, invalidate it to refetch
+      qc.invalidateQueries({ queryKey: ["users"] });
+
       toast.success("Profile updated successfully!");
     } catch (err) {
       toast.error("Failed to update profile.");

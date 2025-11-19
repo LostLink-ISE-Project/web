@@ -1,6 +1,6 @@
 import { Button } from '@/components/ui/button';
 import LostLinkLogo from '@/assets/LostLink.svg';
-import { LayoutDashboard, LogIn } from 'lucide-react';
+import { LayoutDashboard, Loader2, LogIn } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useState, useMemo, useRef, useEffect } from 'react';
 import ItemCard from '@/components/common/items/item-card';
@@ -146,7 +146,9 @@ export default function HomePage() {
           />
 
           {isLoading ? (
-            <p className="text-muted-foreground px-2 self-center">Loading items...</p>
+            <div className="flex justify-center items-center py-10">
+              <Loader2 className="w-8 h-8 animate-spin text-primary" />
+            </div>
           ) : filteredItems.length === 0 ? (
             <p className="text-muted-foreground px-2 self-center">No listed items found.</p>
           ) : (

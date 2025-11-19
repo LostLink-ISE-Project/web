@@ -35,7 +35,7 @@ export default function ItemsPage() {
   const [dateRange, setDateRange] = useState<DateRange | undefined>();
 
   // selection state
-  const [selectMode, setSelectMode] = useState(true);
+  const [selectMode, setSelectMode] = useState(false);
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [confirmBulk, setConfirmBulk] = useState<{
     open: boolean;
@@ -182,20 +182,20 @@ export default function ItemsPage() {
           <div className="flex items-center justify-between gap-3 flex-wrap">
             <CardTitle className="text-xl">Items</CardTitle>
 
-            <div className="flex items-center gap-2">
-              {selectMode ? (
-                <>
-                  <Button variant="outline" onClick={() => setSelectMode(false)}>
-                    Cancel
-                  </Button>
-                  <Button variant="outline" onClick={selectAllVisible}>
-                    {allVisibleIds.every((id) => selectedIds.includes(id)) &&
-                    allVisibleIds.length > 0
-                      ? 'Unselect visible'
-                      : 'Select visible'}
-                  </Button>
+            {(tab === 'SUBMITTED' || tab === 'LISTED') && (
+              <div className="flex items-center gap-2">
+                {selectMode ? (
+                  <>
+                    <Button variant="outline" onClick={() => setSelectMode(false)}>
+                      Cancel
+                    </Button>
+                    <Button variant="outline" onClick={selectAllVisible}>
+                      {allVisibleIds.every((id) => selectedIds.includes(id)) &&
+                      allVisibleIds.length > 0
+                        ? 'Unselect visible'
+                        : 'Select visible'}
+                    </Button>
 
-                  {(tab === 'SUBMITTED' || tab === 'LISTED') && (
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
                         <Button className="text-white flex items-center gap-2">
@@ -270,14 +270,14 @@ export default function ItemsPage() {
                         )}
                       </DropdownMenuContent>
                     </DropdownMenu>
-                  )}
-                </>
-              ) : (
-                <Button className="text-white" onClick={() => setSelectMode(true)}>
-                  Select items
-                </Button>
-              )}
-            </div>
+                  </>
+                ) : (
+                  <Button className="text-white" onClick={() => setSelectMode(true)}>
+                    Select items
+                  </Button>
+                )}
+              </div>
+            )}
           </div>
         </CardHeader>
         <CardContent>
