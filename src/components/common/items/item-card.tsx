@@ -219,7 +219,7 @@ export default function ItemCard({
                   <span className="font-semibold underline">
                     {format(new Date(item.date), 'PPP')}
                   </span>{' '}
-                  in <span className="font-semibold underline">{item.location}</span>
+                  at <span className="font-semibold underline">{item.location}</span>
                 </p>
               </>
             )}
@@ -247,7 +247,7 @@ export default function ItemCard({
         </div>
       </Card>
 
-      <ItemInfoModal open={openModal} onClose={() => setOpenModal(false)} item={item} />
+      <ItemInfoModal isForPublic={isForPublic} open={openModal} onClose={() => setOpenModal(false)} item={item} />
 
       <Dialog
         open={confirmDialog.open}

@@ -41,7 +41,8 @@ export default function HomePage() {
         date: item.createdDate,
         status: item.itemStatus,
         image: `${import.meta.env.VITE_API_URL}/media/${item.image}`,
-        officeInfo: item.givenLocation,
+        officeInfo: typeof item.givenLocation === 'string' ? item.givenLocation : item.givenLocation.name,
+        locationAndHours: typeof item.givenLocation === 'string' ? item.givenLocation : `${item.givenLocation.location}, ${item.givenLocation.workHours}`,
         category: item.category,
       }))
       .filter((item) => {

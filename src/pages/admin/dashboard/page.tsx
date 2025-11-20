@@ -1,5 +1,5 @@
 import { useState, useMemo } from 'react';
-import { CalendarIcon, ChevronDown, FileChartColumn, X } from 'lucide-react';
+import { CalendarIcon, ChevronDown, X } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
@@ -9,12 +9,12 @@ import type { DateRange } from 'react-day-picker';
 import { useItems } from '@/api/items/hook';
 import ItemCard from '@/components/common/items/item-card';
 import { useNavigate } from 'react-router-dom';
-import ReportModal from '@/components/common/modals/report-modal';
+// import ReportModal from '@/components/common/modals/report-modal';
 import { toast } from 'sonner';
 
 export default function DashboardPage() {
   const [dateRange, setDateRange] = useState<DateRange | undefined>();
-  const [reportModalOpen, setReportModalOpen] = useState(false);
+  // const [reportModalOpen, setReportModalOpen] = useState(false);
   const navigate = useNavigate();
 
   const { data, isLoading, isError } = useItems(true);
@@ -54,7 +54,7 @@ export default function DashboardPage() {
         location: item.foundLocation,
         date: item.createdDate,
         status: item.itemStatus,
-        submitterEmail: item.submitterEmail,        
+        submitterEmail: item.submitterEmail,
         image: `${import.meta.env.VITE_API_URL}/media/${item.image}`,
         officeInfo: `${item.givenLocation}`,
         category: item.category,
@@ -70,13 +70,13 @@ export default function DashboardPage() {
         <Card className="border-0 shadow-lg rounded-2xl mx-6 md:mx-0">
           <CardHeader className="flex flex-row items-center justify-between gap-4 flex-wrap">
             <CardTitle className="text-xl">Statistics and Report</CardTitle>
-            <Button
+            {/* <Button
               className="flex text-white items-center py-5 rounded-lg"
               onClick={() => setReportModalOpen(true)}
             >
               <FileChartColumn />
               <span className="hidden sm:inline">Generate report</span>
-            </Button>
+            </Button> */}
           </CardHeader>
           <CardContent className="flex flex-wrap items-center gap-4">
             <Popover>
@@ -166,7 +166,7 @@ export default function DashboardPage() {
         </Card>
       </div>
 
-      <ReportModal open={reportModalOpen} onClose={() => setReportModalOpen(false)} />
+      {/* <ReportModal open={reportModalOpen} onClose={() => setReportModalOpen(false)} /> */}
     </>
   );
 }
