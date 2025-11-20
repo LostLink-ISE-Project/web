@@ -4,7 +4,7 @@ import {
     getAllUsers,
     createUser,
     updateUser,
-    deleteUser,
+    statusUser,
 } from "@/lib/actions/users.actions";
 
 // GET all users
@@ -38,11 +38,11 @@ export function useUpdateUser() {
   });
 }
 
-// DELETE user
-export function useDeleteUser() {
+// DISABLE user
+export function useStatusUser() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: deleteUser,
+    mutationFn: statusUser,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["users"] });
     },

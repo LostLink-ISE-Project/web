@@ -6,11 +6,10 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-import { MoreVertical, Pencil, ShieldCheck, ShieldOff, Trash } from "lucide-react";
+import { MoreVertical, Pencil, ShieldCheck, ShieldOff } from "lucide-react";
 import { useState } from "react";
-import { useCreateUser, useDeleteUser, useUpdateUser, useUsers } from "@/api/users/hook";
+import { useCreateUser, useStatusUser, useUpdateUser, useUsers } from "@/api/users/hook";
 import { toast } from "sonner";
-
 export default function UsersPage() {
     const [addOpen, setAddOpen] = useState(false);
     const [editOpen, setEditOpen] = useState(false);
@@ -20,11 +19,17 @@ export default function UsersPage() {
         surname: string;
         status: "ACTIVE" | "DISABLED";
     } | null>(null);
-
+    
+    const [confirmAction, setConfirmAction] = useState<{
+        id: number;
+        user: string;
+        currentStatus: "ACTIVE" | "DISABLED";
+    } | null>(null);
+    
     const { data: userData = [], isLoading } = useUsers();
     const { mutate: createUser } = useCreateUser();
     const { mutate: updateUser } = useUpdateUser();
-    const { mutate: deleteUser } = useDeleteUser();
+    const { mutate: statusUser } = useStatusUser();
 
     const handleAddUser = (newUser: {
         name: string;
@@ -66,18 +71,13 @@ export default function UsersPage() {
         );
     };
 
-    const handleDeleteUser = (id: number) => {
-        deleteUser(id, {
-            onSuccess: () => toast.success("User deleted successfully"),
-            onError: () => toast.error("Failed to delete user"),
+    const handleStatusUser = (id: number) => {
+        statusUser(id, {
+            onSuccess: () => toast.success("User status changed successfully"),
+            onError: () => toast.error("Failed to change user status"),
         });
     };
 
-    const [confirmAction, setConfirmAction] = useState<{
-        type: "delete" | "toggle";
-        user: string;
-        currentStatus?: string;
-    } | null>(null);
 
     const columns = [
         {
@@ -126,7 +126,7 @@ export default function UsersPage() {
                                         id: row.original.id,
                                         name: row.original.name,
                                         surname: row.original.surname,
-                                        status: row.original.status, // if needed: normalize to "active" | "disabled"
+                                        status: row.original.status,
                                     });
                                     setEditOpen(true);
                                 }}
@@ -135,39 +135,33 @@ export default function UsersPage() {
                                 <Pencil className="w-4 h-4" />
                                 Edit
                             </DropdownMenuItem>
-                            <DropdownMenuItem
-                                onClick={() =>
-                                    setConfirmAction({ type: "delete", user: name }) // ✅ this was missing
-                                }
-                                className="flex items-center gap-2 text-destructive"
-                            >
-                                <Trash className="w-4 h-4" />
-                                Delete
-                            </DropdownMenuItem>
-                            <DropdownMenuItem
-                                onClick={() =>
-                                    setConfirmAction({ type: "toggle", user: name, currentStatus: status })
-                                }
-                                className="flex items-center gap-2"
-                            >
-                                {isActive ? (
-                                    <>
-                                        <ShieldOff className="w-4 h-4 text-orange-500" />
-                                        Disable
-                                    </>
-                                ) : (
-                                    <>
-                                        <ShieldCheck className="w-4 h-4 text-green-500" />
-                                        Activate
-                                    </>
-                                )}
-                            </DropdownMenuItem>
+                            {isActive ? (
+                                <DropdownMenuItem
+                                    onClick={() =>
+                                        setConfirmAction({ id: row.original.id, user: name, currentStatus: status })
+                                    }
+                                    className="flex items-center gap-2 text-orange-500"
+                                >
+                                    <ShieldOff className="w-4 h-4" />
+                                    Disable
+                                </DropdownMenuItem>
+                            ): (
+                                <DropdownMenuItem
+                                    onClick={() =>
+                                        setConfirmAction({ id: row.original.id, user: name, currentStatus: status })
+                                    }
+                                    className="flex items-center gap-2 text-green-500"
+                                >
+                                    <ShieldCheck className="w-4 h-4" />
+                                    Activate
+                                </DropdownMenuItem>
+                            )}
                         </DropdownMenuContent>
                     </DropdownMenu>
                 );
             },
         },
-        ];
+    ];
 
     return(
         <>
@@ -201,42 +195,30 @@ export default function UsersPage() {
             )}
 
             {confirmAction && (
-                <Dialog open={!!confirmAction} onOpenChange={() => setConfirmAction(null)}>
+                <Dialog open onOpenChange={() => setConfirmAction(null)}>
                     <DialogContent className="rounded-2xl">
                         <DialogHeader>
                             <DialogTitle>
-                                {confirmAction.type === "delete"
-                                    ? "Confirm Delete"
-                                    : confirmAction.currentStatus === "ACTIVE"
-                                    ? "Disable User"
-                                    : "Activate User"}
+                                {confirmAction.currentStatus === "ACTIVE" ? "Disable User" : "Activate User"}
                             </DialogTitle>
                         </DialogHeader>
+
                         <div className="py-4 text-sm">
                             Are you sure you want to{" "}
-                            <strong>
-                                {confirmAction.type === "delete"
-                                    ? "delete"
-                                    : confirmAction.currentStatus === "ACTIVE"
-                                    ? "disable"
-                                    : "activate"}
-                            </strong>{" "}
+                            <strong>{confirmAction.currentStatus === "ACTIVE" ? "disable" : "activate"}</strong>{" "}
                             <span className="font-semibold">{confirmAction.user}</span>?
                         </div>
+
                         <DialogFooter className="flex gap-2 justify-end">
                             <Button variant="ghost" onClick={() => setConfirmAction(null)}>
                                 Cancel
                             </Button>
+                            
                             <Button
-                                variant={confirmAction.type === "delete" ? "destructive" : "default"}
+                                variant={confirmAction.currentStatus === "ACTIVE" ? "destructive" : "default"}
                                 onClick={() => {
-                                    if (confirmAction.type === "delete") {
-                                        const user = userData.find((u) => u.name === confirmAction.user);
-                                        if (user) handleDeleteUser(user.id);
-                                    } else {
-                                        toast.info("Status toggle not yet implemented");
-                                    }
-                                    setConfirmAction(null);
+                                handleStatusUser(confirmAction.id);
+                                setConfirmAction(null);
                                 }}
                             >
                                 Confirm

@@ -9,9 +9,10 @@ export interface ItemResponse {
   foundLocation: string;
   givenLocation: string;
   image: string;
-  status: ItemStatus;
+  itemStatus: ItemStatus;
   createdDate: string;
   category: string;
+  submitterEmail: string;
 }
 
 export interface CreateItemDto {

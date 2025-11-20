@@ -6,8 +6,8 @@ import {
   UserRound,
   Settings,
   LibraryBig,
-} from "lucide-react";
-import type { ReactNode } from "react";
+} from 'lucide-react';
+import type { ReactNode } from 'react';
 
 export interface SidebarLinkType {
   id: string[];
@@ -21,46 +21,47 @@ export interface SidebarLinkType {
 export const useSidebarLinks = () => {
   const links: SidebarLinkType[] = [
     {
-      id: ["dashboard"],
-      title: "Dashboard",
+      id: ['dashboard'],
+      title: 'Dashboard',
       icon: <LayoutGrid size={18} />,
-      href: "/dashboard",
+      href: '/dashboard',
     },
     {
-      id: ["items"],
-      title: "Items",
+      id: ['items'],
+      title: 'Items',
       icon: <TabletSmartphone size={18} />,
-      href: "/dashboard/items",
+      href: '/dashboard/items',
     },
     {
-      id: ["offices"],
-      title: "Offices",
+      id: ['offices'],
+      title: 'Offices',
       icon: <Building2 size={18} />,
-      href: "/dashboard/offices",
+      href: '/dashboard/offices',
     },
     {
-      id: ["locations"],
-      title: "Locations",
+      id: ['locations'],
+      title: 'Locations',
       icon: <MapPin size={18} />,
-      href: "/dashboard/locations",
+      href: '/dashboard/locations',
     },
     {
-      id: ["users"],
-      title: "Users",
-      icon: <UserRound size={18} />,
-      href: "/dashboard/users",
-    },
-    {
-      id: ["categories"],
-      title: "Categories",
+      id: ['categories'],
+      title: 'Categories',
       icon: <LibraryBig size={18} />,
-      href: "/dashboard/categories",
+      href: '/dashboard/categories',
     },
     {
-      id: ["settings"],
-      title: "Settings",
+      id: ['users'],
+      title: 'Users',
+      icon: <UserRound size={18} />,
+      href: '/dashboard/users',
+    },
+
+    {
+      id: ['settings'],
+      title: 'Settings',
       icon: <Settings size={18} />,
-      href: "/dashboard/settings",
+      href: '/dashboard/settings',
     },
   ];
 

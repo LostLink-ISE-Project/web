@@ -42,8 +42,6 @@ export default function EditLocationModal({
     defaultValues: {
       name: "",
       details: "",
-      workHourStart: "",
-      workHourEnd: "",
     },
   });
 
@@ -52,8 +50,6 @@ export default function EditLocationModal({
     reset({
       name: location.name,
       details: match ? match[1] : location.description,
-      workHourStart: match ? match[2] : "",
-      workHourEnd: match ? match[3] : "",
     });
   }, [location, reset]);
 
@@ -78,21 +74,6 @@ export default function EditLocationModal({
           <div>
             <Input placeholder="Details" {...register("details", { required: true })} />
             {errors.details && <p className="text-red-500 text-sm mt-1">Details are required</p>}
-          </div>
-
-          <div className="flex gap-4">
-            <div className="flex-1">
-              <Input type="time" {...register("workHourStart", { required: true })} />
-              {errors.workHourStart && (
-                <p className="text-red-500 text-sm mt-1">Start time required</p>
-              )}
-            </div>
-            <div className="flex-1">
-              <Input type="time" {...register("workHourEnd", { required: true })} />
-              {errors.workHourEnd && (
-                <p className="text-red-500 text-sm mt-1">End time required</p>
-              )}
-            </div>
           </div>
 
           <DialogFooter>

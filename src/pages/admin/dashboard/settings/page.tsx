@@ -1,6 +1,5 @@
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
@@ -11,16 +10,27 @@ import { toast } from "sonner";
 import { passwordSchema, profileSchema } from "@/lib/schemas/profileSchema";
 import { useAuthStore } from "@/lib/stores/auth.store";
 import { useMe, useUpdateMe, useResetPassword } from "@/api/auth/hook";
+import { useNavigate } from "react-router-dom";
+import { useQueryClient } from "@tanstack/react-query";
 
 export default function SettingsPage() {
-  const [tab, setTab] = useState("profile");
-
-  const { user: storedUser, setUser } = useAuthStore();
+  const { setUser } = useAuthStore();
   const { data: user } = useMe();
   const updateMe = useUpdateMe();
   const resetPassword = useResetPassword();
 
-  const profileForm = useForm({
+  const qc = useQueryClient();
+  const token = useAuthStore((s) => s.token);
+
+  const logout = useAuthStore((s) => s.logout);
+  const navigate = useNavigate();
+
+  const {
+    register: registerProfile,
+    handleSubmit: handleSubmitProfile,
+    reset: resetProfile,
+    formState: { errors: profileErrors },
+  } = useForm({
     resolver: zodResolver(profileSchema),
     defaultValues: {
       name: "",
@@ -28,23 +38,36 @@ export default function SettingsPage() {
     },
   });
 
-  const passwordForm = useForm({
+  const {
+    register: registerPassword,
+    handleSubmit: handleSubmitPassword,
+    reset: resetPasswordForm,
+    formState: { errors: passwordErrors },
+  } = useForm({
     resolver: zodResolver(passwordSchema),
   });
 
   useEffect(() => {
     if (user) {
-      profileForm.reset({
+      resetProfile({
         name: user.name,
         surname: user.surname,
       });
     }
-  }, [user]);
+  }, [user, resetProfile]);
 
   const handleProfileSubmit = async (values: z.infer<typeof profileSchema>) => {
     try {
       const updated = await updateMe.mutateAsync(values);
       setUser(updated);
+
+      // update React Query cache for current user immediately
+      qc.setQueryData(["me", token], updated);
+      // update the form with fresh values so inputs reflect changes
+      resetProfile({ name: updated.name, surname: updated.surname });
+      // if any users list/table shows the current user, invalidate it to refetch
+      qc.invalidateQueries({ queryKey: ["users"] });
+
       toast.success("Profile updated successfully!");
     } catch (err) {
       toast.error("Failed to update profile.");
@@ -55,7 +78,11 @@ export default function SettingsPage() {
     try {
       await resetPassword.mutateAsync(values);
       toast.success("Password changed successfully!");
-      passwordForm.reset();
+      
+      resetPasswordForm();
+
+      logout();
+      navigate("/");
     } catch (err) {
       toast.error("Failed to change password.");
     }
@@ -64,62 +91,86 @@ export default function SettingsPage() {
   return (
     <Card className="border-0 shadow-xl rounded-2xl">
       <CardHeader>
-        <CardTitle className="text-xl">Settings</CardTitle>
+        <CardTitle className="text-2xl">Settings</CardTitle>
       </CardHeader>
-      <CardContent>
-        <Tabs value={tab} onValueChange={setTab}>
-          <TabsList className="w-full mb-4 border-b rounded-none">
-            <TabsTrigger value="profile">Profile</TabsTrigger>
-            <TabsTrigger value="password">Password</TabsTrigger>
-          </TabsList>
+      <CardContent className="flex md:flex-row flex-col gap-10 md:gap-20 lg:gap-30 w-full justify-between">
+        <div className="flex flex-col gap-4 w-full">
+          <h2 className="font-semibold text-xl">Profile</h2>
 
-          <TabsContent value="profile">
-            <form
-              onSubmit={profileForm.handleSubmit(handleProfileSubmit)}
-              className="space-y-4 max-w-md"
-            >
-              <div className="space-y-2">
-                <Label htmlFor="name">Name</Label>
-                <Input id="name" {...profileForm.register("name")} />
-              </div>
+          <form
+            onSubmit={handleSubmitProfile(handleProfileSubmit)}
+            className="space-y-4"
+          >
+            <div className="space-y-2">
+              <Label htmlFor="name">Name</Label>
+              <Input id="name" {...registerProfile("name")} />
+              {profileErrors.name && (
+                <p className="text-xs text-red-500">{profileErrors.name.message}</p>
+              )}
+            </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="surname">Surname</Label>
-                <Input id="surname" {...profileForm.register("surname")} />
-              </div>
+            <div className="space-y-2">
+              <Label htmlFor="surname">Surname</Label>
+              <Input id="surname" {...registerProfile("surname")} />
+              {profileErrors.surname && (
+                <p className="text-xs text-red-500">{profileErrors.surname.message}</p>
+              )}
+            </div>
 
-              <Button type="submit" className="text-white py-5 rounded-lg w-full">
-                Update Profile
-              </Button>
-            </form>
-          </TabsContent>
+            <Button type="submit" className="text-white py-5 rounded-lg w-full">
+              Update Profile
+            </Button>
+          </form>
+        </div>
 
-          <TabsContent value="password">
-            <form
-              onSubmit={passwordForm.handleSubmit(handlePasswordSubmit)}
-              className="space-y-4 max-w-md"
-            >
-              <div className="space-y-2">
-                <Label htmlFor="currentPassword">Current Password</Label>
-                <Input type="password" id="currentPassword" {...passwordForm.register("currentPassword")} />
-              </div>
+        <div className="w-full md:w-0.5 rounded-lg bg-on-surface" />
 
-              <div className="space-y-2">
+        <div className="flex flex-col gap-4 w-full">
+          <h2 className="font-semibold text-xl">Password</h2>
+
+          <form
+            onSubmit={handleSubmitPassword(handlePasswordSubmit)}
+            className="space-y-4"
+          >
+            <div className="space-y-2">
+              <Label htmlFor="currentPassword">Current Password</Label>
+              <Input type="password" id="currentPassword" {...registerPassword("currentPassword")} />
+              {passwordErrors.currentPassword && (
+                <p className="text-xs text-red-500">{passwordErrors.currentPassword.message}</p>
+              )}
+            </div>
+
+            <div className="flex flex-col lg:flex-row justify-between gap-4">
+              <div className="space-y-2 w-full">
                 <Label htmlFor="newPassword">New Password</Label>
-                <Input type="password" id="newPassword" {...passwordForm.register("newPassword")} />
+                <Input 
+                  type="password" 
+                  id="newPassword" 
+                  {...registerPassword("newPassword")} 
+                />
+                {passwordErrors.newPassword && (
+                  <p className="text-xs text-red-500">{passwordErrors.newPassword.message}</p>
+                )}
               </div>
 
-              <div className="space-y-2">
+              <div className="space-y-2 w-full">
                 <Label htmlFor="confirmNewPassword">Confirm New Password</Label>
-                <Input type="password" id="confirmNewPassword" {...passwordForm.register("confirmNewPassword")} />
+                <Input
+                  type="password"
+                  id="confirmNewPassword"
+                  {...registerPassword("confirmNewPassword")}
+                />
+                {passwordErrors.confirmNewPassword && (
+                  <p className="text-xs text-red-500">{passwordErrors.confirmNewPassword.message}</p>
+                )}
               </div>
+            </div>
 
-              <Button type="submit" className="text-white py-5 rounded-lg w-full">
-                Change Password
-              </Button>
-            </form>
-          </TabsContent>
-        </Tabs>
+            <Button type="submit" className="text-white py-5 rounded-lg w-full">
+              Change Password
+            </Button>
+          </form>
+        </div>
       </CardContent>
     </Card>
   );

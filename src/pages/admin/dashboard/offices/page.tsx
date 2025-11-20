@@ -1,5 +1,6 @@
 import { useCreateOffice, useDeleteOffice, useOffices, useUpdateOffice } from "@/api/office/hook";
 import AddOfficeModal from "@/components/common/modals/add-office-modal";
+import ConfirmActionModal from "@/components/common/modals/confirm-modal";
 import EditOfficeModal from "@/components/common/modals/edit-office-modal";
 import SimpleTable from "@/components/common/table/simple-table";
 import { Button } from "@/components/ui/button";
@@ -15,13 +16,10 @@ export default function OfficesPage() {
     const [editOpen, setEditOpen] = useState(false);
     const [selectedOffice, setSelectedOffice] = useState<any>(null);
 
+    const [confirmDelete, setConfirmDelete] = useState<{ id: number; name: string } | null>(null); // ✅ NEW
+
     const { mutate: updateOffice } = useUpdateOffice();
 
-    // const officeData = Array.from({ length: 5 }).map((_, i) => ({
-    //     name: `Location ${i + 1}`,
-    //     location: "Building A, Room 201",
-    //     workHours: "09:00 - 16:00",
-    // }));
     const { data: officeData = [], isLoading } = useOffices();
     const { mutate: createOffice } = useCreateOffice();
     const { mutate: deleteOffice } = useDeleteOffice();
@@ -135,12 +133,7 @@ export default function OfficesPage() {
                             Edit
                         </DropdownMenuItem>
                         <DropdownMenuItem
-                            onClick={() => 
-                                deleteOffice(row.original.id, {
-                                    onSuccess: () => toast.success("Office deleted successfully"),
-                                    onError: () => toast.error("Failed to delete Office"),
-                                })
-                            }
+                            onClick={() => setConfirmDelete({ id: row.original.id, name: row.original.name })}
                             className="flex items-center gap-2 text-destructive"
                         >
                             <Trash className="w-4 h-4" />
@@ -185,6 +178,22 @@ export default function OfficesPage() {
                     onClose={() => setEditOpen(false)}
                     office={selectedOffice}
                     onSubmit={handleEditOffice}
+                />
+            )}
+
+            {confirmDelete && (
+                <ConfirmActionModal
+                    open={!!confirmDelete}
+                    title="Delete Office"
+                    description={`Are you sure you want to delete "${confirmDelete.name}"?`}
+                    onCancel={() => setConfirmDelete(null)}
+                    onConfirm={() => {
+                        deleteOffice(confirmDelete.id, {
+                            onSuccess: () => toast.success("Office deleted successfully"),
+                            onError: () => toast.error("Failed to delete office"),
+                        });
+                        setConfirmDelete(null);
+                    }}
                 />
             )}
         </>

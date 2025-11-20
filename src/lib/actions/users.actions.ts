@@ -17,6 +17,6 @@ export async function updateUser(id: number, payload: UpdateUserDto): Promise<Us
   return data.data;
 }
 
-export async function deleteUser(id: number): Promise<void> {
-  await userInterceptor.delete(`/${id}`);
+export async function statusUser(id: number): Promise<void> {
+  await userInterceptor.patch(`/status/${id}`);
 }

@@ -1,3 +1,4 @@
+import { Badge } from "@/components/ui/badge";
 import {
   Dialog,
   DialogContent,
@@ -19,17 +20,25 @@ export default function ItemInfoModal({ open, onClose, item }: any) {
         <img
           src={item.image}
           alt="Item"
-          className="rounded-lg mb-4 w-full h-64 object-cover"
+          className="rounded-lg mb-4 w-full h-[400px] object-scale-down shadow-md"
         />
 
         <div className="text-sm space-y-4 break-words whitespace-pre-wrap overflow-hidden w-full">
-          <h3 className="text-lg font-semibold">{item.title}</h3>
+          <div className="flex items-center justify-between gap-2 flex-wrap">
+            <h3 className="text-lg font-semibold">{item.title}</h3>
+            <Badge variant="default" className="rounded-full border-primary text-primary font-semibold whitespace-nowrap">
+              {item.category ?? "Uncategorized"}
+            </Badge>
+          </div>
 
           <p>
             {item.description}
           </p>
           <p>
             <strong>Found in:</strong> {item.location}
+          </p>
+          <p>
+            <strong>Found by:</strong> {item.submitterEmail}
           </p>
           <p>
             <strong>Listing Date:</strong> {format(new Date(item.date), "PPP")}

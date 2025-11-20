@@ -20,11 +20,14 @@ import {
 
 import AddCategoryModal from "@/components/common/modals/add-category-modal";
 import EditCategoryModal from "@/components/common/modals/edit-category-modal";
+import ConfirmActionModal from "@/components/common/modals/confirm-modal";
 
 export default function CategoriesPage() {
   const [addOpen, setAddOpen] = useState(false);
   const [editOpen, setEditOpen] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState<{ id: number; name: string } | null>(null);
+
+  const [confirmDelete, setConfirmDelete] = useState<{ id: number; name: string } | null>(null); // ✅ NEW
 
   const { data: categoryData = [], isLoading } = useCategories();
   const { mutate: createCategory } = useCreateCategory();
@@ -94,7 +97,7 @@ export default function CategoriesPage() {
               Edit
             </DropdownMenuItem>
             <DropdownMenuItem
-              onClick={() => handleDelete(row.original.id)}
+              onClick={() => setConfirmDelete({ id: row.original.id, name: row.original.name })}
               className="flex items-center gap-2 text-destructive"
             >
               <Trash className="w-4 h-4" />
@@ -132,6 +135,19 @@ export default function CategoriesPage() {
           onClose={() => setEditOpen(false)}
           category={selectedCategory}
           onSubmit={handleUpdate}
+        />
+      )}
+
+      {confirmDelete && (
+        <ConfirmActionModal
+          open={!!confirmDelete}
+          title="Delete Category"
+          description={`Are you sure you want to delete "${confirmDelete.name}"?`}
+          onCancel={() => setConfirmDelete(null)}
+          onConfirm={() => {
+            handleDelete(confirmDelete.id);
+            setConfirmDelete(null);
+          }}
         />
       )}
     </>
