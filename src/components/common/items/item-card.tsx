@@ -21,6 +21,7 @@ import {
 } from '@/components/ui/dialog';
 import ConfirmActionModal from '../modals/confirm-modal';
 import { Badge } from '@/components/ui/badge';
+import OptimizedImage from '@/components/ui/optimized-image';
 
 export interface ItemCardProps {
   item: {
@@ -170,11 +171,11 @@ export default function ItemCard({
               : 'min-w-50 sm:w-28 sm:h-40' // list: keep as is
           }`}
         >
-          <img
+          <OptimizedImage
             src={item.image}
             alt={item.title}
             className="w-full h-full object-scale-down"
-            loading="lazy"
+            thumbnailSize={isList ? 150 : 300}
           />
         </div>
         <div
@@ -189,7 +190,7 @@ export default function ItemCard({
               <h4 className="font-semibold">{item.title}</h4>
               <Badge
                 variant="outline"
-                className="rounded-full text-xs border-primary text-primary px-2 py-0.5 whitespace-nowrap"
+                className="rounded-full text-xs border-primary text-primary px-2 py-0.5"
               >
                 {item.category || 'Uncategorized'}
               </Badge>
@@ -247,7 +248,12 @@ export default function ItemCard({
         </div>
       </Card>
 
-      <ItemInfoModal isForPublic={isForPublic} open={openModal} onClose={() => setOpenModal(false)} item={item} />
+      <ItemInfoModal
+        isForPublic={isForPublic}
+        open={openModal}
+        onClose={() => setOpenModal(false)}
+        item={item}
+      />
 
       <Dialog
         open={confirmDialog.open}

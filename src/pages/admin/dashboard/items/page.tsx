@@ -62,7 +62,7 @@ export default function ItemsPage() {
         location: item.foundLocation,
         date: item.createdDate,
         status: item.itemStatus,
-        image: `${import.meta.env.VITE_API_URL}/media/${item.image}`,
+        image: item.image,
         submitterEmail: item.submitterEmail,
         officeInfo: `${item.givenLocation}`,
         category: item.category,

@@ -7,6 +7,7 @@ import {
   DialogClose,
 } from '@/components/ui/dialog';
 import { format } from 'date-fns';
+import OptimizedImage from '@/components/ui/optimized-image';
 
 export default function ItemInfoModal({ open, onClose, item, isForPublic }: any) {
   return (
@@ -17,18 +18,20 @@ export default function ItemInfoModal({ open, onClose, item, isForPublic }: any)
           <DialogClose />
         </DialogHeader>
 
-        <img
+        <OptimizedImage
           src={item.image}
           alt="Item"
           className="rounded-lg mb-4 w-full h-[400px] object-scale-down shadow-md"
+          thumbnailSize={400}
+          priority={true}
         />
 
         <div className="text-sm space-y-4 break-words whitespace-pre-wrap overflow-hidden w-full">
-          <div className="flex items-center justify-between gap-2 flex-wrap">
+          <div className="flex flex-col gap-2">
             <h3 className="text-lg font-semibold">{item.title}</h3>
             <Badge
               variant="default"
-              className="rounded-full border-primary text-primary font-semibold whitespace-nowrap"
+              className="rounded-full border-primary text-primary font-semibold w-fit"
             >
               {item.category ?? 'Uncategorized'}
             </Badge>
@@ -47,7 +50,8 @@ export default function ItemInfoModal({ open, onClose, item, isForPublic }: any)
             <strong>Listing Date:</strong> {format(new Date(item.date), 'PPP')}
           </p>
           <p>
-            <strong>Office info:</strong> {item.officeInfo} {item.locationAndHours && `(${item.locationAndHours})`}
+            <strong>Office info:</strong> {item.officeInfo}{' '}
+            {item.locationAndHours && `(${item.locationAndHours})`}
           </p>
         </div>
       </DialogContent>
