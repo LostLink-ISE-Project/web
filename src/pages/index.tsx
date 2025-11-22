@@ -1,16 +1,25 @@
 import { Button } from '@/components/ui/button';
 import LostLinkLogo from '@/assets/LostLink.svg';
-import { LayoutDashboard, Loader2, LogIn } from 'lucide-react';
+import { LayoutDashboard, Loader2, LogIn, Package, CheckCircle, Calendar } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useState, useMemo, useRef, useEffect } from 'react';
 import ItemCard from '@/components/common/items/item-card';
 import ItemToolbar from '@/components/common/items/item-toolbar';
 import type { DateRange } from 'react-day-picker';
 import { useItems } from '@/api/items/hook';
+import { useReport } from '@/api/report/hook';
 import { toast } from 'sonner';
 import { useAuthStore } from '@/lib/stores/auth.store';
 import { useViewStore } from '@/lib/stores/view.store';
 import { version } from '../../package.json';
+import { Card, CardContent } from '@/components/ui/card';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 
 const PAGE_SIZE = 10;
 
@@ -22,12 +31,24 @@ export default function HomePage() {
   const [sort, setSort] = useState<'newest' | 'oldest'>('newest');
   const [officeFilter, setOfficeFilter] = useState<string[]>([]);
   const [dateRange, setDateRange] = useState<DateRange | undefined>();
+  const [statsTimePeriod, setStatsTimePeriod] = useState<string>('month');
 
   const token = useAuthStore((s) => s.token);
 
   const { data, isLoading, isError } = useItems(false, 'LISTED');
 
+  // Report data for statistics
+  const {
+    data: reportData,
+    isLoading: isReportLoading,
+    isError: isReportError,
+  } = useReport({
+    period: statsTimePeriod,
+    scope: 'general',
+  });
+
   if (isError) toast.error('Failed to load items');
+  if (isReportError) toast.error('Failed to load statistics');
 
   const filteredItems = useMemo(() => {
     const items = data ?? [];
@@ -40,9 +61,13 @@ export default function HomePage() {
         location: item.foundLocation,
         date: item.createdDate,
         status: item.itemStatus,
-        image: `${import.meta.env.VITE_API_URL}/media/${item.image}`,
-        officeInfo: typeof item.givenLocation === 'string' ? item.givenLocation : item.givenLocation.name,
-        locationAndHours: typeof item.givenLocation === 'string' ? item.givenLocation : `${item.givenLocation.location}, ${item.givenLocation.workHours}`,
+        image: item.image,
+        officeInfo:
+          typeof item.givenLocation === 'string' ? item.givenLocation : item.givenLocation.name,
+        locationAndHours:
+          typeof item.givenLocation === 'string'
+            ? item.givenLocation
+            : `${item.givenLocation.location}, ${item.givenLocation.workHours}`,
         category: item.category,
       }))
       .filter((item) => {
@@ -113,21 +138,94 @@ export default function HomePage() {
           <a href="/">
             <img src={LostLinkLogo} alt="Logo" className="transition-all w-24 sm:w-32" />
           </a>
-          {token ? (
-            <Link to="/dashboard">
-              <Button className="flex text-white items-center py-5 rounded-lg gap-2">
-                <span className="hidden sm:inline">Dashboard</span>
-                <LayoutDashboard size={18} />
-              </Button>
+          <div className="flex items-center gap-4">
+            <Link to="/about" className="text-gray-600 hover:text-gray-900 transition-colors">
+              About
             </Link>
-          ) : (
-            <Link to="/login">
-              <Button className="flex text-white items-center py-5 rounded-lg gap-2">
-                <span className="hidden sm:inline">Log In</span>
-                <LogIn size={18} />
-              </Button>
-            </Link>
-          )}
+            {token ? (
+              <Link to="/dashboard">
+                <Button className="flex text-white items-center py-5 rounded-lg gap-2">
+                  <span className="hidden sm:inline">Dashboard</span>
+                  <LayoutDashboard size={18} />
+                </Button>
+              </Link>
+            ) : (
+              <Link to="/login">
+                <Button className="flex text-white items-center py-5 rounded-lg gap-2">
+                  <span className="hidden sm:inline">Log In</span>
+                  <LogIn size={18} />
+                </Button>
+              </Link>
+            )}
+          </div>
+        </div>
+
+        {/* Statistics Section */}
+        <div className="mx-6 md:mx-0">
+          {/* Time Period Selector */}
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-xl font-semibold text-gray-900">Statistics</h2>
+            <div className="flex items-center gap-2">
+              <Calendar className="w-4 h-4 text-gray-500" />
+              <Select value={statsTimePeriod} onValueChange={setStatsTimePeriod}>
+                <SelectTrigger className="w-32">
+                  <SelectValue placeholder="Time period" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="month">This Month</SelectItem>
+                  <SelectItem value="semester">This Semester</SelectItem>
+                  <SelectItem value="all">All Time</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+
+          {/* Statistics Cards */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {/* Found Items Card */}
+            <Card className="border-0 shadow-md rounded-xl bg-gradient-to-br from-blue-50 to-blue-100">
+              <CardContent className="p-4">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-blue-600 text-xs font-medium mb-1">Found Items</p>
+                    <p className="text-2xl font-bold text-blue-900 mb-1">
+                      {isReportLoading ? (
+                        <Loader2 className="w-6 h-6 animate-spin" />
+                      ) : (
+                        reportData?.data?.foundItems || '0'
+                      )}
+                    </p>
+                    <p className="text-blue-700 text-xs">Waiting to be claimed</p>
+                  </div>
+                  <div className="p-2 bg-blue-200 rounded-full">
+                    <Package className="w-6 h-6 text-blue-600" />
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Claimed Items Card */}
+            <Card className="border-0 shadow-md rounded-xl bg-gradient-to-br from-green-50 to-green-100">
+              <CardContent className="p-4">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-green-600 text-xs font-medium mb-1">Claimed Items</p>
+                    <p className="text-2xl font-bold text-green-900 mb-1">
+                      {isReportLoading ? (
+                        <Loader2 className="w-6 h-6 animate-spin" />
+                      ) : (
+                        reportData?.data?.claimedItems || '0'
+                      )}
+                    </p>
+                    <p className="text-green-700 text-xs">Successfully reunited</p>
+                  </div>
+                  <div className="p-2 bg-green-200 rounded-full">
+                    <CheckCircle className="w-6 h-6 text-green-600" />
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
         </div>
 
         {/* Filters + Items */}

@@ -2,6 +2,7 @@ import { createBrowserRouter } from 'react-router-dom';
 
 // Pages
 import HomePage from '@/pages';
+import AboutPage from '@/pages/about/page';
 import LoginPage from '@/pages/admin/login/form';
 import DashboardPage from '@/pages/admin/dashboard/page';
 import ItemsPage from '@/pages/admin/dashboard/items/page';
@@ -19,6 +20,10 @@ export const router = createBrowserRouter([
   {
     path: '/',
     element: <HomePage />,
+  },
+  {
+    path: '/about',
+    element: <AboutPage />,
   },
   {
     path: '/login',
@@ -53,7 +58,7 @@ export const router = createBrowserRouter([
           },
           {
             path: 'categories',
-            element: <CategoriesPage />
+            element: <CategoriesPage />,
           },
           {
             path: 'settings',

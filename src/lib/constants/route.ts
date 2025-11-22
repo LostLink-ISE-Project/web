@@ -1,5 +1,6 @@
 export const ROUTES = {
   HOME: '/',
+  ABOUT: '/about',
   LOGIN: '/login',
   DASHBOARD: '/dashboard',
   USERS: '/dashboard/users',
@@ -9,6 +10,10 @@ export const ROUTES = {
 export const ROUTE_ACCESS = {
   [ROUTES.HOME]: {
     path: ROUTES.HOME,
+    permissions: ['*'],
+  },
+  [ROUTES.ABOUT]: {
+    path: ROUTES.ABOUT,
     permissions: ['*'],
   },
   [ROUTES.LOGIN]: {
