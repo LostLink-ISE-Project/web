@@ -165,7 +165,7 @@ export default function ItemCard({
         }`}
       >
         <div
-          className={`rounded-lg overflow-hidden shadow-md ${
+          className={`rounded-lg flex justify-center items-center overflow-hidden shadow-md ${
             !isList
               ? 'w-full h-[350px]' // grid: fixed height
               : 'min-w-50 sm:w-28 sm:h-40' // list: keep as is
