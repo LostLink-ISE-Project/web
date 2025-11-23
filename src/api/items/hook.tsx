@@ -1,18 +1,13 @@
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import itemInterceptor from "./inceptor";
-import type {
-  CreateItemDto,
-  ItemResponse,
-  UpdateItemStatusDto,
-  ItemStatus,
-} from "./item.dto";
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import itemInterceptor from './inceptor';
+import type { CreateItemDto, ItemResponse, UpdateItemStatusDto, ItemStatus } from './item.dto';
 
 // GET all items
 export function useItems(full: boolean, status?: ItemStatus) {
   return useQuery<ItemResponse[]>({
-    queryKey: ["items", full, status],
+    queryKey: ['items', full, status],
     queryFn: async () => {
-      const { data } = await itemInterceptor.get("", {
+      const { data } = await itemInterceptor.get('', {
         params: { full, status },
       });
       return data.data;
@@ -23,7 +18,7 @@ export function useItems(full: boolean, status?: ItemStatus) {
 // GET item by ID
 export function useItem(id?: number) {
   return useQuery<ItemResponse>({
-    queryKey: ["item", id],
+    queryKey: ['item', id],
     queryFn: async () => {
       const { data } = await itemInterceptor.get(`/${id}`);
       return data.data;
@@ -37,11 +32,11 @@ export function useCreateItem() {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async (payload: CreateItemDto): Promise<ItemResponse> => {
-      const { data } = await itemInterceptor.post("", payload);
+      const { data } = await itemInterceptor.post('', payload);
       return data.data;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["items"] });
+      queryClient.invalidateQueries({ queryKey: ['items'] });
     },
   });
 }
@@ -55,7 +50,7 @@ export function useDeleteItem() {
       return data.data;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["items"] });
+      queryClient.invalidateQueries({ queryKey: ['items'] });
     },
   });
 }
@@ -75,7 +70,8 @@ export function useUpdateItemStatus() {
       return data.data;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["items"] });
+      queryClient.invalidateQueries({ queryKey: ['items'] });
+      queryClient.invalidateQueries({ queryKey: ['item'] });
     },
   });
 }

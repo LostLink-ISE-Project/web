@@ -20,6 +20,7 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 import ConfirmActionModal from '../modals/confirm-modal';
+import ClaimItemModal from '../modals/claim-item-modal';
 import { Badge } from '@/components/ui/badge';
 import OptimizedImage from '@/components/ui/optimized-image';
 
@@ -53,6 +54,7 @@ export default function ItemCard({
     open: boolean;
   }>({ status: item.status, open: false });
   const [confirmDelete, setConfirmDelete] = useState(false);
+  const [claimModal, setClaimModal] = useState(false);
 
   const deleteItem = useDeleteItem();
   const updateStatus = useUpdateItemStatus();
@@ -77,6 +79,22 @@ export default function ItemCard({
       toast.error('Failed to update item status.');
     } finally {
       setConfirmDialog({ ...confirmDialog, open: false });
+    }
+  };
+
+  const handleClaimItem = async (claimDescription: string) => {
+    try {
+      await updateStatus.mutateAsync({
+        id: Number(item.id),
+        payload: {
+          status: 'CLAIMED',
+          description: claimDescription,
+        },
+      });
+      toast.success('Item marked as claimed.');
+      setClaimModal(false);
+    } catch {
+      toast.error('Failed to claim item.');
     }
   };
 
@@ -112,7 +130,11 @@ export default function ItemCard({
                   key={status}
                   onClick={(e) => {
                     e.stopPropagation();
-                    setConfirmDialog({ status, open: true });
+                    if (status === 'CLAIMED') {
+                      setClaimModal(true);
+                    } else {
+                      setConfirmDialog({ status, open: true });
+                    }
                   }}
                 >
                   {status?.charAt(0).toUpperCase() + status?.slice(1).toLowerCase()}
@@ -289,6 +311,14 @@ export default function ItemCard({
           handleDelete();
           setConfirmDelete(false);
         }}
+      />
+
+      <ClaimItemModal
+        open={claimModal}
+        itemTitle={item.title}
+        currentDescription={item.description}
+        onConfirm={handleClaimItem}
+        onCancel={() => setClaimModal(false)}
       />
     </>
   );

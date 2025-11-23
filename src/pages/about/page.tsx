@@ -153,7 +153,7 @@ export default function AboutPage() {
         </div>
 
         {/* Statistics */}
-        <div className="bg-gradient-to-r from-green-50 to-blue-50 rounded-3xl p-8 md:p-12">
+        {/* <div className="bg-gradient-to-r from-green-50 to-blue-50 rounded-3xl p-8 md:p-12">
           <h2 className="text-3xl font-bold text-gray-900 text-center mb-12">Our Impact</h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8 text-center">
             <div>
@@ -169,7 +169,7 @@ export default function AboutPage() {
               <div className="text-gray-600">Campus Locations</div>
             </div>
           </div>
-        </div>
+        </div> */}
 
         {/* Call to Action */}
         <div className="text-center py-12">

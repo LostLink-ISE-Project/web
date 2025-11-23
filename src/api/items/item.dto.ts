@@ -33,4 +33,5 @@ export interface CreateItemDto {
 
 export interface UpdateItemStatusDto {
   status: ItemStatus;
+  description?: string;
 }
