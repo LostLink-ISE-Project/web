@@ -1,6 +1,6 @@
 import { Button } from '@/components/ui/button';
 import LostLinkLogo from '@/assets/LostLink.svg';
-import { LayoutDashboard, Loader2, LogIn, Package, CheckCircle, Calendar } from 'lucide-react';
+import { LayoutDashboard, Loader2, LogIn, Package, CheckCircle, Calendar, Download } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useState, useMemo, useRef, useEffect } from 'react';
 import ItemCard from '@/components/common/items/item-card';
@@ -20,6 +20,9 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import { getPublicReport } from '@/lib/actions/report.actions';
+import { format } from 'date-fns';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 
 const PAGE_SIZE = 10;
 
@@ -130,6 +133,81 @@ export default function HomePage() {
   const itemsToRender = filteredItems.slice(0, visibleCount);
   const hasMore = visibleCount < filteredItems.length;
 
+  function computePublicPeriod(windowKey: string): string | undefined {
+    const today = new Date();
+    const end = format(today, "yyyy-MM-dd");
+
+    if (windowKey === "month") {
+      const startOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
+      const start = format(startOfMonth, "yyyy-MM-dd");
+      return `${start}_${end}`;
+    }
+
+    if (windowKey === "semester") {
+      const sixMonthsAgo = new Date(today);
+      sixMonthsAgo.setMonth(today.getMonth() - 6);
+      const start = format(sixMonthsAgo, "yyyy-MM-dd");
+      return `${start}_${end}`;
+    }
+
+    if (windowKey === "all") {
+      const start = "1970-01-01";
+      return `${start}_${end}`;
+    }
+
+    // Unknown key: let backend default to "today"
+    return undefined;
+  }
+
+  async function handleDownloadPublic(type: "csv" | "pdf") {
+    try {
+      const period = computePublicPeriod(statsTimePeriod);
+      const res = await getPublicReport({ period });
+
+      if (!res.ok) {
+        toast.error(res.message || "Failed to fetch public report");
+        return;
+      }
+
+      // Build content
+      const rows = [
+        ["found", String(res.data.found)],
+        ["claimed", String(res.data.claimed)],
+      ];
+
+      const filenameSafePeriod = period ? period.replace(/_/g, "-") : "today";
+      const filename = `public_report_${filenameSafePeriod}.${type}`;
+
+      if (type === "csv") {
+        const csv = ["key,value", ...rows.map(([k, v]) => `${k},${v}`)].join("\n");
+        const blob = new Blob([csv], { type: "text/csv;charset=utf-8" });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = filename;
+        a.click();
+        URL.revokeObjectURL(url);
+        toast.success("Report downloaded as CSV");
+      } else {
+        // Lightweight PDF-ish fallback (no deps). If you add jsPDF later, replace this.
+        const text = `Public Report\nPeriod: ${period ?? "today"}\n\nFound: ${
+          res.data.found
+        }\nClaimed: ${res.data.claimed}\n`;
+        const blob = new Blob([text], { type: "application/pdf" });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = filename;
+        a.click();
+        URL.revokeObjectURL(url);
+        toast.success("Report downloaded as PDF");
+      }
+    } catch (e) {
+      console.error(e);
+      toast.error("Failed to download public report");
+    }
+  }
+
   return (
     <>
       <div className="flex flex-col px-4 sm:px-8 md:px-16 lg:px-32 py-6 gap-4 overflow-y-scroll">
@@ -178,6 +256,24 @@ export default function HomePage() {
                 </SelectContent>
               </Select>
             </div>
+
+            {/* Public report download */}
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button className="h-9 gap-2 text-white">
+                  <Download className="w-4 h-4" />
+                  <span className="hidden sm:inline">Download</span>
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-28 border-1 border-gray-300">
+                <DropdownMenuItem onClick={() => handleDownloadPublic("csv")} className='bg-green-600 hover:bg-green-600/80 text-white font-semibold rounded-b-none'>
+                  CSV
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => handleDownloadPublic("pdf")} className='bg-destructive/80 hover:bg-destructive/60 text-white font-semibold rounded-t-none'>
+                  PDF
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
           </div>
 
           {/* Statistics Cards */}

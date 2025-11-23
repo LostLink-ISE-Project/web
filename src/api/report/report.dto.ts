@@ -9,3 +9,14 @@ export interface ReportResponse {
   message: string;
   status: number;
 }
+
+export interface PublicReportParams {
+  period?: string; // "YYYY-MM-DD_YYYY-MM-DD" or undefined for "today"
+}
+
+export interface PublicReportResponse {
+  ok: boolean;
+  data: { found: number; claimed: number };
+  message: string;
+  status: number;
+}
