@@ -1,13 +1,12 @@
 import { Button } from '@/components/ui/button';
 import LostLinkLogo from '@/assets/LostLink.svg';
-import { LayoutDashboard, Loader2, LogIn, Package, CheckCircle, Calendar, Download } from 'lucide-react';
+import { LayoutDashboard, Loader2, LogIn, Package, CheckCircle, Calendar } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useState, useMemo, useRef, useEffect } from 'react';
 import ItemCard from '@/components/common/items/item-card';
 import ItemToolbar from '@/components/common/items/item-toolbar';
 import type { DateRange } from 'react-day-picker';
 import { useItems } from '@/api/items/hook';
-import { useReport } from '@/api/report/hook';
 import { toast } from 'sonner';
 import { useAuthStore } from '@/lib/stores/auth.store';
 import { useViewStore } from '@/lib/stores/view.store';
@@ -20,9 +19,9 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import { addDays, format } from 'date-fns';
+import { useQuery } from '@tanstack/react-query';
 import { getPublicReport } from '@/lib/actions/report.actions';
-import { format } from 'date-fns';
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 
 const PAGE_SIZE = 10;
 
@@ -41,13 +40,23 @@ export default function HomePage() {
   const { data, isLoading, isError } = useItems(false, 'LISTED');
 
   // Report data for statistics
+  // const {
+  //   data: reportData,
+  //   isLoading: isReportLoading,
+  //   isError: isReportError,
+  // } = useReport({
+  //   period: statsTimePeriod,
+  //   scope: 'general',
+  // });
+
+  const period = useMemo(() => computePublicPeriod(statsTimePeriod), [statsTimePeriod]);
   const {
     data: reportData,
     isLoading: isReportLoading,
     isError: isReportError,
-  } = useReport({
-    period: statsTimePeriod,
-    scope: 'general',
+  } = useQuery({
+    queryKey: ['public-report', period],
+    queryFn: () => getPublicReport({ period }),
   });
 
   if (isError) toast.error('Failed to load items');
@@ -133,79 +142,31 @@ export default function HomePage() {
   const itemsToRender = filteredItems.slice(0, visibleCount);
   const hasMore = visibleCount < filteredItems.length;
 
-  function computePublicPeriod(windowKey: string): string | undefined {
+  function computePublicPeriod(windowKey?: string): string | undefined {
+    if (!windowKey) return undefined;
+
     const today = new Date();
-    const end = format(today, "yyyy-MM-dd");
+    const endExclusive = format(addDays(today, 1), "yyyy-MM-dd");
 
     if (windowKey === "month") {
       const startOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
       const start = format(startOfMonth, "yyyy-MM-dd");
-      return `${start}_${end}`;
+      return `${start}_${endExclusive}`;
     }
 
     if (windowKey === "semester") {
       const sixMonthsAgo = new Date(today);
       sixMonthsAgo.setMonth(today.getMonth() - 6);
       const start = format(sixMonthsAgo, "yyyy-MM-dd");
-      return `${start}_${end}`;
+      return `${start}_${endExclusive}`;
     }
 
     if (windowKey === "all") {
       const start = "1970-01-01";
-      return `${start}_${end}`;
+      return `${start}_${endExclusive}`;
     }
 
-    // Unknown key: let backend default to "today"
-    return undefined;
-  }
-
-  async function handleDownloadPublic(type: "csv" | "pdf") {
-    try {
-      const period = computePublicPeriod(statsTimePeriod);
-      const res = await getPublicReport({ period });
-
-      if (!res.ok) {
-        toast.error(res.message || "Failed to fetch public report");
-        return;
-      }
-
-      // Build content
-      const rows = [
-        ["found", String(res.data.found)],
-        ["claimed", String(res.data.claimed)],
-      ];
-
-      const filenameSafePeriod = period ? period.replace(/_/g, "-") : "today";
-      const filename = `public_report_${filenameSafePeriod}.${type}`;
-
-      if (type === "csv") {
-        const csv = ["key,value", ...rows.map(([k, v]) => `${k},${v}`)].join("\n");
-        const blob = new Blob([csv], { type: "text/csv;charset=utf-8" });
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement("a");
-        a.href = url;
-        a.download = filename;
-        a.click();
-        URL.revokeObjectURL(url);
-        toast.success("Report downloaded as CSV");
-      } else {
-        // Lightweight PDF-ish fallback (no deps). If you add jsPDF later, replace this.
-        const text = `Public Report\nPeriod: ${period ?? "today"}\n\nFound: ${
-          res.data.found
-        }\nClaimed: ${res.data.claimed}\n`;
-        const blob = new Blob([text], { type: "application/pdf" });
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement("a");
-        a.href = url;
-        a.download = filename;
-        a.click();
-        URL.revokeObjectURL(url);
-        toast.success("Report downloaded as PDF");
-      }
-    } catch (e) {
-      console.error(e);
-      toast.error("Failed to download public report");
-    }
+    return undefined; // backend defaults to today
   }
 
   return (
@@ -256,24 +217,6 @@ export default function HomePage() {
                 </SelectContent>
               </Select>
             </div>
-
-            {/* Public report download */}
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button className="h-9 gap-2 text-white">
-                  <Download className="w-4 h-4" />
-                  <span className="hidden sm:inline">Download</span>
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-28 border-1 border-gray-300">
-                <DropdownMenuItem onClick={() => handleDownloadPublic("csv")} className='bg-green-600 hover:bg-green-600/80 text-white font-semibold rounded-b-none'>
-                  CSV
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => handleDownloadPublic("pdf")} className='bg-destructive/80 hover:bg-destructive/60 text-white font-semibold rounded-t-none'>
-                  PDF
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
           </div>
 
           {/* Statistics Cards */}
@@ -288,7 +231,7 @@ export default function HomePage() {
                       {isReportLoading ? (
                         <Loader2 className="w-6 h-6 animate-spin" />
                       ) : (
-                        reportData?.data?.foundItems || '0'
+                        reportData?.data?.found || '0'
                       )}
                     </p>
                     <p className="text-blue-700 text-xs">Waiting to be claimed</p>
@@ -310,7 +253,7 @@ export default function HomePage() {
                       {isReportLoading ? (
                         <Loader2 className="w-6 h-6 animate-spin" />
                       ) : (
-                        reportData?.data?.claimedItems || '0'
+                        reportData?.data?.claimed || '0'
                       )}
                     </p>
                     <p className="text-green-700 text-xs">Successfully reunited</p>

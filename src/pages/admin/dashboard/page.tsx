@@ -4,13 +4,21 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Calendar } from '@/components/ui/calendar';
-import { format } from 'date-fns';
+import { addDays, format } from 'date-fns';
 import type { DateRange } from 'react-day-picker';
 import { useItems } from '@/api/items/hook';
 import ItemCard from '@/components/common/items/item-card';
 import { useNavigate } from 'react-router-dom';
 // import ReportModal from '@/components/common/modals/report-modal';
 import { toast } from 'sonner';
+import { Download } from "lucide-react";
+import {
+  DropdownMenu,
+  DropdownMenuTrigger,
+  DropdownMenuContent,
+  DropdownMenuItem,
+} from "@/components/ui/dropdown-menu";
+import { getReport } from "@/lib/actions/report.actions";
 
 export default function DashboardPage() {
   const [dateRange, setDateRange] = useState<DateRange | undefined>();
@@ -18,6 +26,15 @@ export default function DashboardPage() {
   const navigate = useNavigate();
 
   const { data, isLoading, isError } = useItems(true);
+
+  // Build period param with exclusive "to"
+  const period = useMemo(() => {
+    if (!dateRange?.from && !dateRange?.to) return undefined;
+    const from = dateRange.from ?? dateRange.to!;
+    const toRaw = dateRange.to ?? dateRange.from!;
+    const toExclusive = addDays(toRaw, 1);
+    return `${format(from, "yyyy-MM-dd")}_${format(toExclusive, "yyyy-MM-dd")}`;
+  }, [dateRange]);
 
   const filteredItems = useMemo(() => {
     return (data ?? []).filter((item) => {
@@ -63,6 +80,68 @@ export default function DashboardPage() {
       .slice(0, 5);
   }, [data, dateRange]);
 
+  async function handleDownload(type: "csv" | "pdf") {
+    try {
+      const res = await getReport({ period, scope: 'general' });
+      if (!res.ok) {
+        toast.error(res.message || "Failed to fetch report");
+        return;
+      }
+      const d = res.data;
+      const periodText = period ?? 'today';
+      const filenameSafe = period ? period.replace(/_/g, "-") : "today";
+
+      if (type === 'csv') {
+        const rows = [
+          ['totalSubmissions', String(d.totalSubmissions)],
+          ['foundItems', String(d.foundItems)],
+          ['claimedItems', String(d.claimedItems)],
+          ['archivedItems', String(d.archivedItems)],
+        ];
+        const csv = ["key,value", ...rows.map(([k, v]) => `${k},${v}`)].join("\n");
+        const blob = new Blob([csv], { type: "text/csv;charset=utf-8" });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = `report_${filenameSafe}.csv`;
+        a.click();
+        URL.revokeObjectURL(url);
+        toast.success("Report downloaded as CSV");
+      } else {
+        const { jsPDF } = await import("jspdf");
+        const doc = new jsPDF();
+        doc.setFontSize(16);
+        doc.text("Report (general)", 14, 18);
+        doc.setFontSize(11);
+        doc.text(`Period: ${periodText}`, 14, 26);
+        doc.text(`Generated: ${new Date().toLocaleString()}`, 14, 32);
+
+        let y = 48;
+        doc.setFontSize(12);
+        doc.text("Metric", 14, y);
+        doc.text("Value", 120, y);
+        doc.line(14, y + 2, 196, y + 2);
+
+        y += 12;
+        doc.text("Total submissions", 14, y);           doc.text(String(d.totalSubmissions), 120, y);
+        y += 10;
+        doc.text("Found", 14, y);                        doc.text(String(d.foundItems), 120, y);
+        y += 10;
+        doc.text("Claimed", 14, y);                      doc.text(String(d.claimedItems), 120, y);
+        y += 10;
+        doc.text("Archived", 14, y);                     doc.text(String(d.archivedItems), 120, y);
+
+        doc.setFontSize(9);
+        doc.text("LostLink • Report (general)", 14, 285);
+        doc.save(`report_${filenameSafe}.pdf`);
+        toast.success("Report downloaded as PDF");
+      }
+    } catch (e) {
+      console.error(e);
+      toast.error("Failed to download report");
+    }
+  }
+
   return (
     <>
       <div className="space-y-6">
@@ -79,45 +158,66 @@ export default function DashboardPage() {
             </Button> */}
           </CardHeader>
           <CardContent className="flex flex-wrap items-center gap-4">
-            <Popover>
-              <PopoverTrigger asChild>
-                <Button
-                  variant="outline"
-                  className="flex items-center gap-2 border-outline rounded-lg"
-                >
-                  <CalendarIcon className="w-4 h-4" />
-                  {dateRange?.from ? (
-                    <span>
-                      {format(dateRange.from, 'dd/MM/yyyy')}
-                      {dateRange.to ? ` - ${format(dateRange.to, 'dd/MM/yyyy')}` : ''}
-                    </span>
-                  ) : (
-                    <span>Set range</span>
-                  )}
-                  <ChevronDown size={14} />
-                </Button>
-              </PopoverTrigger>
-              <PopoverContent className="w-auto p-0" align="start">
-                <Calendar
-                  mode="range"
-                  selected={dateRange}
-                  onSelect={setDateRange}
-                  numberOfMonths={1}
-                />
-              </PopoverContent>
-            </Popover>
+            <div className='flex flex-row justify-between w-full'>
+              <div className='flex items-center gap-4'>
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <Button
+                      variant="outline"
+                      className="flex items-center gap-2 border-outline rounded-lg"
+                    >
+                      <CalendarIcon className="w-4 h-4" />
+                      {dateRange?.from ? (
+                        <span>
+                          {format(dateRange.from, 'dd/MM/yyyy')}
+                          {dateRange.to ? ` - ${format(dateRange.to, 'dd/MM/yyyy')}` : ''}
+                        </span>
+                      ) : (
+                        <span>Set range</span>
+                      )}
+                      <ChevronDown size={14} />
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-auto p-0" align="start">
+                    <Calendar
+                      mode="range"
+                      selected={dateRange}
+                      onSelect={setDateRange}
+                      numberOfMonths={1}
+                    />
+                  </PopoverContent>
+                </Popover>
 
-            {dateRange?.from && (
-              <Button
-                variant="outline"
-                size="sm"
-                className="flex items-center gap-2 border-outline rounded-lg"
-                onClick={() => setDateRange(undefined)}
-              >
-                <X className="w-4 h-4" />
-                Reset filter
-              </Button>
-            )}
+                {dateRange?.from && (
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="flex items-center gap-2 border-outline rounded-lg"
+                    onClick={() => setDateRange(undefined)}
+                  >
+                    <X className="w-4 h-4" />
+                    Reset filter
+                  </Button>
+                )}
+              </div>
+
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button className="h-9 gap-2 text-white">
+                    <Download className="w-4 h-4" />
+                    <span className="hidden sm:inline">Download Report</span>
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="start" className="w-40 border-1 border-gray-300">
+                  <DropdownMenuItem onClick={() => handleDownload("csv")} className='bg-green-600 hover:bg-green-600/80 text-white font-semibold rounded-b-none'>
+                    CSV
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => handleDownload("pdf")} className='bg-destructive/80 hover:bg-destructive/60 text-white font-semibold rounded-t-none'>
+                    PDF
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </div>
 
             {/* Stat Cards */}
             <div className="flex flex-col md:flex-row gap-4 h-fit w-full justify-between">

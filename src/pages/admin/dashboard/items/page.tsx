@@ -1,4 +1,4 @@
-import { useState, useMemo, useEffect, useRef } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { useDebouncedValue } from '@/lib/hooks/debounceValue';
@@ -87,23 +87,23 @@ export default function ItemsPage() {
 
   const [visibleCount, setVisibleCount] = useState(PAGE_SIZE);
   const [isLoadingMore, setIsLoadingMore] = useState(false);
-  const scrollRootRef = useRef<HTMLDivElement | null>(null); // per-active tab container
-  const sentinelRef = useRef<HTMLDivElement | null>(null);
+  const [rootEl, setRootEl] = useState<HTMLDivElement | null>(null);
+  const [sentinelEl, setSentinelEl] = useState<HTMLDivElement | null>(null);
 
   useEffect(() => {
     setVisibleCount(PAGE_SIZE);
     setIsLoadingMore(false);
-    // reset selection on any filter/tab change
     setSelectedIds([]);
-    // scroll the active tab container to top after render
+    // Optionally, scroll the new root to top on tab/filter changes:
+    // Defer one frame so rootEl is likely set
     const id = requestAnimationFrame(() => {
-      scrollRootRef.current?.scrollTo?.({ top: 0 });
+      rootEl?.scrollTo?.({ top: 0 });
     });
     return () => cancelAnimationFrame(id);
-  }, [tab, data, debouncedKeyword, officeFilter, dateRange, sort]);
+  }, [tab, data, debouncedKeyword, officeFilter, dateRange, sort, rootEl]);
 
   useEffect(() => {
-    if (!sentinelRef.current) return;
+    if (!rootEl || !sentinelEl) return;
 
     const observer = new IntersectionObserver(
       (entries) => {
@@ -112,21 +112,23 @@ export default function ItemsPage() {
         if (visibleCount >= filteredItems.length) return;
 
         setIsLoadingMore(true);
+        // Let layout settle, then reveal the next page
         requestAnimationFrame(() => {
           setVisibleCount((c) => Math.min(c + PAGE_SIZE, filteredItems.length));
           setIsLoadingMore(false);
         });
       },
       {
-        root: scrollRootRef.current ?? null,
+        root: rootEl,                 // <— critical: observe within the scroll container
         rootMargin: '0px 0px 200px 0px',
-        threshold: 0.1,
+        threshold: 0.01,
       }
     );
 
-    observer.observe(sentinelRef.current);
+    observer.observe(sentinelEl);
     return () => observer.disconnect();
-  }, [filteredItems.length, visibleCount]);
+    // Recreate when root/sentinel or list size changes (tab switch, filters)
+  }, [rootEl, sentinelEl, filteredItems.length, visibleCount]);
 
   const itemsToRender = filteredItems.slice(0, visibleCount);
   const hasMore = visibleCount < filteredItems.length;
@@ -307,7 +309,7 @@ export default function ItemsPage() {
               <TabsContent key={status} value={status}>
                 <div
                   className="overflow-auto max-h-[58vh]"
-                  ref={status === tab ? scrollRootRef : null}
+                  ref={status === tab ? setRootEl : undefined}
                 >
                   <div
                     className={
@@ -341,7 +343,7 @@ export default function ItemsPage() {
 
                         {!isLoading && filteredItems.length > 0 && (
                           <>
-                            <div ref={sentinelRef} className="h-8" />
+                            <div ref={setSentinelEl} className="h-8" />
                             {hasMore && (
                               <p className="text-xs text-muted-foreground text-center pb-3">
                                 {isLoadingMore ? 'Loading more…' : 'Scroll to load more'}
