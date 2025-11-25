@@ -33,7 +33,7 @@ export default function HomePage() {
   const [sort, setSort] = useState<'newest' | 'oldest'>('newest');
   const [officeFilter, setOfficeFilter] = useState<string[]>([]);
   const [dateRange, setDateRange] = useState<DateRange | undefined>();
-  const [statsTimePeriod, setStatsTimePeriod] = useState<string>('month');
+  const [statsTimePeriod, setStatsTimePeriod] = useState<string>('all');
 
   const token = useAuthStore((s) => s.token);
 
