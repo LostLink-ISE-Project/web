@@ -13,6 +13,6 @@ export default defineConfig({
     },
   },
   preview: {
-    allowedHosts: ['lostlink.usg.az', 'lostlink-dev.usg.az'],
+    allowedHosts: ['lostlink.valehismayilov.com'],
   },
 });
