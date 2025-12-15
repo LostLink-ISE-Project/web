@@ -201,10 +201,7 @@ export default function AboutPage() {
           &copy; {new Date().getFullYear()} LostLink. All rights reserved.
         </p>
         <p className="text-sm text-gray-700">
-          Made with <Heart className="w-4 h-4 inline text-red-500" /> by{' '}
-          <a href="https://fh.usg.az" target="_blank" className="hover:underline">
-            Future Hub
-          </a>
+          Made with <Heart className="w-4 h-4 inline text-red-500" /> by <span>Team 10</span>
         </p>
       </footer>
     </>

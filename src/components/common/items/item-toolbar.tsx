@@ -62,20 +62,6 @@ export default function ItemToolbar({
     return offices.map((o) => o.name);
   }, [offices]);
 
-  const submissionLink = useMemo(() => {
-    const host = window.location.hostname;
-
-    if (host.includes("localhost") || host.includes("127.0.0.1")) {
-      return "https://lostlink-form-dev.usg.az";
-    }
-
-    if (host.includes("lostlink-dev.usg.az")) {
-      return "https://lostlink-form-dev.usg.az";
-    }
-
-    return "https://lostlink-form.usg.az";
-  }, []);
-
   return (
     <div className="flex flex-col gap-4 mb-6 w-full">
       <div className="w-full flex items-center gap-2">
@@ -92,7 +78,7 @@ export default function ItemToolbar({
 
         {isForPublic && (
           <Button asChild className="flex text-white items-center py-5 rounded-lg gap-2">
-            <a href={submissionLink} target="_blank" rel="noreferrer">
+            <a href={import.meta.env.VITE_FORM_LINK as string} target="_blank" rel="noreferrer">
               <FilePlus2 size={18} />
               <span className="hidden sm:inline">New Submission</span>
             </a>

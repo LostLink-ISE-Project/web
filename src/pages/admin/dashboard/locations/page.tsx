@@ -110,7 +110,7 @@ export default function LocationsPage() {
       id: 'copyQr',
       header: 'Link',
       cell: ({ row }: { row: any }) => {
-        const url = `https://lostlink-form-dev.usg.az/?src=${row.original.slug}`;
+        const url = `${import.meta.env.VITE_FORM_LINK_DEV}/?src=${row.original.slug}`;
         const handleCopy = () => {
           navigator.clipboard.writeText(url);
           toast.success('QR link copied to clipboard');
@@ -191,7 +191,7 @@ export default function LocationsPage() {
       <QrCodeModal
         open={qrOpen}
         onClose={() => setQrOpen(false)}
-        qrValue={`https://lostlink-form.usg.az/?src=${selectedLocation?.name || ''}`}
+        qrValue={`${import.meta.env.VITE_FORM_LINK_DEV}/?src=${selectedLocation?.name || ''}`}
         label={selectedLocation?.name}
       />
 

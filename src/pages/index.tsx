@@ -146,23 +146,23 @@ export default function HomePage() {
     if (!windowKey) return undefined;
 
     const today = new Date();
-    const endExclusive = format(addDays(today, 1), "yyyy-MM-dd");
+    const endExclusive = format(addDays(today, 1), 'yyyy-MM-dd');
 
-    if (windowKey === "month") {
+    if (windowKey === 'month') {
       const startOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
-      const start = format(startOfMonth, "yyyy-MM-dd");
+      const start = format(startOfMonth, 'yyyy-MM-dd');
       return `${start}_${endExclusive}`;
     }
 
-    if (windowKey === "semester") {
+    if (windowKey === 'semester') {
       const sixMonthsAgo = new Date(today);
       sixMonthsAgo.setMonth(today.getMonth() - 6);
-      const start = format(sixMonthsAgo, "yyyy-MM-dd");
+      const start = format(sixMonthsAgo, 'yyyy-MM-dd');
       return `${start}_${endExclusive}`;
     }
 
-    if (windowKey === "all") {
-      const start = "1970-01-01";
+    if (windowKey === 'all') {
+      const start = '1970-01-01';
       return `${start}_${endExclusive}`;
     }
 
@@ -319,10 +319,7 @@ export default function HomePage() {
           &copy; {new Date().getFullYear()} LostLink. All rights reserved.
         </p>
         <p className="text-sm text-gray-700">
-          Powered by{' '}
-          <a href="https://fh.usg.az" target="_blank" className="hover:underline">
-            Future Hub
-          </a>
+          Developed by <span>Team 10</span>
         </p>
         <p className="text-sm text-gray-700">v{version}</p>
       </footer>
